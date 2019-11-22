@@ -6,11 +6,18 @@ Convenience rust crate for handling ISO 3661-1
 documentation = "https://doc.rs/celes"
 edition = "2018"
 homepage = "https://crates.io/crates/celes"
+include = [
+    "src/*.rs",
+    "Cargo.toml",
+    "LICENSE",
+    "README.md"
+]
 keywords = ["iso3166", "alpha2"]
 license = "Apache-2.0"
 name = "celes"
+readme = "README.md"
 repository = "https://github.com/mikelodder7/celes"
-version = "1.0.0"
+version = "1.0.1"
 
 [badges]
 maintenance = { status = "passively-maintained" }
