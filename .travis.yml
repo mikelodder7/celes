@@ -18,6 +18,11 @@ matrix:
         - rustup component add rustfmt
       script:
         - cargo fmt --all -- --check
+    - name: "cargo clippy"
+      before_script:
+        - rustup component add clippy
+      script:
+        - cargo clippy --all
     - name: "cargo build"
       script:
         - cargo build
