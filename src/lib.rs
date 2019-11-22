@@ -93,6 +93,7 @@ use std::str::FromStr;
 
 macro_rules! country {
     ($func:ident, $code:expr, $value:expr, $alpha2:expr, $alpha3:expr, $long_name:expr) => {
+        /// Creates a struct for $long_name
         pub fn $func() -> Self {
             Self {
                 code: $code.to_string(),
@@ -105,6 +106,7 @@ macro_rules! country {
         }
     };
     ($func:ident, $code:expr, $value:expr, $alpha2:expr, $alpha3:expr, $long_name:expr, $( $alias:expr  ),*) => {
+        /// Creates a struct for $long_name
         pub fn $func() -> Self {
             let mut aliases = BTreeSet::new();
             $(
@@ -122,6 +124,7 @@ macro_rules! country {
     };
 }
 
+/// Represents a country according to ISO 3661
 #[derive(Clone, Debug, Deserialize, Serialize, Eq, PartialEq)]
 pub struct Country {
     pub code: String,
@@ -875,6 +878,7 @@ impl Country {
     country!(zambia, "894", 894, "ZM", "ZMB", "Zambia");
     country!(zimbabwe, "716", 716, "ZW", "ZWE", "Zimbabwe");
 
+    /// Returns a vector in alphabetic order of all the countries
     pub fn get_countries() -> Vec<Self> {
         vec![
             Self::afghanistan(),
@@ -1129,6 +1133,8 @@ impl Country {
         ]
     }
 
+    /// Given the numeric code, return a country or an error if
+    /// the parameter doesn't match any country
     pub fn from_value(value: usize) -> Result<Self, String> {
         match value {
             4 => Ok(Self::afghanistan()),
@@ -1384,6 +1390,8 @@ impl Country {
         }
     }
 
+    /// Given the three digit code, return a country or an error if
+    /// the parameter doesn't match any country. This is case-insensitive.
     pub fn from_code<A: AsRef<str>>(code: A) -> Result<Self, String> {
         match code.as_ref().to_lowercase().as_str() {
             "004" => Ok(Self::afghanistan()),
@@ -1639,6 +1647,8 @@ impl Country {
         }
     }
 
+    /// Given the alpha2 letters, return a country or an error if
+    /// the parameter doesn't match any country. This is case-insensitive.
     pub fn from_alpha2<A: AsRef<str>>(code: A) -> Result<Self, String> {
         match code.as_ref().to_lowercase().as_str() {
             "af" => Ok(Self::afghanistan()),
@@ -1894,6 +1904,8 @@ impl Country {
         }
     }
 
+    /// Given the alpha3 letters, return a country or an error if
+    /// the parameter doesn't match any country. This is case-insensitive.
     pub fn from_alpha3<A: AsRef<str>>(code: A) -> Result<Self, String> {
         match code.as_ref().to_lowercase().as_str() {
             "afg" => Ok(Self::afghanistan()),
@@ -2149,6 +2161,12 @@ impl Country {
         }
     }
 
+    /// Given the a country alias, return a country or an error if
+    /// the parameter doesn't match any country
+    ///
+    /// The alias is any value in the `aliases` field for a country.
+    /// For example, "america" would return `the_united_states_of_america`
+    /// This is case-insensitive.
     pub fn from_alias<A: AsRef<str>>(code: A) -> Result<Self, String> {
         match code.as_ref().to_lowercase().as_str() {
             "samoa" => Ok(Self::american_samoa()),
@@ -2222,8 +2240,13 @@ impl Country {
         }
     }
 
-    pub fn from_name<A: AsRef<str>>(code: A) -> Result<Self, String> {
-        match code.as_ref().to_lowercase().as_str() {
+    /// Given the country name, return a country or an error if
+    /// the parameter doesn't match any country.  This is case-insensitive.
+    ///
+    /// For example, Albania, Algeria, Brazil would return the country
+    /// struct that represents those countries.
+    pub fn from_name<A: AsRef<str>>(name: A) -> Result<Self, String> {
+        match name.as_ref().to_lowercase().as_str() {
             "afghanistan" => Ok(Self::afghanistan()),
             "alandislands" => Ok(Self::aland_islands()),
             "albania" => Ok(Self::albania()),
