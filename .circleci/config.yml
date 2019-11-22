@@ -1,0 +1,30 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - circleci/rust
+    steps:
+      - checkout
+      - run:
+          name: Install Rust 1.39
+          command: |
+            rustup toolchain install 1.39.0
+            rustup default 1.39.0
+            rustup component add rustfmt
+      - run:
+          name: rustfmt
+          command: |
+            cargo fmt --all -- --check
+      - run:
+          name: build
+          command: |
+            cargo build
+      - run:
+          name: test
+          command: |
+            cargo test
+      - run:
+          name: doc
+          command: |
+            cargo doc --no-deps
+

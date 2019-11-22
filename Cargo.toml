@@ -1,0 +1,22 @@
+[package]
+authors = ["Michael Lodder <redmike7@gmail.com>"]
+description = """
+Convenience rust crate for handling ISO 3661-1
+"""
+documentation = "https://doc.rs/celes"
+edition = "2018"
+homepage = "https://crates.io/crates/celes"
+keywords = ["iso3166", "alpha2"]
+license = "Apache-2.0"
+name = "celes"
+repository = "https://github.com/mikelodder7/celes"
+version = "1.0.0"
+
+[badges]
+maintenance = { status = "passively-maintained" }
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+
+[dev-dependencies]
+serde_json = "1.0"
