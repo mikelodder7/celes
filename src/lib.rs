@@ -23,13 +23,13 @@
 //! ```
 //! use celes::Country;
 //!
-//! fn main() {
-//!     let gb = Country::the_united_kingdom_of_great_britain_and_northern_ireland();
-//!     println!("{}", gb);
 //!
-//!     let usa = Country::the_united_states_of_america();
-//!     println!("{}", usa);
-//! }
+//!  let gb = Country::the_united_kingdom_of_great_britain_and_northern_ireland();
+//!  println!("{}", gb);
+//!
+//!  let usa = Country::the_united_states_of_america();
+//!  println!("{}", usa);
+//!
 //! ```
 //!
 //! Additionally, each country can be created from a string or its numeric code.
@@ -50,17 +50,15 @@
 //! use celes::Country;
 //! use std::str::FromStr;
 //!
-//! fn main() {
-//!     // All three of these are equivalent
-//!     let usa_1 = Country::from_str("USA").unwrap();
-//!     let usa_2 = Country::from_str("US").unwrap();
-//!     let usa_3 = Country::from_str("America").unwrap();
+//! // All three of these are equivalent
+//! let usa_1 = Country::from_str("USA").unwrap();
+//! let usa_2 = Country::from_str("US").unwrap();
+//! let usa_3 = Country::from_str("America").unwrap();
 //!
-//!     // All three of these are equivalent
-//!     let gb_1 = Country::from_str("England").unwrap();
-//!     let gb_2 = Country::from_str("gb").unwrap();
-//!     let gb_3 = Country::from_str("Scotland").unwrap();
-//! }
+//! // All three of these are equivalent
+//! let gb_1 = Country::from_str("England").unwrap();
+//! let gb_2 = Country::from_str("gb").unwrap();
+//! let gb_3 = Country::from_str("Scotland").unwrap();
 //! ```
 /*
 * Copyright 2019 Michael Lodder
@@ -127,11 +125,17 @@ macro_rules! country {
 /// Represents a country according to ISO 3661
 #[derive(Clone, Debug, Deserialize, Serialize, Eq, PartialEq)]
 pub struct Country {
+    // The three digit code assigned to the country
     pub code: String,
+    // The integer value for `code`
     pub value: usize,
+    // The two letter country code (alpha-2) assigned to the country
     pub alpha2: String,
+    // The three letter country code (alpha-3) assigned to the country
     pub alpha3: String,
+    // The official state name of the country
     pub long_name: String,
+    // Common aliases associated with the country
     pub aliases: BTreeSet<String>,
 }
 
@@ -879,6 +883,29 @@ impl Country {
     country!(zimbabwe, "716", 716, "ZW", "ZWE", "Zimbabwe");
 
     /// Returns a vector in alphabetic order of all the countries
+    ///
+    /// ```
+    /// use celes::Country;
+    /// use std::collections::BTreeMap;
+    ///
+    /// let countries = Country::get_countries();
+    ///
+    /// for c in &countries {
+    ///     println!("{}", c);
+    /// }
+    ///
+    /// for c in &countries {
+    ///     println!("{}", c.alpha2);
+    /// }
+    ///
+    /// for c in countries.iter().filter(|cty| cty.value < 300) {
+    ///     println!("{}", c.long_name)
+    /// }
+    ///
+    /// //Convert to a map
+    /// let lookup = countries.iter().map(|cty| (cty.alpha2.to_string(), cty.clone())).collect::<BTreeMap<String, Country>>();
+    ///
+    /// ```
     pub fn get_countries() -> Vec<Self> {
         vec![
             Self::afghanistan(),
@@ -1135,6 +1162,21 @@ impl Country {
 
     /// Given the numeric code, return a country or an error if
     /// the parameter doesn't match any country
+    ///
+    /// ```
+    /// use celes::Country;
+    ///
+    /// let res = Country::from_value(1);
+    /// assert!(res.is_err());
+    ///
+    /// let res = Country::from_value(2);
+    /// assert!(res.is_err());
+    ///
+    /// let res = Country::from_value(4);
+    /// assert!(res.is_ok());
+    ///
+    /// assert_eq!(Country::afghanistan(), res.unwrap());
+    /// ```
     pub fn from_value(value: usize) -> Result<Self, String> {
         match value {
             4 => Ok(Self::afghanistan()),
@@ -1391,7 +1433,23 @@ impl Country {
     }
 
     /// Given the three digit code, return a country or an error if
-    /// the parameter doesn't match any country. This is case-insensitive.
+    /// the parameter doesn't match any country. The value MUST be
+    /// the three digit code which includes leading zeros.
+    ///
+    /// ```
+    /// use celes::Country;
+    ///
+    /// let res = Country::from_code("8");
+    /// assert!(res.is_err());
+    ///
+    /// let res = Country::from_code("08");
+    /// assert!(res.is_err());
+    ///
+    /// let res = Country::from_code("008");
+    /// assert!(res.is_ok());
+    ///
+    /// assert_eq!(Country::albania(), res.unwrap());
+    /// ```
     pub fn from_code<A: AsRef<str>>(code: A) -> Result<Self, String> {
         match code.as_ref().to_lowercase().as_str() {
             "004" => Ok(Self::afghanistan()),
@@ -1649,6 +1707,26 @@ impl Country {
 
     /// Given the alpha2 letters, return a country or an error if
     /// the parameter doesn't match any country. This is case-insensitive.
+    ///
+    /// ```
+    /// use celes::Country;
+    ///
+    /// let res = Country::from_alpha2("u");
+    /// assert!(res.is_err());
+    ///
+    /// let res = Country::from_alpha2("us");
+    /// assert!(res.is_ok());
+    /// assert_eq!(Country::the_united_states_of_america(), res.unwrap());
+    ///
+    /// let res = Country::from_alpha2("Us");
+    /// assert_eq!(Country::the_united_states_of_america(), res.unwrap());
+    ///
+    /// let res = Country::from_alpha2("uS");
+    /// assert_eq!(Country::the_united_states_of_america(), res.unwrap());
+    ///
+    /// let res = Country::from_alpha2("US");
+    /// assert_eq!(Country::the_united_states_of_america(), res.unwrap());
+    /// ```
     pub fn from_alpha2<A: AsRef<str>>(code: A) -> Result<Self, String> {
         match code.as_ref().to_lowercase().as_str() {
             "af" => Ok(Self::afghanistan()),
@@ -1906,6 +1984,24 @@ impl Country {
 
     /// Given the alpha3 letters, return a country or an error if
     /// the parameter doesn't match any country. This is case-insensitive.
+    /// ```
+    /// use celes::Country;
+    ///
+    /// let res = Country::from_alpha3("u");
+    /// assert!(res.is_err());
+    ///
+    /// let res = Country::from_alpha3("us");
+    /// assert!(res.is_err());
+    ///
+    /// let res = Country::from_alpha3("Usa");
+    /// assert_eq!(Country::the_united_states_of_america(), res.unwrap());
+    ///
+    /// let res = Country::from_alpha3("uSa");
+    /// assert_eq!(Country::the_united_states_of_america(), res.unwrap());
+    ///
+    /// let res = Country::from_alpha3("USA");
+    /// assert_eq!(Country::the_united_states_of_america(), res.unwrap());
+    /// ```
     pub fn from_alpha3<A: AsRef<str>>(code: A) -> Result<Self, String> {
         match code.as_ref().to_lowercase().as_str() {
             "afg" => Ok(Self::afghanistan()),
@@ -2167,6 +2263,25 @@ impl Country {
     /// The alias is any value in the `aliases` field for a country.
     /// For example, "america" would return `the_united_states_of_america`
     /// This is case-insensitive.
+    ///
+    /// ```
+    /// use celes::Country;
+    ///
+    /// let res = Country::from_alias("u");
+    /// assert!(res.is_err());
+    ///
+    /// let res = Country::from_alias("us");
+    /// assert!(res.is_err());
+    ///
+    /// let res = Country::from_alias("america");
+    /// assert_eq!(Country::the_united_states_of_america(), res.unwrap());
+    ///
+    /// let res = Country::from_alias("russia");
+    /// assert_eq!(Country::the_russian_federation(), res.unwrap());
+    ///
+    /// let res = Country::from_alias("england");
+    /// assert_eq!(Country::the_united_kingdom_of_great_britain_and_northern_ireland(), res.unwrap());
+    /// ```
     pub fn from_alias<A: AsRef<str>>(code: A) -> Result<Self, String> {
         match code.as_ref().to_lowercase().as_str() {
             "samoa" => Ok(Self::american_samoa()),
@@ -2245,6 +2360,28 @@ impl Country {
     ///
     /// For example, Albania, Algeria, Brazil would return the country
     /// struct that represents those countries.
+    ///
+    /// ```
+    /// use celes::Country;
+    ///
+    /// let res = Country::from_name("russianfederation");
+    /// assert!(res.is_err());
+    ///
+    /// let res = Country::from_name("unitedstatesofamerica");
+    /// assert!(res.is_err());
+    ///
+    /// let res = Country::from_name("Albania");
+    /// assert_eq!(Country::albania(), res.unwrap());
+    ///
+    /// let res = Country::from_name("theunitedstatesofamerica");
+    /// assert_eq!(Country::the_united_states_of_america(), res.unwrap());
+    ///
+    /// let res = Country::from_name("therussianfederation");
+    /// assert_eq!(Country::the_russian_federation(), res.unwrap());
+    ///
+    /// let res = Country::from_name("theunitedkingdomofgreatbritainandnorthernireland");
+    /// assert_eq!(Country::the_united_kingdom_of_great_britain_and_northern_ireland(), res.unwrap());
+    /// ```
     pub fn from_name<A: AsRef<str>>(name: A) -> Result<Self, String> {
         match name.as_ref().to_lowercase().as_str() {
             "afghanistan" => Ok(Self::afghanistan()),
