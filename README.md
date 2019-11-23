@@ -99,7 +99,7 @@ licensed as above, without any additional terms or conditions.
 [crate-image]: https://img.shields.io/crates/v/celes.svg
 [crate-link]: https://crates.io/crates/celes
 [docs-image]: https://docs.rs/celes/badge.svg
-[docs-link]: https://docs.rs/celes/1.0.3/celes/
+[docs-link]: https://docs.rs/celes/
 [license-image]: https://img.shields.io/badge/license-Apache2.0-blue.svg
 [rustc-image]: https://img.shields.io/badge/rustc-1.39+-blue.svg
 [maintenance-image]: https://img.shields.io/badge/maintenance-passively--maintained-yellowgreen.svg
