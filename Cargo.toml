@@ -3,7 +3,6 @@ authors = ["Michael Lodder <redmike7@gmail.com>"]
 description = """
 Convenience rust crate for handling ISO 3166-1
 """
-documentation = "https://doc.rs/celes"
 edition = "2018"
 homepage = "https://crates.io/crates/celes"
 include = [
@@ -12,12 +11,12 @@ include = [
     "LICENSE",
     "README.md"
 ]
-keywords = ["iso3166", "alpha2"]
+keywords = ["iso3166", "alpha2", "alpha3", "country", "codes"]
 license = "Apache-2.0"
 name = "celes"
 readme = "README.md"
 repository = "https://github.com/mikelodder7/celes"
-version = "1.0.2"
+version = "1.0.3"
 
 [badges]
 maintenance = { status = "passively-maintained" }
