@@ -33,8 +33,16 @@
 //! ```
 //!
 //! Additionally, each country can be created from a string or its numeric code.
-//! `Country` provides multiple from methods to instantiate it from a string. It also
-//! implements the `std::str::FromStr` trait that accepts any of the following formats
+//! `Country` provides multiple from methods to instantiate it from a string:
+//!
+//! - `from_code` - create `Country` from three digit code
+//! - `from_alpha2` - create `Country` from two letter code
+//! - `from_alpha3` - create `Country` from three letter code
+//! - `from_alias` - create `Country` from a common alias. This only works for some countries as not all countries have aliases
+//! - `from_name` - create `Country` from the full state name no space or underscores
+//!
+//! `Country` implements the [std::str::FromStr](https://doc.rust-lang.org/std/str/trait.FromStr.html) trait that accepts any valid argument to the previously mentioned functions
+//! such as:
 //!
 //! - The country aliases like UnitedKingdom, GreatBritain, Russia, America
 //! - The full country name
@@ -77,18 +85,20 @@
 * -----------------------------------------------------------------------------
 */
 #![deny(
+    missing_docs,
     trivial_casts,
     trivial_numeric_casts,
-    warnings,
     unsafe_code,
     unused_import_braces,
-    unused_qualifications
+    unused_qualifications,
+    warnings
 )]
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeSet;
 use std::fmt::{Display, Formatter, Result as FmtResult};
 use std::str::FromStr;
 
+/// Creates the country function. Meant to be called inside `Country`
 macro_rules! country {
     ($func:ident, $code:expr, $value:expr, $alpha2:expr, $alpha3:expr, $long_name:expr) => {
         /// Creates a struct for $long_name
@@ -122,20 +132,20 @@ macro_rules! country {
     };
 }
 
-/// Represents a country according to ISO 3661
+/// Represents a country according to ISO 3166
 #[derive(Clone, Debug, Deserialize, Serialize, Eq, PartialEq)]
 pub struct Country {
-    // The three digit code assigned to the country
+    /// The three digit code assigned to the country
     pub code: String,
-    // The integer value for `code`
+    /// The integer value for `code`
     pub value: usize,
-    // The two letter country code (alpha-2) assigned to the country
+    /// The two letter country code (alpha-2) assigned to the country
     pub alpha2: String,
-    // The three letter country code (alpha-3) assigned to the country
+    /// The three letter country code (alpha-3) assigned to the country
     pub alpha3: String,
-    // The official state name of the country
+    /// The official state name of the country
     pub long_name: String,
-    // Common aliases associated with the country
+    /// Common aliases associated with the country
     pub aliases: BTreeSet<String>,
 }
 
@@ -1727,8 +1737,8 @@ impl Country {
     /// let res = Country::from_alpha2("US");
     /// assert_eq!(Country::the_united_states_of_america(), res.unwrap());
     /// ```
-    pub fn from_alpha2<A: AsRef<str>>(code: A) -> Result<Self, String> {
-        match code.as_ref().to_lowercase().as_str() {
+    pub fn from_alpha2<A: AsRef<str>>(alpha2: A) -> Result<Self, String> {
+        match alpha2.as_ref().to_lowercase().as_str() {
             "af" => Ok(Self::afghanistan()),
             "ax" => Ok(Self::aland_islands()),
             "al" => Ok(Self::albania()),
@@ -2002,8 +2012,8 @@ impl Country {
     /// let res = Country::from_alpha3("USA");
     /// assert_eq!(Country::the_united_states_of_america(), res.unwrap());
     /// ```
-    pub fn from_alpha3<A: AsRef<str>>(code: A) -> Result<Self, String> {
-        match code.as_ref().to_lowercase().as_str() {
+    pub fn from_alpha3<A: AsRef<str>>(alpha3: A) -> Result<Self, String> {
+        match alpha3.as_ref().to_lowercase().as_str() {
             "afg" => Ok(Self::afghanistan()),
             "ala" => Ok(Self::aland_islands()),
             "alb" => Ok(Self::albania()),
@@ -2282,8 +2292,8 @@ impl Country {
     /// let res = Country::from_alias("england");
     /// assert_eq!(Country::the_united_kingdom_of_great_britain_and_northern_ireland(), res.unwrap());
     /// ```
-    pub fn from_alias<A: AsRef<str>>(code: A) -> Result<Self, String> {
-        match code.as_ref().to_lowercase().as_str() {
+    pub fn from_alias<A: AsRef<str>>(alias: A) -> Result<Self, String> {
+        match alias.as_ref().to_lowercase().as_str() {
             "samoa" => Ok(Self::american_samoa()),
             "sthelena" | "sainthelena" => Ok(Self::ascension_and_tristan_da_cunha_saint_helena()),
             "venezuela" => Ok(Self::bolivarian_republic_of_venezuela()),

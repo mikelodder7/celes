@@ -7,7 +7,7 @@
 ![Maintenance Status: Passively-Maintained][maintenance-image]
 [![Build Status][build-image]][build-link]
 
-Convenience crate for handling ISO 3661-1
+Convenience crate for handling ISO 3166-1
 
 If there are any countries missing then please let me know or submit a PR
 
@@ -41,8 +41,16 @@ fn main() {
 ```
 
 Additionally, each country can be created from a string or its numeric code.
-`Country` provides multiple from methods to instantiate it from a string. It also
-implements the [std::str::FromStr](https://doc.rust-lang.org/std/str/trait.FromStr.html) trait that accepts any of the following formats
+`Country` provides multiple from methods to instantiate it from a string:
+
+- `from_code` - create `Country` from three digit code
+- `from_alpha2` - create `Country` from two letter code
+- `from_alpha3` - create `Country` from three letter code
+- `from_alias` - create `Country` from a common alias. This only works for some countries as not all countries have aliases
+- `from_name` - create `Country` from the full state name no space or underscores
+
+`Country` implements the [std::str::FromStr](https://doc.rust-lang.org/std/str/trait.FromStr.html) trait that accepts any valid argument to the previously mentioned functions
+such as:
 
 - The country aliases like UnitedKingdom, GreatBritain, Russia, America
 - The full country name
