@@ -101,7 +101,13 @@ use std::str::FromStr;
 /// Creates the country function. Meant to be called inside `Country`
 macro_rules! country {
     ($func:ident, $code:expr, $value:expr, $alpha2:expr, $alpha3:expr, $long_name:expr) => {
-        /// Creates a struct for $long_name
+        country!{ @gen [concat!("Creates a struct for ", $long_name), $func, $code, $value, $alpha2, $alpha3, $long_name] }
+    };
+    ($func:ident, $code:expr, $value:expr, $alpha2:expr, $alpha3:expr, $long_name:expr, $( $alias:expr  ),*) => {
+        country!{ @gen [concat!("Creates a struct for ", $long_name), $func, $code, $value, $alpha2, $alpha3, $long_name, $( $alias ),* ] }
+    };
+    (@gen [$doc:expr, $func:ident, $code:expr, $value:expr, $alpha2:expr, $alpha3:expr, $long_name:expr]) => {
+        #[doc = $doc]
         pub fn $func() -> Self {
             Self {
                 code: $code.to_string(),
@@ -113,8 +119,8 @@ macro_rules! country {
             }
         }
     };
-    ($func:ident, $code:expr, $value:expr, $alpha2:expr, $alpha3:expr, $long_name:expr, $( $alias:expr  ),*) => {
-        /// Creates a struct for $long_name
+    (@gen [$doc:expr, $func:ident, $code:expr, $value:expr, $alpha2:expr, $alpha3:expr, $long_name:expr, $( $alias:expr ),* ]) => {
+        #[doc = $doc]
         pub fn $func() -> Self {
             let mut aliases = BTreeSet::new();
             $(
