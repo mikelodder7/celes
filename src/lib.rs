@@ -98,6 +98,19 @@ use std::collections::BTreeSet;
 use std::fmt::{Display, Formatter, Result as FmtResult};
 use std::str::FromStr;
 
+/// Creates a BTreeSet with the given keys
+macro_rules! btreeset {
+    ($($key:expr),*) => {
+        {
+            let mut set = BTreeSet::new();
+            $(
+                set.insert($key.to_string());
+            )*
+            set
+        }
+    };
+}
+
 /// Creates the country function. Meant to be called inside `Country`
 macro_rules! country {
     ($func:ident, $code:expr, $value:expr, $alpha2:expr, $alpha3:expr, $long_name:expr) => {
@@ -122,17 +135,13 @@ macro_rules! country {
     (@gen [$doc:expr, $func:ident, $code:expr, $value:expr, $alpha2:expr, $alpha3:expr, $long_name:expr, $( $alias:expr ),* ]) => {
         #[doc = $doc]
         pub fn $func() -> Self {
-            let mut aliases = BTreeSet::new();
-            $(
-                aliases.insert($alias.to_string());
-            )*
             Self {
                 code: $code.to_string(),
                 value: $value,
                 alpha2: $alpha2.to_string(),
                 alpha3: $alpha3.to_string(),
                 long_name: $long_name.to_string(),
-                aliases
+                aliases: btreeset![$($alias),*]
             }
         }
     };
