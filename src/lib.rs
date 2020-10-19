@@ -2374,7 +2374,9 @@ impl Country {
             "unitedstatesminoroutlyingislands" => {
                 Ok(Self::the_united_states_minor_outlying_islands())
             }
-            "america" | "unitedstates" | "unitedstatesofamerica" => Ok(Self::the_united_states_of_america()),
+            "america" | "unitedstates" | "unitedstatesofamerica" => {
+                Ok(Self::the_united_states_of_america())
+            }
             "trinidad" | "tobago" => Ok(Self::trinidad_and_tobago()),
             "tanzania" => Ok(Self::united_republic_of_tanzania()),
             e => Err(format!("Unknown Alias {}", e)),
