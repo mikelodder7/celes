@@ -851,6 +851,7 @@ impl Country {
         "USA",
         "The United States Of America",
         "America",
+        "UnitedStates",
         "UnitedStatesOfAmerica"
     );
     country!(timor_leste, "626", 626, "TL", "TLS", "Timor Leste");
@@ -2373,7 +2374,9 @@ impl Country {
             "unitedstatesminoroutlyingislands" => {
                 Ok(Self::the_united_states_minor_outlying_islands())
             }
-            "america" | "unitedstatesofamerica" => Ok(Self::the_united_states_of_america()),
+            "america"
+            | "unitedstates"
+            | "unitedstatesofamerica" => Ok(Self::the_united_states_of_america()),
             "trinidad" | "tobago" => Ok(Self::trinidad_and_tobago()),
             "tanzania" => Ok(Self::united_republic_of_tanzania()),
             e => Err(format!("Unknown Alias {}", e)),
@@ -3137,6 +3140,7 @@ impl FromStr for Country {
             | "us"
             | "usa"
             | "america"
+            | "united states"
             | "unitedstatesofamerica" => Ok(Self::the_united_states_of_america()),
             "timorleste" | "timor_leste" | "626" | "tl" | "tls" => Ok(Self::timor_leste()),
             "togo" | "768" | "tg" | "tgo" => Ok(Self::togo()),
