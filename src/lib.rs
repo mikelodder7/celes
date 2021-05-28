@@ -56,7 +56,7 @@
 //!
 //! ```
 //! use celes::Country;
-//! use std::str::FromStr;
+//! use core::str::FromStr;
 //!
 //! // All three of these are equivalent
 //! let usa_1 = Country::from_str("USA").unwrap();
@@ -93,75 +93,151 @@
     unused_qualifications,
     warnings
 )]
-use serde::{Deserialize, Serialize};
-use std::collections::BTreeSet;
-use std::fmt::{Display, Formatter, Result as FmtResult};
-use std::str::FromStr;
+#![no_std]
 
-/// Creates a BTreeSet with the given keys
-macro_rules! btreeset {
-    ($($key:expr),*) => {
-        {
-            let mut set = BTreeSet::new();
-            $(
-                set.insert($key.to_string());
-            )*
-            set
-        }
-    };
-}
+mod tables;
+use core::fmt::{Debug, Display, Formatter, Result as FmtResult};
+use core::str::FromStr;
+use serde::{
+    de::{Error as DError, Visitor},
+    Deserialize, Deserializer, Serialize, Serializer,
+};
+pub use tables::*;
 
 /// Creates the country function. Meant to be called inside `Country`
 macro_rules! country {
     ($func:ident, $code:expr, $value:expr, $alpha2:expr, $alpha3:expr, $long_name:expr) => {
         country!{ @gen [concat!("Creates a struct for ", $long_name), $func, $code, $value, $alpha2, $alpha3, $long_name] }
     };
-    ($func:ident, $code:expr, $value:expr, $alpha2:expr, $alpha3:expr, $long_name:expr, $( $alias:expr  ),*) => {
-        country!{ @gen [concat!("Creates a struct for ", $long_name), $func, $code, $value, $alpha2, $alpha3, $long_name, $( $alias ),* ] }
+    ($func:ident, $code:expr, $value:expr, $alpha2:expr, $alpha3:expr, $long_name:expr, $table:ident, $( $alias:expr  ),*) => {
+        country!{ @gen [concat!("Creates a struct for ", $long_name), $func, $code, $value, $alpha2, $alpha3, $long_name, $table, $( $alias ),* ] }
     };
     (@gen [$doc:expr, $func:ident, $code:expr, $value:expr, $alpha2:expr, $alpha3:expr, $long_name:expr]) => {
         #[doc = $doc]
         pub fn $func() -> Self {
             Self {
-                code: $code.to_string(),
+                code: $code,
                 value: $value,
-                alpha2: $alpha2.to_string(),
-                alpha3: $alpha3.to_string(),
-                long_name: $long_name.to_string(),
-                aliases: BTreeSet::new()
+                alpha2: $alpha2,
+                alpha3: $alpha3,
+                long_name: $long_name,
+                aliases: EMPTY_LOOKUP_TABLE.into(),
             }
         }
     };
-    (@gen [$doc:expr, $func:ident, $code:expr, $value:expr, $alpha2:expr, $alpha3:expr, $long_name:expr, $( $alias:expr ),* ]) => {
+    (@gen [$doc:expr, $func:ident, $code:expr, $value:expr, $alpha2:expr, $alpha3:expr, $long_name:expr, $table:ident, $( $alias:expr ),* ]) => {
         #[doc = $doc]
         pub fn $func() -> Self {
             Self {
-                code: $code.to_string(),
+                code: $code,
                 value: $value,
-                alpha2: $alpha2.to_string(),
-                alpha3: $alpha3.to_string(),
-                long_name: $long_name.to_string(),
-                aliases: btreeset![$($alias),*]
+                alpha2: $alpha2,
+                alpha3: $alpha3,
+                long_name: $long_name,
+                aliases: $table::default().into()
             }
         }
     };
 }
 
 /// Represents a country according to ISO 3166
-#[derive(Clone, Debug, Deserialize, Serialize, Eq, PartialEq)]
 pub struct Country {
     /// The three digit code assigned to the country
-    pub code: String,
+    pub code: &'static str,
     /// The integer value for `code`
     pub value: usize,
     /// The two letter country code (alpha-2) assigned to the country
-    pub alpha2: String,
+    pub alpha2: &'static str,
     /// The three letter country code (alpha-3) assigned to the country
-    pub alpha3: String,
+    pub alpha3: &'static str,
     /// The official state name of the country
-    pub long_name: String,
+    pub long_name: &'static str,
     /// Common aliases associated with the country
-    pub aliases: BTreeSet<String>,
+    pub aliases: CountryTable,
+}
+
+impl Debug for Country {
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
+        write!(
+            f,
+            "Country {{ code: {}, value: {}, alpha2: {}, alpha3: {}, long_name: {}, aliases: {} }}",
+            self.code, self.value, self.alpha2, self.alpha3, self.long_name, self.aliases
+        )
+    }
+}
+
+impl Display for Country {
+    fn fmt(&self, f: &mut Formatter) -> FmtResult {
+        write!(f, "{}", self.long_name.replace(" ", ""))
+    }
+}
+
+impl Clone for Country {
+    fn clone(&self) -> Self {
+        Self {
+            code: self.code,
+            value: self.value,
+            alpha2: self.alpha2,
+            alpha3: self.alpha3,
+            long_name: self.long_name,
+            aliases: self.aliases,
+        }
+    }
+}
+
+impl Eq for Country {}
+
+impl PartialEq for Country {
+    fn eq(&self, other: &Self) -> bool {
+        let one = self.code == other.code;
+        let two = self.value == other.value;
+        let thr = self.alpha2.eq(self.alpha2);
+        let fur = self.alpha3.eq(self.alpha3);
+        let fve = self.long_name.eq(self.long_name);
+        let six = self.aliases.len() == other.aliases.len();
+        let svn = self
+            .aliases
+            .iter()
+            .zip(other.aliases.iter())
+            .all(|(l, r)| *l == *r);
+
+        one & two & thr & fur & fve & six & svn
+    }
+}
+
+impl Serialize for Country {
+    fn serialize<S>(&self, s: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        s.serialize_str(self.alpha2)
+    }
+}
+
+impl<'de> Deserialize<'de> for Country {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        struct CountryVisitor;
+        impl<'de> Visitor<'de> for CountryVisitor {
+            type Value = Country;
+
+            fn expecting(&self, f: &mut Formatter<'_>) -> FmtResult {
+                write!(f, "a two letter string")
+            }
+
+            fn visit_str<E>(self, s: &str) -> Result<Self::Value, E>
+            where
+                E: DError,
+            {
+                Country::from_alpha2(s)
+                    .map_err(|_| DError::invalid_value(serde::de::Unexpected::Str(s), &self))
+            }
+        }
+
+        deserializer.deserialize_str(CountryVisitor)
+    }
 }
 
 impl Country {
@@ -176,6 +252,7 @@ impl Country {
         "AS",
         "ASM",
         "American Samoa",
+        SamoaTable,
         "Samoa"
     );
     country!(andorra, "020", 20, "AD", "AND", "Andorra");
@@ -200,6 +277,7 @@ impl Country {
         "SH",
         "SHN",
         "Ascension And Tristan Da Cunha Saint Helena",
+        SaintHelenaTable,
         "StHelena",
         "SaintHelena"
     );
@@ -222,6 +300,7 @@ impl Country {
         "VE",
         "VEN",
         "Bolivarian Republic Of Venezuela",
+        VenezuelaTable,
         "Venezuela"
     );
     country!(bolivia, "068", 68, "BO", "BOL", "Bolivia");
@@ -233,6 +312,7 @@ impl Country {
         "BA",
         "BIH",
         "Bosnia And Herzegovina",
+        BosniaTable,
         "Bosnia",
         "Herzegovina"
     );
@@ -262,6 +342,7 @@ impl Country {
         "BN",
         "BRN",
         "Brunei Darussalam",
+        BruneiTable,
         "Brunei"
     );
     country!(bulgaria, "100", 100, "BG", "BGR", "Bulgaria");
@@ -272,6 +353,7 @@ impl Country {
         "BF",
         "BFA",
         "Burkina Faso",
+        BurkinaTable,
         "Burkina"
     );
     country!(burundi, "108", 108, "BI", "BDI", "Burundi");
@@ -308,8 +390,9 @@ impl Country {
         "SX",
         "SXM",
         "Dutch Part Sint Maarten",
+        StMaartenTable,
         "StMaarten",
-        "SintMaarten"
+        "SaintMaarten"
     );
     country!(ecuador, "218", 218, "EC", "ECU", "Ecuador");
     country!(egypt, "818", 818, "EG", "EGY", "Egypt");
@@ -333,6 +416,7 @@ impl Country {
         "FM",
         "FSM",
         "Federated States Of Micronesia",
+        MicronesiaTable,
         "Micronesia"
     );
     country!(fiji, "242", 242, "FJ", "FJI", "Fiji");
@@ -346,6 +430,7 @@ impl Country {
         "MF",
         "MAF",
         "French Part Saint Martin",
+        StMartinTable,
         "StMartin",
         "SaintMartin"
     );
@@ -380,6 +465,7 @@ impl Country {
         "HM",
         "HMD",
         "Heard Island And Mc Donald Islands",
+        HeardIslandTable,
         "HeardIsland",
         "McDonaldIslands"
     );
@@ -398,6 +484,7 @@ impl Country {
         "IR",
         "IRN",
         "Islamic Republic Of Iran",
+        IranTable,
         "Iran"
     );
     country!(isle_of_man, "833", 833, "IM", "IMN", "Isle Of Man");
@@ -475,6 +562,7 @@ impl Country {
         "MK",
         "MKD",
         "Republic Of North Macedonia",
+        MacedoniaTable,
         "Macedonia"
     );
     country!(reunion, "638", 638, "RE", "REU", "Reunion");
@@ -487,6 +575,7 @@ impl Country {
         "BL",
         "BLM",
         "Saint Barthelemy",
+        StBarthelemyTable,
         "StBarthelemy"
     );
     country!(
@@ -496,6 +585,7 @@ impl Country {
         "KN",
         "KNA",
         "Saint Kitts And Nevis",
+        StKittsTable,
         "StKitts"
     );
     country!(
@@ -505,6 +595,7 @@ impl Country {
         "LC",
         "LCA",
         "Saint Lucia",
+        StLuciaTable,
         "StLucia"
     );
     country!(
@@ -514,6 +605,7 @@ impl Country {
         "PM",
         "SPM",
         "Saint Pierre And Miquelon",
+        StPierreTable,
         "StPierre",
         "SaintPierre"
     );
@@ -524,6 +616,7 @@ impl Country {
         "VC",
         "VCT",
         "Saint Vincent And The Grenadines",
+        StVincentTable,
         "StVincent",
         "SaintVincent"
     );
@@ -536,6 +629,7 @@ impl Country {
         "ST",
         "STP",
         "Sao Tome And Principe",
+        SaoTomeTable,
         "SaoTome"
     );
     country!(saudi_arabia, "682", 682, "SA", "SAU", "Saudi Arabia");
@@ -556,6 +650,7 @@ impl Country {
         "GS",
         "SGS",
         "South Georgia And The South Sandwich Islands",
+        SouthGeorgiaTable,
         "SouthGeorgia",
         "SouthSandwichIslands"
     );
@@ -569,6 +664,7 @@ impl Country {
         "PS",
         "PSE",
         "State Of Palestine",
+        PalestineTable,
         "Palestine"
     );
     country!(suriname, "740", 740, "SR", "SUR", "Suriname");
@@ -597,6 +693,7 @@ impl Country {
         "TW",
         "TWN",
         "Taiwan Province Of China",
+        TaiwanTable,
         "Taiwan"
     );
     country!(tajikistan, "762", 762, "TJ", "TJK", "Tajikistan");
@@ -608,6 +705,7 @@ impl Country {
         "BS",
         "BHS",
         "The Bahamas",
+        BahamasTable,
         "Bahamas"
     );
     country!(
@@ -617,6 +715,7 @@ impl Country {
         "KY",
         "CYM",
         "The Cayman Islands",
+        CaymanIslandsTable,
         "CaymanIslands"
     );
     country!(
@@ -626,6 +725,7 @@ impl Country {
         "CF",
         "CAF",
         "The Central African Republic",
+        CentralAfricanRepublicTable,
         "CentralAfricanRepublic"
     );
     country!(
@@ -635,6 +735,7 @@ impl Country {
         "CC",
         "CCK",
         "The Cocos Keeling Islands",
+        CocosIslandsTable,
         "CocosIslands",
         "KeelingIslands"
     );
@@ -645,9 +746,19 @@ impl Country {
         "KM",
         "COM",
         "The Comoros",
+        ComorosTable,
         "Comoros"
     );
-    country!(the_congo, "178", 178, "CG", "COG", "The Congo", "Congo");
+    country!(
+        the_congo,
+        "178",
+        178,
+        "CG",
+        "COG",
+        "The Congo",
+        CongoTable,
+        "Congo"
+    );
     country!(
         the_cook_islands,
         "184",
@@ -655,6 +766,7 @@ impl Country {
         "CK",
         "COK",
         "The Cook Islands",
+        CookIslandsTable,
         "CookIslands"
     );
     country!(
@@ -664,6 +776,7 @@ impl Country {
         "KP",
         "PRK",
         "The Democratic Peoples Republic Of Korea",
+        NorthKoreaTable,
         "NorthKorea",
         "DemocraticPeoplesRepublicOfKorea"
     );
@@ -674,6 +787,7 @@ impl Country {
         "CD",
         "COD",
         "The Democratic Republic Of The Congo",
+        DemocraticRepublicOfTheCongoTable,
         "DemocraticRepublicOfTheCongo"
     );
     country!(
@@ -683,6 +797,7 @@ impl Country {
         "DO",
         "DOM",
         "The Dominican Republic",
+        DominicanRepublicTable,
         "DominicanRepublic"
     );
     country!(
@@ -692,6 +807,7 @@ impl Country {
         "FK",
         "FLK",
         "The Falkland Islands Malvinas",
+        MalvinasTable,
         "Malvinas",
         "FalklandIslands"
     );
@@ -702,6 +818,7 @@ impl Country {
         "FO",
         "FRO",
         "The Faroe Islands",
+        FaroeIslandsTable,
         "FaroeIslands"
     );
     country!(
@@ -711,9 +828,19 @@ impl Country {
         "TF",
         "ATF",
         "The French Southern Territories",
+        FrenchSouthernTerritoriesTable,
         "FrenchSouthernTerritories"
     );
-    country!(the_gambia, "270", 270, "GM", "GMB", "The Gambia", "Gabmia");
+    country!(
+        the_gambia,
+        "270",
+        270,
+        "GM",
+        "GMB",
+        "The Gambia",
+        GabmiaTable,
+        "Gabmia"
+    );
     country!(
         the_holy_see,
         "336",
@@ -721,6 +848,7 @@ impl Country {
         "VA",
         "VAT",
         "The Holy See",
+        HolySeeTable,
         "HolySee"
     );
     country!(
@@ -730,6 +858,7 @@ impl Country {
         "LA",
         "LAO",
         "The Lao Peoples Democratic Republic",
+        LaoPeoplesDemocraticRepublicTable,
         "LaoPeoplesDemocraticRepublic"
     );
     country!(
@@ -739,6 +868,7 @@ impl Country {
         "MH",
         "MHL",
         "The Marshall Islands",
+        MarshallIslandsTable,
         "MarshallIslands"
     );
     country!(
@@ -748,10 +878,20 @@ impl Country {
         "NL",
         "NLD",
         "The Netherlands",
+        NetherlandsTable,
         "Netherlands",
         "Holland"
     );
-    country!(the_niger, "562", 562, "NE", "NER", "The Niger", "Niger");
+    country!(
+        the_niger,
+        "562",
+        562,
+        "NE",
+        "NER",
+        "The Niger",
+        NigerTable,
+        "Niger"
+    );
     country!(
         the_northern_mariana_islands,
         "580",
@@ -759,6 +899,7 @@ impl Country {
         "MP",
         "MNP",
         "The Northern Mariana Islands",
+        NorthernMarianaIslandsTable,
         "NorthernMarianaIslands"
     );
     country!(
@@ -768,6 +909,7 @@ impl Country {
         "PH",
         "PHL",
         "The Philippines",
+        PhilippinesTable,
         "Philippines"
     );
     country!(
@@ -777,6 +919,7 @@ impl Country {
         "KR",
         "KOR",
         "The Republic Of Korea",
+        SouthKoreaTable,
         "SouthKorea",
         "RepublicOfKorea"
     );
@@ -787,6 +930,7 @@ impl Country {
         "MD",
         "MDA",
         "The Republic Of Moldova",
+        MoldovaTable,
         "Moldova",
         "RepublicOfMoldova"
     );
@@ -797,10 +941,20 @@ impl Country {
         "RU",
         "RUS",
         "The Russian Federation",
+        RussiaTable,
         "Russia",
         "RussianFederation"
     );
-    country!(the_sudan, "729", 729, "SD", "SDN", "The Sudan", "Sudan");
+    country!(
+        the_sudan,
+        "729",
+        729,
+        "SD",
+        "SDN",
+        "The Sudan",
+        SudanTable,
+        "Sudan"
+    );
     country!(
         the_turks_and_caicos_islands,
         "796",
@@ -808,6 +962,7 @@ impl Country {
         "TC",
         "TCA",
         "The Turks And Caicos Islands",
+        TurksAndCaicosIslandsTable,
         "TurksAndCaicosIslands"
     );
     country!(
@@ -817,6 +972,7 @@ impl Country {
         "AE",
         "ARE",
         "The United Arab Emirates",
+        UnitedArabEmiratesTable,
         "UnitedArabEmirates"
     );
     country!(
@@ -826,6 +982,7 @@ impl Country {
         "GB",
         "GBR",
         "The United Kingdom Of Great Britain And Northern Ireland",
+        EnglandTable,
         "England",
         "Scotland",
         "GreatBritain",
@@ -841,6 +998,7 @@ impl Country {
         "UM",
         "UMI",
         "The United States Minor Outlying Islands",
+        UnitedStatesMinorOutlyingIslandsTable,
         "UnitedStatesMinorOutlyingIslands"
     );
     country!(
@@ -850,6 +1008,7 @@ impl Country {
         "US",
         "USA",
         "The United States Of America",
+        AmericaTable,
         "America",
         "UnitedStates",
         "UnitedStatesOfAmerica"
@@ -865,6 +1024,7 @@ impl Country {
         "TT",
         "TTO",
         "Trinidad And Tobago",
+        TrinidadTable,
         "Trinidad",
         "Tobago"
     );
@@ -889,6 +1049,7 @@ impl Country {
         "TZ",
         "TZA",
         "United Republic Of Tanzania",
+        TanzaniaTable,
         "Tanzania"
     );
     country!(uruguay, "858", 858, "UY", "URY", "Uruguay");
@@ -932,8 +1093,8 @@ impl Country {
     /// let lookup = countries.iter().map(|cty| (cty.alpha2.to_string(), cty.clone())).collect::<BTreeMap<String, Country>>();
     ///
     /// ```
-    pub fn get_countries() -> Vec<Self> {
-        vec![
+    pub fn get_countries() -> [Self; 249] {
+        [
             Self::afghanistan(),
             Self::aland_islands(),
             Self::albania(),
@@ -1203,7 +1364,7 @@ impl Country {
     ///
     /// assert_eq!(Country::afghanistan(), res.unwrap());
     /// ```
-    pub fn from_value(value: usize) -> Result<Self, String> {
+    pub fn from_value(value: usize) -> Result<Self, &'static str> {
         match value {
             4 => Ok(Self::afghanistan()),
             248 => Ok(Self::aland_islands()),
@@ -1454,7 +1615,7 @@ impl Country {
             887 => Ok(Self::yemen()),
             894 => Ok(Self::zambia()),
             716 => Ok(Self::zimbabwe()),
-            e => Err(format!("Unknown Value {}", e)),
+            _ => Err("invalid value"),
         }
     }
 
@@ -1476,7 +1637,7 @@ impl Country {
     ///
     /// assert_eq!(Country::albania(), res.unwrap());
     /// ```
-    pub fn from_code<A: AsRef<str>>(code: A) -> Result<Self, String> {
+    pub fn from_code<A: AsRef<str>>(code: A) -> Result<Self, &'static str> {
         match code.as_ref().to_lowercase().as_str() {
             "004" => Ok(Self::afghanistan()),
             "248" => Ok(Self::aland_islands()),
@@ -1727,7 +1888,7 @@ impl Country {
             "887" => Ok(Self::yemen()),
             "894" => Ok(Self::zambia()),
             "716" => Ok(Self::zimbabwe()),
-            e => Err(format!("Unknown String {}", e)),
+            _ => Err("invalid code"),
         }
     }
 
@@ -1753,7 +1914,7 @@ impl Country {
     /// let res = Country::from_alpha2("US");
     /// assert_eq!(Country::the_united_states_of_america(), res.unwrap());
     /// ```
-    pub fn from_alpha2<A: AsRef<str>>(alpha2: A) -> Result<Self, String> {
+    pub fn from_alpha2<A: AsRef<str>>(alpha2: A) -> Result<Self, &'static str> {
         match alpha2.as_ref().to_lowercase().as_str() {
             "af" => Ok(Self::afghanistan()),
             "ax" => Ok(Self::aland_islands()),
@@ -2004,7 +2165,7 @@ impl Country {
             "ye" => Ok(Self::yemen()),
             "zm" => Ok(Self::zambia()),
             "zw" => Ok(Self::zimbabwe()),
-            e => Err(format!("Unknown String {}", e)),
+            _ => Err("invalid alpha2"),
         }
     }
 
@@ -2028,7 +2189,7 @@ impl Country {
     /// let res = Country::from_alpha3("USA");
     /// assert_eq!(Country::the_united_states_of_america(), res.unwrap());
     /// ```
-    pub fn from_alpha3<A: AsRef<str>>(alpha3: A) -> Result<Self, String> {
+    pub fn from_alpha3<A: AsRef<str>>(alpha3: A) -> Result<Self, &'static str> {
         match alpha3.as_ref().to_lowercase().as_str() {
             "afg" => Ok(Self::afghanistan()),
             "ala" => Ok(Self::aland_islands()),
@@ -2279,7 +2440,7 @@ impl Country {
             "yem" => Ok(Self::yemen()),
             "zmb" => Ok(Self::zambia()),
             "zwe" => Ok(Self::zimbabwe()),
-            e => Err(format!("Unknown String {}", e)),
+            _ => Err("invalid alpha3"),
         }
     }
 
@@ -2308,15 +2469,16 @@ impl Country {
     /// let res = Country::from_alias("england");
     /// assert_eq!(Country::the_united_kingdom_of_great_britain_and_northern_ireland(), res.unwrap());
     /// ```
-    pub fn from_alias<A: AsRef<str>>(alias: A) -> Result<Self, String> {
-        match alias.as_ref().to_lowercase().as_str() {
+    pub fn from_alias<A: AsRef<str>>(alias: A) -> Result<Self, &'static str> {
+        let a = alias.as_ref().to_lowercase();
+        match a.as_str() {
             "samoa" => Ok(Self::american_samoa()),
             "sthelena" | "sainthelena" => Ok(Self::ascension_and_tristan_da_cunha_saint_helena()),
             "venezuela" => Ok(Self::bolivarian_republic_of_venezuela()),
             "bosnia" | "herzegovina" => Ok(Self::bosnia_and_herzegovina()),
             "brunei" => Ok(Self::brunei_darussalam()),
             "burkina" => Ok(Self::burkina_faso()),
-            "stmaarten" | "sintmaarten" => Ok(Self::dutch_part_sint_maarten()),
+            "stmaarten" | "saintmaarten" => Ok(Self::dutch_part_sint_maarten()),
             "micronesia" => Ok(Self::federated_states_of_micronesia()),
             "stmartin" | "saintmartin" => Ok(Self::french_part_saint_martin()),
             "heardisland" | "mcdonaldislands" => Ok(Self::heard_island_and_mc_donald_islands()),
@@ -2379,7 +2541,7 @@ impl Country {
             }
             "trinidad" | "tobago" => Ok(Self::trinidad_and_tobago()),
             "tanzania" => Ok(Self::united_republic_of_tanzania()),
-            e => Err(format!("Unknown Alias {}", e)),
+            _ => Err("invalid alias"),
         }
     }
 
@@ -2410,8 +2572,9 @@ impl Country {
     /// let res = Country::from_name("theunitedkingdomofgreatbritainandnorthernireland");
     /// assert_eq!(Country::the_united_kingdom_of_great_britain_and_northern_ireland(), res.unwrap());
     /// ```
-    pub fn from_name<A: AsRef<str>>(name: A) -> Result<Self, String> {
-        match name.as_ref().to_lowercase().as_str() {
+    pub fn from_name<A: AsRef<str>>(name: A) -> Result<Self, &'static str> {
+        let a = name.as_ref().to_lowercase();
+        match a.as_str() {
             "afghanistan" => Ok(Self::afghanistan()),
             "alandislands" => Ok(Self::aland_islands()),
             "albania" => Ok(Self::albania()),
@@ -2671,15 +2834,15 @@ impl Country {
             "yemen" => Ok(Self::yemen()),
             "zambia" => Ok(Self::zambia()),
             "zimbabwe" => Ok(Self::zimbabwe()),
-            e => Err(format!("Unknown String {}", e)),
+            _ => Err("unknown name"),
         }
     }
 }
 
 impl FromStr for Country {
-    type Err = String;
+    type Err = &'static str;
 
-    fn from_str(code: &str) -> Result<Self, String> {
+    fn from_str(code: &str) -> Result<Self, &'static str> {
         match code.to_lowercase().as_str() {
             "afghanistan" | "004" | "af" | "afg" => Ok(Self::afghanistan()),
             "alandislands" | "aland_islands" | "248" | "ax" | "ala" => Ok(Self::aland_islands()),
@@ -3179,13 +3342,7 @@ impl FromStr for Country {
             "yemen" | "887" | "ye" | "yem" => Ok(Self::yemen()),
             "zambia" | "894" | "zm" | "zmb" => Ok(Self::zambia()),
             "zimbabwe" | "716" | "zw" | "zwe" => Ok(Self::zimbabwe()),
-            e => Err(format!("Unknown String {}", e)),
+            _ => Err("uknown value"),
         }
-    }
-}
-
-impl Display for Country {
-    fn fmt(&self, f: &mut Formatter) -> FmtResult {
-        write!(f, "{}", self.long_name.replace(" ", ""))
     }
 }

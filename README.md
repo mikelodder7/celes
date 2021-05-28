@@ -7,7 +7,7 @@
 ![Maintenance Status: Passively-Maintained][maintenance-image]
 [![Build Status][build-image]][build-link]
 
-Convenience crate for handling ISO 3166-1
+Convenience crate for handling ISO 3166-1. Also compatible with `no-std` environments.
 
 If there are any countries missing then please let me know or submit a PR
 
@@ -49,7 +49,7 @@ Additionally, each country can be created from a string or its numeric code.
 - `from_alias` - create `Country` from a common alias. This only works for some countries as not all countries have aliases
 - `from_name` - create `Country` from the full state name no space or underscores
 
-`Country` implements the [std::str::FromStr](https://doc.rust-lang.org/std/str/trait.FromStr.html) trait that accepts any valid argument to the previously mentioned functions
+`Country` implements the [core::str::FromStr](https://doc.rust-lang.org/core/str/trait.FromStr.html) trait that accepts any valid argument to the previously mentioned functions
 such as:
 
 - The country aliases like UnitedKingdom, GreatBritain, Russia, America
@@ -64,7 +64,7 @@ any of the valid string values. `Country::from_str` is case-insensitive
 
 ```rust
 use celes::Country;
-use std::str::FromStr;
+use core::str::FromStr;
 
 fn main() {
      // All three of these are equivalent
@@ -101,7 +101,7 @@ licensed as above, without any additional terms or conditions.
 [docs-image]: https://docs.rs/celes/badge.svg
 [docs-link]: https://docs.rs/celes/
 [license-image]: https://img.shields.io/badge/license-Apache2.0-blue.svg
-[rustc-image]: https://img.shields.io/badge/rustc-1.39+-blue.svg
+[rustc-image]: https://img.shields.io/badge/rustc-1.51+-blue.svg
 [maintenance-image]: https://img.shields.io/badge/maintenance-passively--maintained-yellowgreen.svg
 [build-image]: https://travis-ci.com/mikelodder7/celes.svg?branch=master
 [build-link]: https://travis-ci.com/mikelodder7/celes

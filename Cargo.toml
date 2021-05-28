@@ -6,6 +6,7 @@ Each country has a three digit code, two letter code, three letter code,
 full state name, and short english aliases.
 """
 documentation = "https://docs.rs/celes/"
+categories = ["encoding", "no-std", "parsing"]
 edition = "2018"
 homepage = "https://crates.io/crates/celes"
 include = [
@@ -19,13 +20,10 @@ license = "Apache-2.0"
 name = "celes"
 readme = "README.md"
 repository = "https://github.com/mikelodder7/celes"
-version = "1.0.6"
-
-[badges]
-maintenance = { status = "passively-maintained" }
+version = "2.0.0"
 
 [dependencies]
-serde = { version = "1.0", features = ["derive"] }
+serde = { version = "1.0", default-features = false, features = ["derive"] }
 
 [dev-dependencies]
 serde_json = "1.0"
