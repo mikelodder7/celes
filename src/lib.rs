@@ -41,7 +41,7 @@
 //! - `from_alias` - create `Country` from a common alias. This only works for some countries as not all countries have aliases
 //! - `from_name` - create `Country` from the full state name no space or underscores
 //!
-//! `Country` implements the [std::str::FromStr](https://doc.rust-lang.org/std/str/trait.FromStr.html) trait that accepts any valid argument to the previously mentioned functions
+//! `Country` implements the [core::str::FromStr](https://doc.rust-lang.org/core/str/trait.FromStr.html) trait that accepts any valid argument to the previously mentioned functions
 //! such as:
 //!
 //! - The country aliases like UnitedKingdom, GreatBritain, Russia, America
@@ -497,6 +497,7 @@ impl Country {
     country!(kazakhstan, "398", 398, "KZ", "KAZ", "Kazakhstan");
     country!(kenya, "404", 404, "KE", "KEN", "Kenya");
     country!(kiribati, "296", 296, "KI", "KIR", "Kiribati");
+    country!(kosovo, "383", 383, "XK", "XKX", "Kosovo");
     country!(kuwait, "414", 414, "KW", "KWT", "Kuwait");
     country!(kyrgyzstan, "417", 417, "KG", "KGZ", "Kyrgyzstan");
     country!(latvia, "428", 428, "LV", "LVA", "Latvia");
@@ -1077,6 +1078,7 @@ impl Country {
     ///
     /// let countries = Country::get_countries();
     ///
+    ///
     /// for c in &countries {
     ///     println!("{}", c);
     /// }
@@ -1093,7 +1095,7 @@ impl Country {
     /// let lookup = countries.iter().map(|cty| (cty.alpha2.to_string(), cty.clone())).collect::<BTreeMap<String, Country>>();
     ///
     /// ```
-    pub fn get_countries() -> [Self; 249] {
+    pub fn get_countries() -> [Self; 250] {
         [
             Self::afghanistan(),
             Self::aland_islands(),
@@ -1205,6 +1207,7 @@ impl Country {
             Self::kazakhstan(),
             Self::kenya(),
             Self::kiribati(),
+            Self::kosovo(),
             Self::kuwait(),
             Self::kyrgyzstan(),
             Self::latvia(),
@@ -1476,6 +1479,7 @@ impl Country {
             398 => Ok(Self::kazakhstan()),
             404 => Ok(Self::kenya()),
             296 => Ok(Self::kiribati()),
+            383 => Ok(Self::kosovo()),
             414 => Ok(Self::kuwait()),
             417 => Ok(Self::kyrgyzstan()),
             428 => Ok(Self::latvia()),
@@ -1749,6 +1753,7 @@ impl Country {
             "398" => Ok(Self::kazakhstan()),
             "404" => Ok(Self::kenya()),
             "296" => Ok(Self::kiribati()),
+            "383" => Ok(Self::kosovo()),
             "414" => Ok(Self::kuwait()),
             "417" => Ok(Self::kyrgyzstan()),
             "428" => Ok(Self::latvia()),
@@ -2026,6 +2031,7 @@ impl Country {
             "kz" => Ok(Self::kazakhstan()),
             "ke" => Ok(Self::kenya()),
             "ki" => Ok(Self::kiribati()),
+            "xk" => Ok(Self::kosovo()),
             "kw" => Ok(Self::kuwait()),
             "kg" => Ok(Self::kyrgyzstan()),
             "lv" => Ok(Self::latvia()),
@@ -2300,6 +2306,7 @@ impl Country {
             "jor" => Ok(Self::jordan()),
             "kaz" => Ok(Self::kazakhstan()),
             "ken" => Ok(Self::kenya()),
+            "xkx" => Ok(Self::kosovo()),
             "kir" => Ok(Self::kiribati()),
             "kwt" => Ok(Self::kuwait()),
             "kgz" => Ok(Self::kyrgyzstan()),
@@ -2687,6 +2694,7 @@ impl Country {
             "kazakhstan" => Ok(Self::kazakhstan()),
             "kenya" => Ok(Self::kenya()),
             "kiribati" => Ok(Self::kiribati()),
+            "kosovo" => Ok(Self::kosovo()),
             "kuwait" => Ok(Self::kuwait()),
             "kyrgyzstan" => Ok(Self::kyrgyzstan()),
             "latvia" => Ok(Self::latvia()),
@@ -3017,6 +3025,7 @@ impl FromStr for Country {
             "kazakhstan" | "398" | "kz" | "kaz" => Ok(Self::kazakhstan()),
             "kenya" | "404" | "ke" | "ken" => Ok(Self::kenya()),
             "kiribati" | "296" | "ki" | "kir" => Ok(Self::kiribati()),
+            "kosovo" | "383" | "xk" | "xkx" => Ok(Self::kosovo()),
             "kuwait" | "414" | "kw" | "kwt" => Ok(Self::kuwait()),
             "kyrgyzstan" | "417" | "kg" | "kgz" => Ok(Self::kyrgyzstan()),
             "latvia" | "428" | "lv" | "lva" => Ok(Self::latvia()),

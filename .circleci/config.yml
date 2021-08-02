@@ -6,10 +6,10 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Install Rust 1.39
+          name: Install Rust 1.53
           command: |
-            rustup toolchain install 1.39.0
-            rustup default 1.39.0
+            rustup toolchain install 1.53.0
+            rustup default 1.53.0
             rustup component add rustfmt
       - run:
           name: rustfmt

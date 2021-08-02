@@ -101,7 +101,7 @@ licensed as above, without any additional terms or conditions.
 [docs-image]: https://docs.rs/celes/badge.svg
 [docs-link]: https://docs.rs/celes/
 [license-image]: https://img.shields.io/badge/license-Apache2.0-blue.svg
-[rustc-image]: https://img.shields.io/badge/rustc-1.51+-blue.svg
+[rustc-image]: https://img.shields.io/badge/rustc-1.53+-blue.svg
 [maintenance-image]: https://img.shields.io/badge/maintenance-passively--maintained-yellowgreen.svg
 [build-image]: https://travis-ci.com/mikelodder7/celes.svg?branch=master
 [build-link]: https://travis-ci.com/mikelodder7/celes
