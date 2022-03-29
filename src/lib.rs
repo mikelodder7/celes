@@ -38,7 +38,8 @@
 //! - `from_code` - create `Country` from three digit code
 //! - `from_alpha2` - create `Country` from two letter code
 //! - `from_alpha3` - create `Country` from three letter code
-//! - `from_alias` - create `Country` from a common alias. This only works for some countries as not all countries have aliases
+//! - `from_alias` - create `Country` from a common alias stripped of any spaces or
+//!   underscores. This only works for some countries as not all countries have aliases
 //! - `from_name` - create `Country` from the full state name no space or underscores
 //!
 //! `Country` implements the [core::str::FromStr](https://doc.rust-lang.org/core/str/trait.FromStr.html) trait that accepts any valid argument to the previously mentioned functions
@@ -54,19 +55,22 @@
 //!
 //! ## From String Example
 //!
-//! ```
+//! ```rust
 //! use celes::Country;
 //! use core::str::FromStr;
 //!
-//! // All three of these are equivalent
-//! let usa_1 = Country::from_str("USA").unwrap();
-//! let usa_2 = Country::from_str("US").unwrap();
-//! let usa_3 = Country::from_str("America").unwrap();
+//! // All of these are equivalent
+//! assert_eq!("US", Country::from_str("USA").unwrap().alpha2);
+//! assert_eq!("US", Country::from_str("US").unwrap().alpha2);
+//! assert_eq!("US", Country::from_str("America").unwrap().alpha2);
+//! assert_eq!("US", Country::from_str("UnitedStates").unwrap().alpha2);
+//! assert_eq!("US", Country::from_str("TheUnitedStatesOfAmerica").unwrap().alpha2);
 //!
-//! // All three of these are equivalent
-//! let gb_1 = Country::from_str("England").unwrap();
-//! let gb_2 = Country::from_str("gb").unwrap();
-//! let gb_3 = Country::from_str("Scotland").unwrap();
+//! // All of these are equivalent
+//! assert_eq!("GB", Country::from_str("England").unwrap().alpha2);
+//! assert_eq!("GB", Country::from_str("gb").unwrap().alpha2);
+//! assert_eq!("GB", Country::from_str("Scotland").unwrap().alpha2);
+//! assert_eq!("GB", Country::from_str("TheUnitedKingdomOfGreatBritainAndNorthernIreland").unwrap().alpha2);
 //! ```
 /*
 * Copyright 2019 Michael Lodder
@@ -3313,6 +3317,7 @@ impl FromStr for Country {
             | "usa"
             | "america"
             | "united states"
+            | "unitedstates"
             | "unitedstatesofamerica" => Ok(Self::the_united_states_of_america()),
             "timorleste" | "timor_leste" | "626" | "tl" | "tls" => Ok(Self::timor_leste()),
             "togo" | "768" | "tg" | "tgo" => Ok(Self::togo()),
