@@ -20,7 +20,7 @@ license = "Apache-2.0"
 name = "celes"
 readme = "README.md"
 repository = "https://github.com/mikelodder7/celes"
-version = "2.2.0"
+version = "2.3.0"
 
 [dependencies]
 serde = { version = "1.0", default-features = false, features = ["derive"] }
