@@ -146,6 +146,7 @@ macro_rules! country {
 }
 
 /// Represents a country according to ISO 3166
+#[derive(Copy)]
 pub struct Country {
     /// The three digit code assigned to the country
     pub code: &'static str,
