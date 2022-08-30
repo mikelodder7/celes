@@ -101,6 +101,7 @@
 
 mod tables;
 use core::fmt::{Debug, Display, Formatter, Result as FmtResult};
+use core::hash::{Hash, Hasher};
 use core::str::FromStr;
 use serde::{
     de::{Error as DError, Visitor},
@@ -241,6 +242,12 @@ impl<'de> Deserialize<'de> for Country {
         }
 
         deserializer.deserialize_str(CountryVisitor)
+    }
+}
+
+impl Hash for Country {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.long_name.hash(state);
     }
 }
 
