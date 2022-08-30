@@ -1,3 +1,4 @@
+use core::cmp::Ordering;
 use core::{fmt, slice::Iter};
 use serde::{
     de::{Error as DError, SeqAccess, Visitor},
@@ -8,7 +9,7 @@ use serde::{
 macro_rules! lookup {
     (@gen [$doc:expr, $name:ident, $enum:ident, $len:expr, $($aliases:expr => $loweralias:expr),+]) => {
         #[doc = $doc]
-        #[derive(Copy, Clone)]
+        #[derive(Copy, Clone, Eq, Ord)]
         pub struct $name(pub [&'static str; $len]);
 
         impl Default for $name {
@@ -78,12 +79,36 @@ macro_rules! lookup {
             }
         }
 
-        impl Eq for $name{}
+        impl<L: LookupTable> PartialOrd<L> for $name {
+            fn partial_cmp(&self, other: &L) -> Option<Ordering> {
+                if self.len() == other.len() {
+                    let mut res = None;
+                    for (l, r) in self.iter().zip(other.iter()) {
+                        res = l.partial_cmp(r);
+                        match res {
+                            Some(Ordering::Equal) | None => {},
+                            _ => break,
+                        }
+                    }
+                    res
+                } else {
+                    self.len().partial_cmp(&other.len())
+                }
+            }
+        }
 
         impl<L: LookupTable> PartialEq<L> for $name {
             fn eq(&self, other: &L) -> bool {
                 self.len() == other.len() &&
                 self.iter().zip(other.iter()).all(|(l, r)| *l == *r)
+            }
+        }
+
+        impl core::hash::Hash for $name {
+            fn hash<H: core::hash::Hasher>(&self, state: &mut H) {
+                for s in self.iter() {
+                    s.hash(state);
+                }
             }
         }
 
@@ -122,14 +147,8 @@ pub trait LookupTable {
 pub static EMPTY_LOOKUP_TABLE: EmptyLookupTable = EmptyLookupTable([]);
 
 /// A lookup table with zero entries
-#[derive(Copy, Clone, Serialize, Deserialize)]
+#[derive(Copy, Clone, Default, Serialize, Deserialize, Eq, Ord)]
 pub struct EmptyLookupTable(pub [&'static str; 0]);
-
-impl Default for EmptyLookupTable {
-    fn default() -> Self {
-        Self([])
-    }
-}
 
 impl LookupTable for EmptyLookupTable {
     fn contains(&self, _: &str) -> bool {
@@ -145,11 +164,19 @@ impl LookupTable for EmptyLookupTable {
     }
 }
 
-impl Eq for EmptyLookupTable {}
-
 impl<L: LookupTable> PartialEq<L> for EmptyLookupTable {
     fn eq(&self, other: &L) -> bool {
         self.len() == other.len() && self.iter().zip(other.iter()).all(|(l, r)| *l == *r)
+    }
+}
+
+impl<L: LookupTable> PartialOrd<L> for EmptyLookupTable {
+    fn partial_cmp(&self, other: &L) -> Option<Ordering> {
+        if other.len() > 0 {
+            Some(Ordering::Greater)
+        } else {
+            Some(Ordering::Equal)
+        }
     }
 }
 
@@ -232,7 +259,7 @@ lookup!(TrinidadTable, Trinidad, "Trinidad And Tobago", 2, "Trinidad" => "trinid
 lookup!(TanzaniaTable, Tanzania, "United Republic Of Tanzania", 1, "Tanzania" => "tanzania");
 
 /// Wrapper struct for alias tables to avoid using Box
-#[derive(Copy, Clone, Debug, Serialize, Deserialize)]
+#[derive(Copy, Clone, Debug, Serialize, Deserialize, Eq, PartialEq, Ord, PartialOrd)]
 pub enum CountryTable {
     /// Represents no aliases
     Empty(EmptyLookupTable),

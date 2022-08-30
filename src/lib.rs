@@ -100,9 +100,13 @@
 #![no_std]
 
 mod tables;
-use core::fmt::{Debug, Display, Formatter, Result as FmtResult};
-use core::hash::{Hash, Hasher};
-use core::str::FromStr;
+
+use core::{
+    cmp::Ordering,
+    fmt::{Debug, Display, Formatter, Result as FmtResult},
+    hash::{Hash, Hasher},
+    str::FromStr,
+};
 use serde::{
     de::{Error as DError, Visitor},
     Deserialize, Deserializer, Serialize, Serializer,
@@ -174,7 +178,7 @@ impl Debug for Country {
 
 impl Display for Country {
     fn fmt(&self, f: &mut Formatter) -> FmtResult {
-        write!(f, "{}", self.long_name.replace(" ", ""))
+        write!(f, "{}", self.long_name.replace(' ', ""))
     }
 }
 
@@ -188,6 +192,18 @@ impl Clone for Country {
             long_name: self.long_name,
             aliases: self.aliases,
         }
+    }
+}
+
+impl Ord for Country {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.long_name.cmp(other.long_name)
+    }
+}
+
+impl PartialOrd for Country {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        self.long_name.partial_cmp(other.long_name)
     }
 }
 
