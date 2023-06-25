@@ -716,14 +716,16 @@ impl Country {
         "Syrian Arab Republic"
     );
     country!(
-        taiwan_province_of_china,
+        taiwan,
         "158",
         158,
         "TW",
         "TWN",
-        "Taiwan Province Of China",
+        "Taiwan, Republic Of China",
         TaiwanTable,
-        "Taiwan"
+        "Taiwan",
+        "Republic of China",
+        "中華民國"
     );
     country!(tajikistan, "762", 762, "TJ", "TJK", "Tajikistan");
     country!(thailand, "764", 764, "TH", "THA", "Thailand");
@@ -1320,7 +1322,7 @@ impl Country {
             Self::sweden(),
             Self::switzerland(),
             Self::syrian_arab_republic(),
-            Self::taiwan_province_of_china(),
+            Self::taiwan(),
             Self::tajikistan(),
             Self::thailand(),
             Self::the_bahamas(),
@@ -1592,7 +1594,7 @@ impl Country {
             752 => Ok(Self::sweden()),
             756 => Ok(Self::switzerland()),
             760 => Ok(Self::syrian_arab_republic()),
-            158 => Ok(Self::taiwan_province_of_china()),
+            158 => Ok(Self::taiwan()),
             762 => Ok(Self::tajikistan()),
             764 => Ok(Self::thailand()),
             44 => Ok(Self::the_bahamas()),
@@ -1866,7 +1868,7 @@ impl Country {
             "752" => Ok(Self::sweden()),
             "756" => Ok(Self::switzerland()),
             "760" => Ok(Self::syrian_arab_republic()),
-            "158" => Ok(Self::taiwan_province_of_china()),
+            "158" => Ok(Self::taiwan()),
             "762" => Ok(Self::tajikistan()),
             "764" => Ok(Self::thailand()),
             "044" => Ok(Self::the_bahamas()),
@@ -2144,7 +2146,7 @@ impl Country {
             "se" => Ok(Self::sweden()),
             "ch" => Ok(Self::switzerland()),
             "sy" => Ok(Self::syrian_arab_republic()),
-            "tw" => Ok(Self::taiwan_province_of_china()),
+            "tw" => Ok(Self::taiwan()),
             "tj" => Ok(Self::tajikistan()),
             "th" => Ok(Self::thailand()),
             "bs" => Ok(Self::the_bahamas()),
@@ -2420,7 +2422,7 @@ impl Country {
             "swe" => Ok(Self::sweden()),
             "che" => Ok(Self::switzerland()),
             "syr" => Ok(Self::syrian_arab_republic()),
-            "twn" => Ok(Self::taiwan_province_of_china()),
+            "twn" => Ok(Self::taiwan()),
             "tjk" => Ok(Self::tajikistan()),
             "tha" => Ok(Self::thailand()),
             "bhs" => Ok(Self::the_bahamas()),
@@ -2529,7 +2531,7 @@ impl Country {
                 Ok(Self::south_georgia_and_the_south_sandwich_islands())
             }
             "palestine" => Ok(Self::state_of_palestine()),
-            "taiwan" => Ok(Self::taiwan_province_of_china()),
+            "taiwan" => Ok(Self::taiwan()),
             "bahamas" => Ok(Self::the_bahamas()),
             "caymanislands" => Ok(Self::the_cayman_islands()),
             "centralafricanrepublic" => Ok(Self::the_central_african_republic()),
@@ -2809,7 +2811,7 @@ impl Country {
             "sweden" => Ok(Self::sweden()),
             "switzerland" => Ok(Self::switzerland()),
             "syrianarabrepublic" => Ok(Self::syrian_arab_republic()),
-            "taiwanprovinceofchina" => Ok(Self::taiwan_province_of_china()),
+            "taiwan" => Ok(Self::taiwan()),
             "tajikistan" => Ok(Self::tajikistan()),
             "thailand" => Ok(Self::thailand()),
             "thebahamas" => Ok(Self::the_bahamas()),
@@ -3179,12 +3181,12 @@ impl FromStr for Country {
             "syrianarabrepublic" | "syrian_arab_republic" | "760" | "sy" | "syr" => {
                 Ok(Self::syrian_arab_republic())
             }
-            "taiwanprovinceofchina"
-            | "taiwan_province_of_china"
+            "taiwan"
+            | "taiwan"
             | "158"
             | "tw"
             | "twn"
-            | "taiwan" => Ok(Self::taiwan_province_of_china()),
+            | "taiwan" => Ok(Self::taiwan()),
             "tajikistan" | "762" | "tj" | "tjk" => Ok(Self::tajikistan()),
             "thailand" | "764" | "th" | "tha" => Ok(Self::thailand()),
             "thebahamas" | "the_bahamas" | "044" | "bs" | "bhs" | "bahamas" => {
