@@ -724,6 +724,7 @@ impl Country {
         "Taiwan, Republic Of China",
         TaiwanTable,
         "Taiwan",
+        "台灣",
         "Republic of China",
         "中華民國"
     );
