@@ -1,7 +1,7 @@
 use core::cmp::Ordering;
 use core::{fmt, slice::Iter};
 use serde::{
-    de::{Error as DError, SeqAccess, Visitor},
+    de::{SeqAccess, Visitor},
     ser::SerializeTuple,
     Deserialize, Deserializer, Serialize, Serializer,
 };
@@ -59,12 +59,12 @@ macro_rules! lookup {
                         write!(f, "an array of strings")
                     }
 
-                    fn visit_seq<A>(self, mut seq: A) -> Result<$name, A::Error>
+                    fn visit_seq<A>(self, _seq: A) -> Result<$name, A::Error>
                         where A: SeqAccess<'de>
                     {
-                        for i in 0..$len {
-                            seq.next_element()?.ok_or_else(|| DError::invalid_length(i, &self))?;
-                        }
+                        // // for i in 0..$len {
+                        //     let _ = seq.next_element()?.ok_or_else(|| DError::invalid_length(i, &self))?;
+                        // }
                         Ok($name::default())
                     }
                 }
@@ -257,6 +257,7 @@ lookup!(UnitedStatesMinorOutlyingIslandsTable, UnitedStatesMinorOutlyingIslands,
 lookup!(AmericaTable, America, "The United States Of America", 3, "America" => "america", "UnitedStates" => "unitedstates", "UnitedStatesOfAmerica" => "unitedstatesofamerica");
 lookup!(TrinidadTable, Trinidad, "Trinidad And Tobago", 2, "Trinidad" => "trinidad", "Tobago" => "tobago");
 lookup!(TanzaniaTable, Tanzania, "United Republic Of Tanzania", 1, "Tanzania" => "tanzania");
+lookup!(TurkeyTable, Turkey, "Türkiye", 1, "Turkey" => "turkey");
 
 /// Wrapper struct for alias tables to avoid using Box
 #[derive(Copy, Clone, Debug, Serialize, Deserialize, Eq, PartialEq, Ord, PartialOrd)]
@@ -369,6 +370,8 @@ pub enum CountryTable {
     Trinidad(TrinidadTable),
     /// Aliases for Tanzania
     Tanzania(TanzaniaTable),
+    /// Aliases for Turkey
+    Turkey(TurkeyTable),
 }
 
 impl LookupTable for CountryTable {
@@ -428,6 +431,7 @@ impl LookupTable for CountryTable {
             CountryTable::America(t) => t.contains(alias),
             CountryTable::Trinidad(t) => t.contains(alias),
             CountryTable::Tanzania(t) => t.contains(alias),
+            CountryTable::Turkey(t) => t.contains(alias),
         }
     }
 
@@ -487,6 +491,7 @@ impl LookupTable for CountryTable {
             CountryTable::America(t) => t.len(),
             CountryTable::Trinidad(t) => t.len(),
             CountryTable::Tanzania(t) => t.len(),
+            CountryTable::Turkey(t) => t.len(),
         }
     }
 
@@ -546,6 +551,7 @@ impl LookupTable for CountryTable {
             CountryTable::America(t) => t.iter(),
             CountryTable::Trinidad(t) => t.iter(),
             CountryTable::Tanzania(t) => t.iter(),
+            CountryTable::Turkey(t) => t.iter(),
         }
     }
 }
@@ -607,6 +613,7 @@ impl fmt::Display for CountryTable {
             CountryTable::America(t) => write!(f, "{}", t),
             CountryTable::Trinidad(t) => write!(f, "{}", t),
             CountryTable::Tanzania(t) => write!(f, "{}", t),
+            CountryTable::Turkey(t) => write!(f, "{}", t),
         }
     }
 }

@@ -2,10 +2,11 @@
 
 [![crate][crate-image]][crate-link]
 [![Docs][docs-image]][docs-link]
-![Apache2 licensed][license-image]
-![Rust Version][rustc-image]
+![Apache2/MIT licensed][license-image]
+[![Downloads][downloads-image]][crate-link]
 ![Maintenance Status: Passively-Maintained][maintenance-image]
-[![Build Status][build-image]][build-link]
+![build](https://github.com/mikelodder7/celes/actions/workflows/celes.yml/badge.svg)
+![MSRV][msrv-image]
 
 Convenience crate for handling ISO 3166-1. Also compatible with `no-std` environments.
 
@@ -87,6 +88,9 @@ fn main() {
 Licensed under
 
 - [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0)
+- [MIT license](http://opensource.org/licenses/MIT)
+
+at your option.
 
 ### Contribution
 
@@ -100,8 +104,7 @@ licensed as above, without any additional terms or conditions.
 [crate-link]: https://crates.io/crates/celes
 [docs-image]: https://docs.rs/celes/badge.svg
 [docs-link]: https://docs.rs/celes/
-[license-image]: https://img.shields.io/badge/license-Apache2.0-blue.svg
-[rustc-image]: https://img.shields.io/badge/rustc-1.53+-blue.svg
+[license-image]: https://img.shields.io/badge/license-Apache2.0/MIT-blue.svg
+[msrv-image]: https://img.shields.io/badge/rustc-1.82+-blue.svg
 [maintenance-image]: https://img.shields.io/badge/maintenance-passively--maintained-yellowgreen.svg
-[build-image]: https://travis-ci.com/mikelodder7/celes.svg?branch=master
-[build-link]: https://travis-ci.com/mikelodder7/celes
+[downloads-image]: https://img.shields.io/crates/d/celes.svg
