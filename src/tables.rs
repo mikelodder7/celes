@@ -232,7 +232,7 @@ lookup!(DominicanRepublicTable, DominicanRepublic, "The Dominican Republic", 1, 
 lookup!(MalvinasTable, Malvinas, "The Falkland Islands Malvinas", 2, "Malvinas" => "malvinas", "FalklandIslands" => "falklandislands");
 lookup!(FaroeIslandsTable, FaroeIslands, "The Faroe Islands", 1, "FaroeIslands" => "faroeislands");
 lookup!(FrenchSouthernTerritoriesTable, FrenchSouthernTerritories, "The French Southern Territories", 1, "FrenchSouthernTerritories" => "frenchsouthernterritories");
-lookup!(GabmiaTable, Gabmia, "The Gabmia", 1, "Gabmia" => "gabmia");
+lookup!(GambiaTable, Gambia, "The Gambia", 1, "Gambia" => "gambia");
 lookup!(HolySeeTable, HolySee, "The Holy See", 1, "HolySee" => "holysee");
 lookup!(LaoPeoplesDemocraticRepublicTable, LaoPeoplesDemocraticRepublic, "The Lao Peoples Democratic Republic", 1, "LaoPeoplesDemocraticRepublic" => "laopeoplesdemocraticrepublic");
 lookup!(MarshallIslandsTable, MarshallIslands, "The Marshall Islands", 1, "MarshallIslands" => "marshallislands");
@@ -258,6 +258,8 @@ lookup!(AmericaTable, America, "The United States Of America", 3, "America" => "
 lookup!(TrinidadTable, Trinidad, "Trinidad And Tobago", 2, "Trinidad" => "trinidad", "Tobago" => "tobago");
 lookup!(TanzaniaTable, Tanzania, "United Republic Of Tanzania", 1, "Tanzania" => "tanzania");
 lookup!(TurkeyTable, Turkey, "Türkiye", 1, "Turkey" => "turkey");
+lookup!(TimorTable, TimorLeste, "Timor-Leste", 1, "EastTimor" => "easttimor");
+lookup!(CzechiaTable, Czechia, "Czechia", 1, "CzechRepulic" => "czechrepublic");
 
 /// Wrapper struct for alias tables to avoid using Box
 #[derive(Copy, Clone, Debug, Serialize, Deserialize, Eq, PartialEq, Ord, PartialOrd)]
@@ -333,7 +335,7 @@ pub enum CountryTable {
     /// Aliases for FrenchSouthernTerritories
     FrenchSouthernTerritories(FrenchSouthernTerritoriesTable),
     /// Aliases for Gabmia
-    Gabmia(GabmiaTable),
+    Gambia(GambiaTable),
     /// Aliases for HolySee
     HolySee(HolySeeTable),
     /// Aliases for LaoPeoplesDemocraticRepublic
@@ -372,6 +374,10 @@ pub enum CountryTable {
     Tanzania(TanzaniaTable),
     /// Aliases for Turkey
     Turkey(TurkeyTable),
+    /// Aliases for TimorLeste
+    TimorLeste(TimorTable),
+    /// Aliases for Czechia
+    Czechia(CzechiaTable),
 }
 
 impl LookupTable for CountryTable {
@@ -412,7 +418,7 @@ impl LookupTable for CountryTable {
             CountryTable::Malvinas(t) => t.contains(alias),
             CountryTable::FaroeIslands(t) => t.contains(alias),
             CountryTable::FrenchSouthernTerritories(t) => t.contains(alias),
-            CountryTable::Gabmia(t) => t.contains(alias),
+            CountryTable::Gambia(t) => t.contains(alias),
             CountryTable::HolySee(t) => t.contains(alias),
             CountryTable::LaoPeoplesDemocraticRepublic(t) => t.contains(alias),
             CountryTable::MarshallIslands(t) => t.contains(alias),
@@ -432,6 +438,8 @@ impl LookupTable for CountryTable {
             CountryTable::Trinidad(t) => t.contains(alias),
             CountryTable::Tanzania(t) => t.contains(alias),
             CountryTable::Turkey(t) => t.contains(alias),
+            CountryTable::TimorLeste(t) => t.contains(alias),
+            CountryTable::Czeckia(t) => t.contains(alias),
         }
     }
 
@@ -472,7 +480,7 @@ impl LookupTable for CountryTable {
             CountryTable::Malvinas(t) => t.len(),
             CountryTable::FaroeIslands(t) => t.len(),
             CountryTable::FrenchSouthernTerritories(t) => t.len(),
-            CountryTable::Gabmia(t) => t.len(),
+            CountryTable::Gambia(t) => t.len(),
             CountryTable::HolySee(t) => t.len(),
             CountryTable::LaoPeoplesDemocraticRepublic(t) => t.len(),
             CountryTable::MarshallIslands(t) => t.len(),
@@ -492,6 +500,8 @@ impl LookupTable for CountryTable {
             CountryTable::Trinidad(t) => t.len(),
             CountryTable::Tanzania(t) => t.len(),
             CountryTable::Turkey(t) => t.len(),
+            CountryTable::TimorLeste(t) => t.len(),
+            CountryTable::Czeckia(t) => t.len(),
         }
     }
 
@@ -532,7 +542,7 @@ impl LookupTable for CountryTable {
             CountryTable::Malvinas(t) => t.iter(),
             CountryTable::FaroeIslands(t) => t.iter(),
             CountryTable::FrenchSouthernTerritories(t) => t.iter(),
-            CountryTable::Gabmia(t) => t.iter(),
+            CountryTable::Gambia(t) => t.iter(),
             CountryTable::HolySee(t) => t.iter(),
             CountryTable::LaoPeoplesDemocraticRepublic(t) => t.iter(),
             CountryTable::MarshallIslands(t) => t.iter(),
@@ -552,6 +562,8 @@ impl LookupTable for CountryTable {
             CountryTable::Trinidad(t) => t.iter(),
             CountryTable::Tanzania(t) => t.iter(),
             CountryTable::Turkey(t) => t.iter(),
+            CountryTable::TimorLeste(t) => t.iter(),
+            CountryTable::Czeckia(t) => t.iter(),
         }
     }
 }
@@ -594,7 +606,7 @@ impl fmt::Display for CountryTable {
             CountryTable::Malvinas(t) => write!(f, "{}", t),
             CountryTable::FaroeIslands(t) => write!(f, "{}", t),
             CountryTable::FrenchSouthernTerritories(t) => write!(f, "{}", t),
-            CountryTable::Gabmia(t) => write!(f, "{}", t),
+            CountryTable::Gambia(t) => write!(f, "{}", t),
             CountryTable::HolySee(t) => write!(f, "{}", t),
             CountryTable::LaoPeoplesDemocraticRepublic(t) => write!(f, "{}", t),
             CountryTable::MarshallIslands(t) => write!(f, "{}", t),
@@ -614,6 +626,8 @@ impl fmt::Display for CountryTable {
             CountryTable::Trinidad(t) => write!(f, "{}", t),
             CountryTable::Tanzania(t) => write!(f, "{}", t),
             CountryTable::Turkey(t) => write!(f, "{}", t),
+            CountryTable::TimorLeste(t) => write!(f, "{}", t),
+            CountryTable::Czeckia(t) => write!(f, "{}", t),
         }
     }
 }

@@ -427,7 +427,7 @@ impl Country {
 
     country!(cyprus, "196", 196, "CY", "CYP", "Cyprus");
 
-    country!(czechia, "203", 203, "CZ", "CZE", "Czechia");
+    country!(czechia, "203", 203, "CZ", "CZE", "Czechia", CzechiaTable, "CzechRepublic");
 
     country!(denmark, "208", 208, "DK", "DNK", "Denmark");
 
@@ -1047,7 +1047,7 @@ impl Country {
         "GM",
         "GMB",
         "The Gambia",
-        GabmiaTable,
+        GambiaTable,
         "Gabmia"
     );
 
@@ -1239,7 +1239,7 @@ impl Country {
         "UnitedStatesOfAmerica"
     );
 
-    country!(timor_leste, "626", 626, "TL", "TLS", "Timor Leste");
+    country!(timor_leste, "626", 626, "TL", "TLS", "Timor Leste", TimorTable, "EastTimor");
 
     country!(togo, "768", 768, "TG", "TGO", "Togo");
 
@@ -2827,6 +2827,7 @@ impl Country {
             map.insert("comoros", Country::the_comoros());
             map.insert("congo", Country::the_congo());
             map.insert("cookislands", Country::the_cook_islands());
+            map.insert("czechrepublic", Country::czechia());
             for s in ["northkorea", "democraticpeoplesrepublicofkorea"] {
                 map.insert(s, Country::the_democratic_peoples_republic_of_korea());
             }
@@ -2835,6 +2836,7 @@ impl Country {
                 Country::the_democratic_republic_of_the_congo(),
             );
             map.insert("dominicanrepublic", Country::the_dominican_republic());
+            map.insert("easttimor", Country::timor_leste());
             for s in ["malvinas", "falklandislands"] {
                 map.insert(s, Country::the_falkland_islands_malvinas());
             }
@@ -2843,7 +2845,7 @@ impl Country {
                 "frenchsouthernterritories",
                 Country::the_french_southern_territories(),
             );
-            map.insert("gabmia", Country::the_gambia());
+            map.insert("gambia", Country::the_gambia());
             map.insert("holysee", Country::the_holy_see());
             map.insert(
                 "laopeoplesdemocraticrepublic",
@@ -3231,6 +3233,7 @@ impl Country {
                 Country::the_united_states_of_america(),
             );
             map.insert("timorleste", Country::timor_leste());
+            map.insert("easttimor", Country::timor_leste());
             map.insert("togo", Country::togo());
             map.insert("tokelau", Country::tokelau());
             map.insert("tonga", Country::tonga());
@@ -3481,7 +3484,7 @@ impl FromStr for Country {
             for s in ["cyprus", "196", "cy", "cyp"] {
                 map.insert(s, Country::cyprus());
             }
-            for s in ["czechia", "203", "cz", "cze"] {
+            for s in ["czechia", "czechrepublic", "203", "cz", "cze"] {
                 map.insert(s, Country::czechia());
             }
             for s in ["denmark", "208", "dk", "dnk"] {
@@ -4134,7 +4137,7 @@ impl FromStr for Country {
             ] {
                 map.insert(s, Country::the_french_southern_territories());
             }
-            for s in ["thegambia", "the_gambia", "270", "gm", "gmb", "gabmia"] {
+            for s in ["thegambia", "the_gambia", "270", "gm", "gmb", "gambia"] {
                 map.insert(s, Country::the_gambia());
             }
             for s in ["theholysee", "the_holy_see", "336", "va", "vat", "holysee"] {
