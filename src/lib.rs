@@ -3,8 +3,8 @@
     SPDX-License-Identifier: Apache-2.0 OR MIT
 */
 //! Rust implementation of Countries as specified by
-//! https://www.iban.com/country-codes using ISO 3166-1
-//! and https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes
+//! [Country Codes](https://www.iban.com/country-codes)
+//! and [ISO-3166-1](https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes)
 //!
 //! If there are any countries missing then please let me know or submit a PR
 //!
