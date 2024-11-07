@@ -1,4 +1,4 @@
-name: frodo-kem
+name: celes
 
 on:
   pull_request:
