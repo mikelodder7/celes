@@ -427,7 +427,16 @@ impl Country {
 
     country!(cyprus, "196", 196, "CY", "CYP", "Cyprus");
 
-    country!(czechia, "203", 203, "CZ", "CZE", "Czechia", CzechiaTable, "CzechRepublic");
+    country!(
+        czechia,
+        "203",
+        203,
+        "CZ",
+        "CZE",
+        "Czechia",
+        CzechiaTable,
+        "CzechRepublic"
+    );
 
     country!(denmark, "208", 208, "DK", "DNK", "Denmark");
 
@@ -1239,7 +1248,16 @@ impl Country {
         "UnitedStatesOfAmerica"
     );
 
-    country!(timor_leste, "626", 626, "TL", "TLS", "Timor Leste", TimorTable, "EastTimor");
+    country!(
+        timor_leste,
+        "626",
+        626,
+        "TL",
+        "TLS",
+        "Timor Leste",
+        TimorTable,
+        "EastTimor"
+    );
 
     country!(togo, "768", 768, "TG", "TGO", "Togo");
 

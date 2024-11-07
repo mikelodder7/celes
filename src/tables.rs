@@ -259,7 +259,7 @@ lookup!(TrinidadTable, Trinidad, "Trinidad And Tobago", 2, "Trinidad" => "trinid
 lookup!(TanzaniaTable, Tanzania, "United Republic Of Tanzania", 1, "Tanzania" => "tanzania");
 lookup!(TurkeyTable, Turkey, "Türkiye", 1, "Turkey" => "turkey");
 lookup!(TimorTable, TimorLeste, "Timor-Leste", 1, "EastTimor" => "easttimor");
-lookup!(CzechiaTable, Czechia, "Czechia", 1, "CzechRepulic" => "czechrepublic");
+lookup!(CzechiaTable, Czechia, "Czechia", 1, "CzechRepublic" => "czechrepublic");
 
 /// Wrapper struct for alias tables to avoid using Box
 #[derive(Copy, Clone, Debug, Serialize, Deserialize, Eq, PartialEq, Ord, PartialOrd)]
@@ -439,7 +439,7 @@ impl LookupTable for CountryTable {
             CountryTable::Tanzania(t) => t.contains(alias),
             CountryTable::Turkey(t) => t.contains(alias),
             CountryTable::TimorLeste(t) => t.contains(alias),
-            CountryTable::Czeckia(t) => t.contains(alias),
+            CountryTable::Czechia(t) => t.contains(alias),
         }
     }
 
@@ -501,7 +501,7 @@ impl LookupTable for CountryTable {
             CountryTable::Tanzania(t) => t.len(),
             CountryTable::Turkey(t) => t.len(),
             CountryTable::TimorLeste(t) => t.len(),
-            CountryTable::Czeckia(t) => t.len(),
+            CountryTable::Czechia(t) => t.len(),
         }
     }
 
@@ -563,7 +563,7 @@ impl LookupTable for CountryTable {
             CountryTable::Tanzania(t) => t.iter(),
             CountryTable::Turkey(t) => t.iter(),
             CountryTable::TimorLeste(t) => t.iter(),
-            CountryTable::Czeckia(t) => t.iter(),
+            CountryTable::Czechia(t) => t.iter(),
         }
     }
 }
@@ -627,7 +627,7 @@ impl fmt::Display for CountryTable {
             CountryTable::Tanzania(t) => write!(f, "{}", t),
             CountryTable::Turkey(t) => write!(f, "{}", t),
             CountryTable::TimorLeste(t) => write!(f, "{}", t),
-            CountryTable::Czeckia(t) => write!(f, "{}", t),
+            CountryTable::Czechia(t) => write!(f, "{}", t),
         }
     }
 }
