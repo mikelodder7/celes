@@ -102,27 +102,27 @@ macro_rules! country {
     };
     (@gen [$doc:expr, $func:ident, $code:expr, $value:expr, $alpha2:expr, $alpha3:expr, $long_name:expr]) => {
         #[doc = $doc]
-        pub fn $func() -> Self {
+        pub const fn $func() -> Self {
             Self {
                 code: $code,
                 value: $value,
                 alpha2: $alpha2,
                 alpha3: $alpha3,
                 long_name: $long_name,
-                aliases: EMPTY_LOOKUP_TABLE.into(),
+                aliases: EMPTY_LOOKUP_TABLE.into_country_table(),
             }
         }
     };
     (@gen [$doc:expr, $func:ident, $code:expr, $value:expr, $alpha2:expr, $alpha3:expr, $long_name:expr, $table:ident, $( $alias:expr ),* ]) => {
         #[doc = $doc]
-        pub fn $func() -> Self {
+        pub const fn $func() -> Self {
             Self {
                 code: $code,
                 value: $value,
                 alpha2: $alpha2,
                 alpha3: $alpha3,
                 long_name: $long_name,
-                aliases: $table::default().into()
+                aliases: $table::const_default().into_country_table()
             }
         }
     };

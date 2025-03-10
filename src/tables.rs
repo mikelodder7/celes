@@ -12,9 +12,19 @@ macro_rules! lookup {
         #[derive(Copy, Clone, Eq, Ord)]
         pub struct $name(pub [&'static str; $len]);
 
+        impl $name {
+            pub(crate) const fn const_default() -> Self {
+                Self([$($aliases,)*])
+            }
+
+            pub(crate) const fn into_country_table(self) -> CountryTable {
+                CountryTable::$enum(self)
+            }
+        }
+
         impl Default for $name {
             fn default() -> Self {
-                Self([$($aliases,)*])
+                Self::const_default()
             }
         }
 
@@ -75,7 +85,7 @@ macro_rules! lookup {
 
         impl From<$name> for CountryTable {
             fn from(n: $name) -> Self {
-                CountryTable::$enum(n)
+                n.into_country_table()
             }
         }
 
@@ -144,11 +154,17 @@ pub trait LookupTable {
 }
 
 /// Since reference for the EmptyLookupTable
-pub static EMPTY_LOOKUP_TABLE: EmptyLookupTable = EmptyLookupTable([]);
+pub const EMPTY_LOOKUP_TABLE: EmptyLookupTable = EmptyLookupTable([]);
 
 /// A lookup table with zero entries
 #[derive(Copy, Clone, Default, Serialize, Deserialize, Eq, Ord)]
 pub struct EmptyLookupTable(pub [&'static str; 0]);
+
+impl EmptyLookupTable {
+    pub(crate) const fn into_country_table(self) -> CountryTable {
+        CountryTable::Empty(self)
+    }
+}
 
 impl LookupTable for EmptyLookupTable {
     fn contains(&self, _: &str) -> bool {
@@ -182,7 +198,7 @@ impl<L: LookupTable> PartialOrd<L> for EmptyLookupTable {
 
 impl From<EmptyLookupTable> for CountryTable {
     fn from(t: EmptyLookupTable) -> Self {
-        CountryTable::Empty(t)
+        t.into_country_table()
     }
 }
 
