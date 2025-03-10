@@ -14,7 +14,9 @@ macro_rules! lookup {
 
         impl $name {
             pub(crate) const fn const_default() -> Self {
-                Self([$($aliases,)*])
+                const {
+                    Self([$($aliases,)*])
+                }
             }
 
             pub(crate) const fn into_country_table(self) -> CountryTable {
