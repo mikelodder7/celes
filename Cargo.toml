@@ -22,6 +22,8 @@ name = "celes"
 readme = "README.md"
 repository = "https://github.com/mikelodder7/celes"
 version = "2.5.0"
+# 1.79, released June 2024, required for inline const
+rust-version = "1.79"
 
 [dependencies]
 serde = { version = "1", default-features = false, features = ["derive"] }
