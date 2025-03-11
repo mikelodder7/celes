@@ -105,6 +105,6 @@ licensed as above, without any additional terms or conditions.
 [docs-image]: https://docs.rs/celes/badge.svg
 [docs-link]: https://docs.rs/celes/
 [license-image]: https://img.shields.io/badge/license-Apache2.0/MIT-blue.svg
-[msrv-image]: https://img.shields.io/badge/rustc-1.82+-blue.svg
+[msrv-image]: https://img.shields.io/badge/rustc-1.85+-blue.svg
 [maintenance-image]: https://img.shields.io/badge/maintenance-passively--maintained-yellowgreen.svg
 [downloads-image]: https://img.shields.io/crates/d/celes.svg

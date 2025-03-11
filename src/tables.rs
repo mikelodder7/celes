@@ -1,9 +1,9 @@
 use core::cmp::Ordering;
 use core::{fmt, slice::Iter};
 use serde::{
+    Deserialize, Deserializer, Serialize, Serializer,
     de::{SeqAccess, Visitor},
     ser::SerializeTuple,
-    Deserialize, Deserializer, Serialize, Serializer,
 };
 
 macro_rules! lookup {
@@ -14,9 +14,7 @@ macro_rules! lookup {
 
         impl $name {
             pub(crate) const fn const_default() -> Self {
-                const {
-                    Self([$($aliases,)*])
-                }
+                Self([$($aliases,)*])
             }
 
             pub(crate) const fn into_country_table(self) -> CountryTable {

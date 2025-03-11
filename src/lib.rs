@@ -85,11 +85,11 @@ use core::{
     hash::{Hash, Hasher},
     str::FromStr,
 };
+use phf::{Map, phf_map};
 use serde::{
-    de::{Error as DError, Visitor},
     Deserialize, Deserializer, Serialize, Serializer,
+    de::{Error as DError, Visitor},
 };
-use std::{collections::HashMap, sync::LazyLock};
 pub use tables::*;
 
 /// Creates the country function. Meant to be called inside `Country`
@@ -104,15 +104,13 @@ macro_rules! country {
         #[doc = $doc]
         #[inline]
         pub const fn $func() -> Self {
-            const {
-                Self {
-                    code: $code,
-                    value: $value,
-                    alpha2: $alpha2,
-                    alpha3: $alpha3,
-                    long_name: $long_name,
-                    aliases: EMPTY_LOOKUP_TABLE.into_country_table(),
-                }
+            Self {
+                code: $code,
+                value: $value,
+                alpha2: $alpha2,
+                alpha3: $alpha3,
+                long_name: $long_name,
+                aliases: EMPTY_LOOKUP_TABLE.into_country_table(),
             }
         }
     };
@@ -120,15 +118,13 @@ macro_rules! country {
         #[doc = $doc]
         #[inline]
         pub const fn $func() -> Self {
-            const {
-                Self {
-                    code: $code,
-                    value: $value,
-                    alpha2: $alpha2,
-                    alpha3: $alpha3,
-                    long_name: $long_name,
-                    aliases: $table::const_default().into_country_table()
-                }
+            Self {
+                code: $code,
+                value: $value,
+                alpha2: $alpha2,
+                alpha3: $alpha3,
+                long_name: $long_name,
+                aliases: $table::const_default().into_country_table()
             }
         }
     };
@@ -1375,260 +1371,258 @@ impl Country {
     ///
     /// ```
     pub const fn get_countries() -> [Self; 250] {
-        const {
-            [
-                Self::afghanistan(),
-                Self::aland_islands(),
-                Self::albania(),
-                Self::algeria(),
-                Self::american_samoa(),
-                Self::andorra(),
-                Self::angola(),
-                Self::anguilla(),
-                Self::antarctica(),
-                Self::antigua_and_barbuda(),
-                Self::argentina(),
-                Self::armenia(),
-                Self::aruba(),
-                Self::ascension_and_tristan_da_cunha_saint_helena(),
-                Self::australia(),
-                Self::austria(),
-                Self::azerbaijan(),
-                Self::bahrain(),
-                Self::bangladesh(),
-                Self::barbados(),
-                Self::belarus(),
-                Self::belgium(),
-                Self::belize(),
-                Self::benin(),
-                Self::bermuda(),
-                Self::bhutan(),
-                Self::bolivarian_republic_of_venezuela(),
-                Self::bolivia(),
-                Self::bonaire(),
-                Self::bosnia_and_herzegovina(),
-                Self::botswana(),
-                Self::bouvet_island(),
-                Self::brazil(),
-                Self::british_indian_ocean_territory(),
-                Self::british_virgin_islands(),
-                Self::brunei_darussalam(),
-                Self::bulgaria(),
-                Self::burkina_faso(),
-                Self::burundi(),
-                Self::cabo_verde(),
-                Self::cambodia(),
-                Self::cameroon(),
-                Self::canada(),
-                Self::chad(),
-                Self::chile(),
-                Self::china(),
-                Self::christmas_island(),
-                Self::colombia(),
-                Self::costa_rica(),
-                Self::coted_ivoire(),
-                Self::croatia(),
-                Self::cuba(),
-                Self::curacao(),
-                Self::cyprus(),
-                Self::czechia(),
-                Self::denmark(),
-                Self::djibouti(),
-                Self::dominica(),
-                Self::dutch_part_sint_maarten(),
-                Self::ecuador(),
-                Self::egypt(),
-                Self::el_salvador(),
-                Self::equatorial_guinea(),
-                Self::eritrea(),
-                Self::estonia(),
-                Self::eswatini(),
-                Self::ethiopia(),
-                Self::federated_states_of_micronesia(),
-                Self::fiji(),
-                Self::finland(),
-                Self::france(),
-                Self::french_guiana(),
-                Self::french_part_saint_martin(),
-                Self::french_polynesia(),
-                Self::gabon(),
-                Self::georgia(),
-                Self::germany(),
-                Self::ghana(),
-                Self::gibraltar(),
-                Self::greece(),
-                Self::greenland(),
-                Self::grenada(),
-                Self::guadeloupe(),
-                Self::guam(),
-                Self::guatemala(),
-                Self::guernsey(),
-                Self::guinea(),
-                Self::guinea_bissau(),
-                Self::guyana(),
-                Self::haiti(),
-                Self::heard_island_and_mc_donald_islands(),
-                Self::honduras(),
-                Self::hong_kong(),
-                Self::hungary(),
-                Self::iceland(),
-                Self::india(),
-                Self::indonesia(),
-                Self::iraq(),
-                Self::ireland(),
-                Self::islamic_republic_of_iran(),
-                Self::isle_of_man(),
-                Self::israel(),
-                Self::italy(),
-                Self::jamaica(),
-                Self::japan(),
-                Self::jersey(),
-                Self::jordan(),
-                Self::kazakhstan(),
-                Self::kenya(),
-                Self::kiribati(),
-                Self::kosovo(),
-                Self::kuwait(),
-                Self::kyrgyzstan(),
-                Self::latvia(),
-                Self::lebanon(),
-                Self::lesotho(),
-                Self::liberia(),
-                Self::libya(),
-                Self::liechtenstein(),
-                Self::lithuania(),
-                Self::luxembourg(),
-                Self::macao(),
-                Self::madagascar(),
-                Self::malawi(),
-                Self::malaysia(),
-                Self::maldives(),
-                Self::mali(),
-                Self::malta(),
-                Self::martinique(),
-                Self::mauritania(),
-                Self::mauritius(),
-                Self::mayotte(),
-                Self::mexico(),
-                Self::monaco(),
-                Self::mongolia(),
-                Self::montenegro(),
-                Self::montserrat(),
-                Self::morocco(),
-                Self::mozambique(),
-                Self::myanmar(),
-                Self::namibia(),
-                Self::nauru(),
-                Self::nepal(),
-                Self::new_caledonia(),
-                Self::new_zealand(),
-                Self::nicaragua(),
-                Self::nigeria(),
-                Self::niue(),
-                Self::norfolk_island(),
-                Self::norway(),
-                Self::oman(),
-                Self::pakistan(),
-                Self::palau(),
-                Self::panama(),
-                Self::papua_new_guinea(),
-                Self::paraguay(),
-                Self::peru(),
-                Self::pitcairn(),
-                Self::poland(),
-                Self::portugal(),
-                Self::puerto_rico(),
-                Self::qatar(),
-                Self::republic_of_north_macedonia(),
-                Self::reunion(),
-                Self::romania(),
-                Self::rwanda(),
-                Self::saint_barthelemy(),
-                Self::saint_kitts_and_nevis(),
-                Self::saint_lucia(),
-                Self::saint_pierre_and_miquelon(),
-                Self::saint_vincent_and_the_grenadines(),
-                Self::samoa(),
-                Self::san_marino(),
-                Self::sao_tome_and_principe(),
-                Self::saudi_arabia(),
-                Self::senegal(),
-                Self::serbia(),
-                Self::seychelles(),
-                Self::sierra_leone(),
-                Self::singapore(),
-                Self::slovakia(),
-                Self::slovenia(),
-                Self::solomon_islands(),
-                Self::somalia(),
-                Self::south_africa(),
-                Self::south_georgia_and_the_south_sandwich_islands(),
-                Self::south_sudan(),
-                Self::spain(),
-                Self::sri_lanka(),
-                Self::state_of_palestine(),
-                Self::suriname(),
-                Self::svalbard_and_jan_mayen(),
-                Self::sweden(),
-                Self::switzerland(),
-                Self::syrian_arab_republic(),
-                Self::taiwan(),
-                Self::tajikistan(),
-                Self::thailand(),
-                Self::the_bahamas(),
-                Self::the_cayman_islands(),
-                Self::the_central_african_republic(),
-                Self::the_cocos_keeling_islands(),
-                Self::the_comoros(),
-                Self::the_congo(),
-                Self::the_cook_islands(),
-                Self::the_democratic_peoples_republic_of_korea(),
-                Self::the_democratic_republic_of_the_congo(),
-                Self::the_dominican_republic(),
-                Self::the_falkland_islands_malvinas(),
-                Self::the_faroe_islands(),
-                Self::the_french_southern_territories(),
-                Self::the_gambia(),
-                Self::the_holy_see(),
-                Self::the_lao_peoples_democratic_republic(),
-                Self::the_marshall_islands(),
-                Self::the_netherlands(),
-                Self::the_niger(),
-                Self::the_northern_mariana_islands(),
-                Self::the_philippines(),
-                Self::the_republic_of_korea(),
-                Self::the_republic_of_moldova(),
-                Self::the_russian_federation(),
-                Self::the_sudan(),
-                Self::the_turks_and_caicos_islands(),
-                Self::the_united_arab_emirates(),
-                Self::the_united_kingdom_of_great_britain_and_northern_ireland(),
-                Self::the_united_states_minor_outlying_islands(),
-                Self::the_united_states_of_america(),
-                Self::timor_leste(),
-                Self::togo(),
-                Self::tokelau(),
-                Self::tonga(),
-                Self::trinidad_and_tobago(),
-                Self::tunisia(),
-                Self::turkey(),
-                Self::turkmenistan(),
-                Self::tuvalu(),
-                Self::us_virgin_islands(),
-                Self::uganda(),
-                Self::ukraine(),
-                Self::united_republic_of_tanzania(),
-                Self::uruguay(),
-                Self::uzbekistan(),
-                Self::vanuatu(),
-                Self::vietnam(),
-                Self::wallis_and_futuna(),
-                Self::western_sahara(),
-                Self::yemen(),
-                Self::zambia(),
-                Self::zimbabwe(),
-            ]
-        }
+        [
+            Self::afghanistan(),
+            Self::aland_islands(),
+            Self::albania(),
+            Self::algeria(),
+            Self::american_samoa(),
+            Self::andorra(),
+            Self::angola(),
+            Self::anguilla(),
+            Self::antarctica(),
+            Self::antigua_and_barbuda(),
+            Self::argentina(),
+            Self::armenia(),
+            Self::aruba(),
+            Self::ascension_and_tristan_da_cunha_saint_helena(),
+            Self::australia(),
+            Self::austria(),
+            Self::azerbaijan(),
+            Self::bahrain(),
+            Self::bangladesh(),
+            Self::barbados(),
+            Self::belarus(),
+            Self::belgium(),
+            Self::belize(),
+            Self::benin(),
+            Self::bermuda(),
+            Self::bhutan(),
+            Self::bolivarian_republic_of_venezuela(),
+            Self::bolivia(),
+            Self::bonaire(),
+            Self::bosnia_and_herzegovina(),
+            Self::botswana(),
+            Self::bouvet_island(),
+            Self::brazil(),
+            Self::british_indian_ocean_territory(),
+            Self::british_virgin_islands(),
+            Self::brunei_darussalam(),
+            Self::bulgaria(),
+            Self::burkina_faso(),
+            Self::burundi(),
+            Self::cabo_verde(),
+            Self::cambodia(),
+            Self::cameroon(),
+            Self::canada(),
+            Self::chad(),
+            Self::chile(),
+            Self::china(),
+            Self::christmas_island(),
+            Self::colombia(),
+            Self::costa_rica(),
+            Self::coted_ivoire(),
+            Self::croatia(),
+            Self::cuba(),
+            Self::curacao(),
+            Self::cyprus(),
+            Self::czechia(),
+            Self::denmark(),
+            Self::djibouti(),
+            Self::dominica(),
+            Self::dutch_part_sint_maarten(),
+            Self::ecuador(),
+            Self::egypt(),
+            Self::el_salvador(),
+            Self::equatorial_guinea(),
+            Self::eritrea(),
+            Self::estonia(),
+            Self::eswatini(),
+            Self::ethiopia(),
+            Self::federated_states_of_micronesia(),
+            Self::fiji(),
+            Self::finland(),
+            Self::france(),
+            Self::french_guiana(),
+            Self::french_part_saint_martin(),
+            Self::french_polynesia(),
+            Self::gabon(),
+            Self::georgia(),
+            Self::germany(),
+            Self::ghana(),
+            Self::gibraltar(),
+            Self::greece(),
+            Self::greenland(),
+            Self::grenada(),
+            Self::guadeloupe(),
+            Self::guam(),
+            Self::guatemala(),
+            Self::guernsey(),
+            Self::guinea(),
+            Self::guinea_bissau(),
+            Self::guyana(),
+            Self::haiti(),
+            Self::heard_island_and_mc_donald_islands(),
+            Self::honduras(),
+            Self::hong_kong(),
+            Self::hungary(),
+            Self::iceland(),
+            Self::india(),
+            Self::indonesia(),
+            Self::iraq(),
+            Self::ireland(),
+            Self::islamic_republic_of_iran(),
+            Self::isle_of_man(),
+            Self::israel(),
+            Self::italy(),
+            Self::jamaica(),
+            Self::japan(),
+            Self::jersey(),
+            Self::jordan(),
+            Self::kazakhstan(),
+            Self::kenya(),
+            Self::kiribati(),
+            Self::kosovo(),
+            Self::kuwait(),
+            Self::kyrgyzstan(),
+            Self::latvia(),
+            Self::lebanon(),
+            Self::lesotho(),
+            Self::liberia(),
+            Self::libya(),
+            Self::liechtenstein(),
+            Self::lithuania(),
+            Self::luxembourg(),
+            Self::macao(),
+            Self::madagascar(),
+            Self::malawi(),
+            Self::malaysia(),
+            Self::maldives(),
+            Self::mali(),
+            Self::malta(),
+            Self::martinique(),
+            Self::mauritania(),
+            Self::mauritius(),
+            Self::mayotte(),
+            Self::mexico(),
+            Self::monaco(),
+            Self::mongolia(),
+            Self::montenegro(),
+            Self::montserrat(),
+            Self::morocco(),
+            Self::mozambique(),
+            Self::myanmar(),
+            Self::namibia(),
+            Self::nauru(),
+            Self::nepal(),
+            Self::new_caledonia(),
+            Self::new_zealand(),
+            Self::nicaragua(),
+            Self::nigeria(),
+            Self::niue(),
+            Self::norfolk_island(),
+            Self::norway(),
+            Self::oman(),
+            Self::pakistan(),
+            Self::palau(),
+            Self::panama(),
+            Self::papua_new_guinea(),
+            Self::paraguay(),
+            Self::peru(),
+            Self::pitcairn(),
+            Self::poland(),
+            Self::portugal(),
+            Self::puerto_rico(),
+            Self::qatar(),
+            Self::republic_of_north_macedonia(),
+            Self::reunion(),
+            Self::romania(),
+            Self::rwanda(),
+            Self::saint_barthelemy(),
+            Self::saint_kitts_and_nevis(),
+            Self::saint_lucia(),
+            Self::saint_pierre_and_miquelon(),
+            Self::saint_vincent_and_the_grenadines(),
+            Self::samoa(),
+            Self::san_marino(),
+            Self::sao_tome_and_principe(),
+            Self::saudi_arabia(),
+            Self::senegal(),
+            Self::serbia(),
+            Self::seychelles(),
+            Self::sierra_leone(),
+            Self::singapore(),
+            Self::slovakia(),
+            Self::slovenia(),
+            Self::solomon_islands(),
+            Self::somalia(),
+            Self::south_africa(),
+            Self::south_georgia_and_the_south_sandwich_islands(),
+            Self::south_sudan(),
+            Self::spain(),
+            Self::sri_lanka(),
+            Self::state_of_palestine(),
+            Self::suriname(),
+            Self::svalbard_and_jan_mayen(),
+            Self::sweden(),
+            Self::switzerland(),
+            Self::syrian_arab_republic(),
+            Self::taiwan(),
+            Self::tajikistan(),
+            Self::thailand(),
+            Self::the_bahamas(),
+            Self::the_cayman_islands(),
+            Self::the_central_african_republic(),
+            Self::the_cocos_keeling_islands(),
+            Self::the_comoros(),
+            Self::the_congo(),
+            Self::the_cook_islands(),
+            Self::the_democratic_peoples_republic_of_korea(),
+            Self::the_democratic_republic_of_the_congo(),
+            Self::the_dominican_republic(),
+            Self::the_falkland_islands_malvinas(),
+            Self::the_faroe_islands(),
+            Self::the_french_southern_territories(),
+            Self::the_gambia(),
+            Self::the_holy_see(),
+            Self::the_lao_peoples_democratic_republic(),
+            Self::the_marshall_islands(),
+            Self::the_netherlands(),
+            Self::the_niger(),
+            Self::the_northern_mariana_islands(),
+            Self::the_philippines(),
+            Self::the_republic_of_korea(),
+            Self::the_republic_of_moldova(),
+            Self::the_russian_federation(),
+            Self::the_sudan(),
+            Self::the_turks_and_caicos_islands(),
+            Self::the_united_arab_emirates(),
+            Self::the_united_kingdom_of_great_britain_and_northern_ireland(),
+            Self::the_united_states_minor_outlying_islands(),
+            Self::the_united_states_of_america(),
+            Self::timor_leste(),
+            Self::togo(),
+            Self::tokelau(),
+            Self::tonga(),
+            Self::trinidad_and_tobago(),
+            Self::tunisia(),
+            Self::turkey(),
+            Self::turkmenistan(),
+            Self::tuvalu(),
+            Self::us_virgin_islands(),
+            Self::uganda(),
+            Self::ukraine(),
+            Self::united_republic_of_tanzania(),
+            Self::uruguay(),
+            Self::uzbekistan(),
+            Self::vanuatu(),
+            Self::vietnam(),
+            Self::wallis_and_futuna(),
+            Self::western_sahara(),
+            Self::yemen(),
+            Self::zambia(),
+            Self::zimbabwe(),
+        ]
     }
 
     /// Given the numeric code, return a country or an error if
@@ -1649,264 +1643,259 @@ impl Country {
     /// assert_eq!(Country::afghanistan(), res.unwrap());
     /// ```
     pub fn from_value(value: usize) -> Result<Self, &'static str> {
-        static VALUES: LazyLock<HashMap<usize, Country>> = LazyLock::new(|| {
-            let mut map = HashMap::with_capacity(250);
-            map.insert(4, Country::afghanistan());
-            map.insert(248, Country::aland_islands());
-            map.insert(8, Country::albania());
-            map.insert(12, Country::algeria());
-            map.insert(16, Country::american_samoa());
-            map.insert(20, Country::andorra());
-            map.insert(24, Country::angola());
-            map.insert(660, Country::anguilla());
-            map.insert(10, Country::antarctica());
-            map.insert(28, Country::antigua_and_barbuda());
-            map.insert(32, Country::argentina());
-            map.insert(51, Country::armenia());
-            map.insert(533, Country::aruba());
-            map.insert(654, Country::ascension_and_tristan_da_cunha_saint_helena());
-            map.insert(36, Country::australia());
-            map.insert(40, Country::austria());
-            map.insert(31, Country::azerbaijan());
-            map.insert(48, Country::bahrain());
-            map.insert(50, Country::bangladesh());
-            map.insert(52, Country::barbados());
-            map.insert(112, Country::belarus());
-            map.insert(56, Country::belgium());
-            map.insert(84, Country::belize());
-            map.insert(204, Country::benin());
-            map.insert(60, Country::bermuda());
-            map.insert(64, Country::bhutan());
-            map.insert(862, Country::bolivarian_republic_of_venezuela());
-            map.insert(68, Country::bolivia());
-            map.insert(535, Country::bonaire());
-            map.insert(70, Country::bosnia_and_herzegovina());
-            map.insert(72, Country::botswana());
-            map.insert(74, Country::bouvet_island());
-            map.insert(76, Country::brazil());
-            map.insert(86, Country::british_indian_ocean_territory());
-            map.insert(92, Country::british_virgin_islands());
-            map.insert(96, Country::brunei_darussalam());
-            map.insert(100, Country::bulgaria());
-            map.insert(854, Country::burkina_faso());
-            map.insert(108, Country::burundi());
-            map.insert(132, Country::cabo_verde());
-            map.insert(116, Country::cambodia());
-            map.insert(120, Country::cameroon());
-            map.insert(124, Country::canada());
-            map.insert(148, Country::chad());
-            map.insert(152, Country::chile());
-            map.insert(156, Country::china());
-            map.insert(162, Country::christmas_island());
-            map.insert(170, Country::colombia());
-            map.insert(188, Country::costa_rica());
-            map.insert(384, Country::coted_ivoire());
-            map.insert(191, Country::croatia());
-            map.insert(192, Country::cuba());
-            map.insert(531, Country::curacao());
-            map.insert(196, Country::cyprus());
-            map.insert(203, Country::czechia());
-            map.insert(208, Country::denmark());
-            map.insert(262, Country::djibouti());
-            map.insert(212, Country::dominica());
-            map.insert(534, Country::dutch_part_sint_maarten());
-            map.insert(218, Country::ecuador());
-            map.insert(818, Country::egypt());
-            map.insert(222, Country::el_salvador());
-            map.insert(226, Country::equatorial_guinea());
-            map.insert(232, Country::eritrea());
-            map.insert(233, Country::estonia());
-            map.insert(748, Country::eswatini());
-            map.insert(231, Country::ethiopia());
-            map.insert(583, Country::federated_states_of_micronesia());
-            map.insert(242, Country::fiji());
-            map.insert(246, Country::finland());
-            map.insert(250, Country::france());
-            map.insert(254, Country::french_guiana());
-            map.insert(663, Country::french_part_saint_martin());
-            map.insert(258, Country::french_polynesia());
-            map.insert(266, Country::gabon());
-            map.insert(268, Country::georgia());
-            map.insert(276, Country::germany());
-            map.insert(288, Country::ghana());
-            map.insert(292, Country::gibraltar());
-            map.insert(300, Country::greece());
-            map.insert(304, Country::greenland());
-            map.insert(308, Country::grenada());
-            map.insert(312, Country::guadeloupe());
-            map.insert(316, Country::guam());
-            map.insert(320, Country::guatemala());
-            map.insert(831, Country::guernsey());
-            map.insert(324, Country::guinea());
-            map.insert(624, Country::guinea_bissau());
-            map.insert(328, Country::guyana());
-            map.insert(332, Country::haiti());
-            map.insert(334, Country::heard_island_and_mc_donald_islands());
-            map.insert(340, Country::honduras());
-            map.insert(344, Country::hong_kong());
-            map.insert(348, Country::hungary());
-            map.insert(352, Country::iceland());
-            map.insert(356, Country::india());
-            map.insert(360, Country::indonesia());
-            map.insert(368, Country::iraq());
-            map.insert(372, Country::ireland());
-            map.insert(364, Country::islamic_republic_of_iran());
-            map.insert(833, Country::isle_of_man());
-            map.insert(376, Country::israel());
-            map.insert(380, Country::italy());
-            map.insert(388, Country::jamaica());
-            map.insert(392, Country::japan());
-            map.insert(832, Country::jersey());
-            map.insert(400, Country::jordan());
-            map.insert(398, Country::kazakhstan());
-            map.insert(404, Country::kenya());
-            map.insert(296, Country::kiribati());
-            map.insert(383, Country::kosovo());
-            map.insert(414, Country::kuwait());
-            map.insert(417, Country::kyrgyzstan());
-            map.insert(428, Country::latvia());
-            map.insert(422, Country::lebanon());
-            map.insert(426, Country::lesotho());
-            map.insert(430, Country::liberia());
-            map.insert(434, Country::libya());
-            map.insert(438, Country::liechtenstein());
-            map.insert(440, Country::lithuania());
-            map.insert(442, Country::luxembourg());
-            map.insert(446, Country::macao());
-            map.insert(450, Country::madagascar());
-            map.insert(454, Country::malawi());
-            map.insert(458, Country::malaysia());
-            map.insert(462, Country::maldives());
-            map.insert(466, Country::mali());
-            map.insert(470, Country::malta());
-            map.insert(474, Country::martinique());
-            map.insert(478, Country::mauritania());
-            map.insert(480, Country::mauritius());
-            map.insert(175, Country::mayotte());
-            map.insert(484, Country::mexico());
-            map.insert(492, Country::monaco());
-            map.insert(496, Country::mongolia());
-            map.insert(499, Country::montenegro());
-            map.insert(500, Country::montserrat());
-            map.insert(504, Country::morocco());
-            map.insert(508, Country::mozambique());
-            map.insert(104, Country::myanmar());
-            map.insert(516, Country::namibia());
-            map.insert(520, Country::nauru());
-            map.insert(524, Country::nepal());
-            map.insert(540, Country::new_caledonia());
-            map.insert(554, Country::new_zealand());
-            map.insert(558, Country::nicaragua());
-            map.insert(566, Country::nigeria());
-            map.insert(570, Country::niue());
-            map.insert(574, Country::norfolk_island());
-            map.insert(578, Country::norway());
-            map.insert(512, Country::oman());
-            map.insert(586, Country::pakistan());
-            map.insert(585, Country::palau());
-            map.insert(591, Country::panama());
-            map.insert(598, Country::papua_new_guinea());
-            map.insert(600, Country::paraguay());
-            map.insert(604, Country::peru());
-            map.insert(612, Country::pitcairn());
-            map.insert(616, Country::poland());
-            map.insert(620, Country::portugal());
-            map.insert(630, Country::puerto_rico());
-            map.insert(634, Country::qatar());
-            map.insert(807, Country::republic_of_north_macedonia());
-            map.insert(638, Country::reunion());
-            map.insert(642, Country::romania());
-            map.insert(646, Country::rwanda());
-            map.insert(652, Country::saint_barthelemy());
-            map.insert(659, Country::saint_kitts_and_nevis());
-            map.insert(662, Country::saint_lucia());
-            map.insert(666, Country::saint_pierre_and_miquelon());
-            map.insert(670, Country::saint_vincent_and_the_grenadines());
-            map.insert(882, Country::samoa());
-            map.insert(674, Country::san_marino());
-            map.insert(678, Country::sao_tome_and_principe());
-            map.insert(682, Country::saudi_arabia());
-            map.insert(686, Country::senegal());
-            map.insert(688, Country::serbia());
-            map.insert(690, Country::seychelles());
-            map.insert(694, Country::sierra_leone());
-            map.insert(702, Country::singapore());
-            map.insert(703, Country::slovakia());
-            map.insert(705, Country::slovenia());
-            map.insert(90, Country::solomon_islands());
-            map.insert(706, Country::somalia());
-            map.insert(710, Country::south_africa());
-            map.insert(239, Country::south_georgia_and_the_south_sandwich_islands());
-            map.insert(728, Country::south_sudan());
-            map.insert(724, Country::spain());
-            map.insert(144, Country::sri_lanka());
-            map.insert(275, Country::state_of_palestine());
-            map.insert(740, Country::suriname());
-            map.insert(744, Country::svalbard_and_jan_mayen());
-            map.insert(752, Country::sweden());
-            map.insert(756, Country::switzerland());
-            map.insert(760, Country::syrian_arab_republic());
-            map.insert(158, Country::taiwan());
-            map.insert(762, Country::tajikistan());
-            map.insert(764, Country::thailand());
-            map.insert(44, Country::the_bahamas());
-            map.insert(136, Country::the_cayman_islands());
-            map.insert(140, Country::the_central_african_republic());
-            map.insert(166, Country::the_cocos_keeling_islands());
-            map.insert(174, Country::the_comoros());
-            map.insert(178, Country::the_congo());
-            map.insert(184, Country::the_cook_islands());
-            map.insert(408, Country::the_democratic_peoples_republic_of_korea());
-            map.insert(180, Country::the_democratic_republic_of_the_congo());
-            map.insert(214, Country::the_dominican_republic());
-            map.insert(238, Country::the_falkland_islands_malvinas());
-            map.insert(234, Country::the_faroe_islands());
-            map.insert(260, Country::the_french_southern_territories());
-            map.insert(270, Country::the_gambia());
-            map.insert(336, Country::the_holy_see());
-            map.insert(418, Country::the_lao_peoples_democratic_republic());
-            map.insert(584, Country::the_marshall_islands());
-            map.insert(528, Country::the_netherlands());
-            map.insert(562, Country::the_niger());
-            map.insert(580, Country::the_northern_mariana_islands());
-            map.insert(608, Country::the_philippines());
-            map.insert(410, Country::the_republic_of_korea());
-            map.insert(498, Country::the_republic_of_moldova());
-            map.insert(643, Country::the_russian_federation());
-            map.insert(729, Country::the_sudan());
-            map.insert(796, Country::the_turks_and_caicos_islands());
-            map.insert(784, Country::the_united_arab_emirates());
-            map.insert(
-                826,
-                Country::the_united_kingdom_of_great_britain_and_northern_ireland(),
-            );
-            map.insert(581, Country::the_united_states_minor_outlying_islands());
-            map.insert(840, Country::the_united_states_of_america());
-            map.insert(626, Country::timor_leste());
-            map.insert(768, Country::togo());
-            map.insert(772, Country::tokelau());
-            map.insert(776, Country::tonga());
-            map.insert(780, Country::trinidad_and_tobago());
-            map.insert(788, Country::tunisia());
-            map.insert(792, Country::turkey());
-            map.insert(795, Country::turkmenistan());
-            map.insert(798, Country::tuvalu());
-            map.insert(850, Country::us_virgin_islands());
-            map.insert(800, Country::uganda());
-            map.insert(804, Country::ukraine());
-            map.insert(834, Country::united_republic_of_tanzania());
-            map.insert(858, Country::uruguay());
-            map.insert(860, Country::uzbekistan());
-            map.insert(548, Country::vanuatu());
-            map.insert(704, Country::vietnam());
-            map.insert(876, Country::wallis_and_futuna());
-            map.insert(732, Country::western_sahara());
-            map.insert(887, Country::yemen());
-            map.insert(894, Country::zambia());
-            map.insert(716, Country::zimbabwe());
-            map
-        });
-        (*VALUES).get(&value).copied().ok_or("invalid value")
+        static VALUES: Map<usize, Country> = phf_map! {
+            4usize => Country::afghanistan(),
+            248usize => Country::aland_islands(),
+            8usize => Country::albania(),
+            12usize => Country::algeria(),
+            16usize => Country::american_samoa(),
+            20usize => Country::andorra(),
+            24usize => Country::angola(),
+            660usize => Country::anguilla(),
+            10usize => Country::antarctica(),
+            28usize => Country::antigua_and_barbuda(),
+            32usize => Country::argentina(),
+            51usize => Country::armenia(),
+            533usize => Country::aruba(),
+            654usize => Country::ascension_and_tristan_da_cunha_saint_helena(),
+            36usize => Country::australia(),
+            40usize => Country::austria(),
+            31usize => Country::azerbaijan(),
+            48usize => Country::bahrain(),
+            50usize => Country::bangladesh(),
+            52usize => Country::barbados(),
+            112usize => Country::belarus(),
+            56usize => Country::belgium(),
+            84usize => Country::belize(),
+            204usize => Country::benin(),
+            60usize => Country::bermuda(),
+            64usize => Country::bhutan(),
+            862usize => Country::bolivarian_republic_of_venezuela(),
+            68usize => Country::bolivia(),
+            535usize => Country::bonaire(),
+            70usize => Country::bosnia_and_herzegovina(),
+            72usize => Country::botswana(),
+            74usize => Country::bouvet_island(),
+            76usize => Country::brazil(),
+            86usize => Country::british_indian_ocean_territory(),
+            92usize => Country::british_virgin_islands(),
+            96usize => Country::brunei_darussalam(),
+            100usize => Country::bulgaria(),
+            854usize => Country::burkina_faso(),
+            108usize => Country::burundi(),
+            132usize => Country::cabo_verde(),
+            116usize => Country::cambodia(),
+            120usize => Country::cameroon(),
+            124usize => Country::canada(),
+            148usize => Country::chad(),
+            152usize => Country::chile(),
+            156usize => Country::china(),
+            162usize => Country::christmas_island(),
+            170usize => Country::colombia(),
+            188usize => Country::costa_rica(),
+            384usize => Country::coted_ivoire(),
+            191usize => Country::croatia(),
+            192usize => Country::cuba(),
+            531usize => Country::curacao(),
+            196usize => Country::cyprus(),
+            203usize => Country::czechia(),
+            208usize => Country::denmark(),
+            262usize => Country::djibouti(),
+            212usize => Country::dominica(),
+            534usize => Country::dutch_part_sint_maarten(),
+            218usize => Country::ecuador(),
+            818usize => Country::egypt(),
+            222usize => Country::el_salvador(),
+            226usize => Country::equatorial_guinea(),
+            232usize => Country::eritrea(),
+            233usize => Country::estonia(),
+            748usize => Country::eswatini(),
+            231usize => Country::ethiopia(),
+            583usize => Country::federated_states_of_micronesia(),
+            242usize => Country::fiji(),
+            246usize => Country::finland(),
+            250usize => Country::france(),
+            254usize => Country::french_guiana(),
+            663usize => Country::french_part_saint_martin(),
+            258usize => Country::french_polynesia(),
+            266usize => Country::gabon(),
+            268usize => Country::georgia(),
+            276usize => Country::germany(),
+            288usize => Country::ghana(),
+            292usize => Country::gibraltar(),
+            300usize => Country::greece(),
+            304usize => Country::greenland(),
+            308usize => Country::grenada(),
+            312usize => Country::guadeloupe(),
+            316usize => Country::guam(),
+            320usize => Country::guatemala(),
+            831usize => Country::guernsey(),
+            324usize => Country::guinea(),
+            624usize => Country::guinea_bissau(),
+            328usize => Country::guyana(),
+            332usize => Country::haiti(),
+            334usize => Country::heard_island_and_mc_donald_islands(),
+            340usize => Country::honduras(),
+            344usize => Country::hong_kong(),
+            348usize => Country::hungary(),
+            352usize => Country::iceland(),
+            356usize => Country::india(),
+            360usize => Country::indonesia(),
+            368usize => Country::iraq(),
+            372usize => Country::ireland(),
+            364usize => Country::islamic_republic_of_iran(),
+            833usize => Country::isle_of_man(),
+            376usize => Country::israel(),
+            380usize => Country::italy(),
+            388usize => Country::jamaica(),
+            392usize => Country::japan(),
+            832usize => Country::jersey(),
+            400usize => Country::jordan(),
+            398usize => Country::kazakhstan(),
+            404usize => Country::kenya(),
+            296usize => Country::kiribati(),
+            383usize => Country::kosovo(),
+            414usize => Country::kuwait(),
+            417usize => Country::kyrgyzstan(),
+            428usize => Country::latvia(),
+            422usize => Country::lebanon(),
+            426usize => Country::lesotho(),
+            430usize => Country::liberia(),
+            434usize => Country::libya(),
+            438usize => Country::liechtenstein(),
+            440usize => Country::lithuania(),
+            442usize => Country::luxembourg(),
+            446usize => Country::macao(),
+            450usize => Country::madagascar(),
+            454usize => Country::malawi(),
+            458usize => Country::malaysia(),
+            462usize => Country::maldives(),
+            466usize => Country::mali(),
+            470usize => Country::malta(),
+            474usize => Country::martinique(),
+            478usize => Country::mauritania(),
+            480usize => Country::mauritius(),
+            175usize => Country::mayotte(),
+            484usize => Country::mexico(),
+            492usize => Country::monaco(),
+            496usize => Country::mongolia(),
+            499usize => Country::montenegro(),
+            500usize => Country::montserrat(),
+            504usize => Country::morocco(),
+            508usize => Country::mozambique(),
+            104usize => Country::myanmar(),
+            516usize => Country::namibia(),
+            520usize => Country::nauru(),
+            524usize => Country::nepal(),
+            540usize => Country::new_caledonia(),
+            554usize => Country::new_zealand(),
+            558usize => Country::nicaragua(),
+            566usize => Country::nigeria(),
+            570usize => Country::niue(),
+            574usize => Country::norfolk_island(),
+            578usize => Country::norway(),
+            512usize => Country::oman(),
+            586usize => Country::pakistan(),
+            585usize => Country::palau(),
+            591usize => Country::panama(),
+            598usize => Country::papua_new_guinea(),
+            600usize => Country::paraguay(),
+            604usize => Country::peru(),
+            612usize => Country::pitcairn(),
+            616usize => Country::poland(),
+            620usize => Country::portugal(),
+            630usize => Country::puerto_rico(),
+            634usize => Country::qatar(),
+            807usize => Country::republic_of_north_macedonia(),
+            638usize => Country::reunion(),
+            642usize => Country::romania(),
+            646usize => Country::rwanda(),
+            652usize => Country::saint_barthelemy(),
+            659usize => Country::saint_kitts_and_nevis(),
+            662usize => Country::saint_lucia(),
+            666usize => Country::saint_pierre_and_miquelon(),
+            670usize => Country::saint_vincent_and_the_grenadines(),
+            882usize => Country::samoa(),
+            674usize => Country::san_marino(),
+            678usize => Country::sao_tome_and_principe(),
+            682usize => Country::saudi_arabia(),
+            686usize => Country::senegal(),
+            688usize => Country::serbia(),
+            690usize => Country::seychelles(),
+            694usize => Country::sierra_leone(),
+            702usize => Country::singapore(),
+            703usize => Country::slovakia(),
+            705usize => Country::slovenia(),
+            90usize => Country::solomon_islands(),
+            706usize => Country::somalia(),
+            710usize => Country::south_africa(),
+            239usize => Country::south_georgia_and_the_south_sandwich_islands(),
+            728usize => Country::south_sudan(),
+            724usize => Country::spain(),
+            144usize => Country::sri_lanka(),
+            275usize => Country::state_of_palestine(),
+            740usize => Country::suriname(),
+            744usize => Country::svalbard_and_jan_mayen(),
+            752usize => Country::sweden(),
+            756usize => Country::switzerland(),
+            760usize => Country::syrian_arab_republic(),
+            158usize => Country::taiwan(),
+            762usize => Country::tajikistan(),
+            764usize => Country::thailand(),
+            44usize => Country::the_bahamas(),
+            136usize => Country::the_cayman_islands(),
+            140usize => Country::the_central_african_republic(),
+            166usize => Country::the_cocos_keeling_islands(),
+            174usize => Country::the_comoros(),
+            178usize => Country::the_congo(),
+            184usize => Country::the_cook_islands(),
+            408usize => Country::the_democratic_peoples_republic_of_korea(),
+            180usize => Country::the_democratic_republic_of_the_congo(),
+            214usize => Country::the_dominican_republic(),
+            238usize => Country::the_falkland_islands_malvinas(),
+            234usize => Country::the_faroe_islands(),
+            260usize => Country::the_french_southern_territories(),
+            270usize => Country::the_gambia(),
+            336usize => Country::the_holy_see(),
+            418usize => Country::the_lao_peoples_democratic_republic(),
+            584usize => Country::the_marshall_islands(),
+            528usize => Country::the_netherlands(),
+            562usize => Country::the_niger(),
+            580usize => Country::the_northern_mariana_islands(),
+            608usize => Country::the_philippines(),
+            410usize => Country::the_republic_of_korea(),
+            498usize => Country::the_republic_of_moldova(),
+            643usize => Country::the_russian_federation(),
+            729usize => Country::the_sudan(),
+            796usize => Country::the_turks_and_caicos_islands(),
+            784usize => Country::the_united_arab_emirates(),
+            826usize => Country::the_united_kingdom_of_great_britain_and_northern_ireland(),
+            581usize => Country::the_united_states_minor_outlying_islands(),
+            840usize => Country::the_united_states_of_america(),
+            626usize => Country::timor_leste(),
+            768usize => Country::togo(),
+            772usize => Country::tokelau(),
+            776usize => Country::tonga(),
+            780usize => Country::trinidad_and_tobago(),
+            788usize => Country::tunisia(),
+            792usize => Country::turkey(),
+            795usize => Country::turkmenistan(),
+            798usize => Country::tuvalu(),
+            850usize => Country::us_virgin_islands(),
+            800usize => Country::uganda(),
+            804usize => Country::ukraine(),
+            834usize => Country::united_republic_of_tanzania(),
+            858usize => Country::uruguay(),
+            860usize => Country::uzbekistan(),
+            548usize => Country::vanuatu(),
+            704usize => Country::vietnam(),
+            876usize => Country::wallis_and_futuna(),
+            732usize => Country::western_sahara(),
+            887usize => Country::yemen(),
+            894usize => Country::zambia(),
+            716usize => Country::zimbabwe(),
+        };
+        VALUES.get(&value).copied().ok_or("invalid value")
     }
 
     /// Given the three digit code, return a country or an error if
@@ -1928,270 +1917,259 @@ impl Country {
     /// assert_eq!(Country::albania(), res.unwrap());
     /// ```
     pub fn from_code<A: AsRef<str>>(code: A) -> Result<Self, &'static str> {
-        static CODES: LazyLock<HashMap<&'static str, Country>> = LazyLock::new(|| {
-            let mut map = HashMap::with_capacity(250);
-            map.insert("004", Country::afghanistan());
-            map.insert("248", Country::aland_islands());
-            map.insert("008", Country::albania());
-            map.insert("012", Country::algeria());
-            map.insert("016", Country::american_samoa());
-            map.insert("020", Country::andorra());
-            map.insert("024", Country::angola());
-            map.insert("660", Country::anguilla());
-            map.insert("010", Country::antarctica());
-            map.insert("028", Country::antigua_and_barbuda());
-            map.insert("032", Country::argentina());
-            map.insert("051", Country::armenia());
-            map.insert("533", Country::aruba());
-            map.insert(
-                "654",
-                Country::ascension_and_tristan_da_cunha_saint_helena(),
-            );
-            map.insert("036", Country::australia());
-            map.insert("040", Country::austria());
-            map.insert("031", Country::azerbaijan());
-            map.insert("048", Country::bahrain());
-            map.insert("050", Country::bangladesh());
-            map.insert("052", Country::barbados());
-            map.insert("112", Country::belarus());
-            map.insert("056", Country::belgium());
-            map.insert("084", Country::belize());
-            map.insert("204", Country::benin());
-            map.insert("060", Country::bermuda());
-            map.insert("064", Country::bhutan());
-            map.insert("862", Country::bolivarian_republic_of_venezuela());
-            map.insert("068", Country::bolivia());
-            map.insert("535", Country::bonaire());
-            map.insert("070", Country::bosnia_and_herzegovina());
-            map.insert("072", Country::botswana());
-            map.insert("074", Country::bouvet_island());
-            map.insert("076", Country::brazil());
-            map.insert("086", Country::british_indian_ocean_territory());
-            map.insert("092", Country::british_virgin_islands());
-            map.insert("096", Country::brunei_darussalam());
-            map.insert("100", Country::bulgaria());
-            map.insert("854", Country::burkina_faso());
-            map.insert("108", Country::burundi());
-            map.insert("132", Country::cabo_verde());
-            map.insert("116", Country::cambodia());
-            map.insert("120", Country::cameroon());
-            map.insert("124", Country::canada());
-            map.insert("148", Country::chad());
-            map.insert("152", Country::chile());
-            map.insert("156", Country::china());
-            map.insert("162", Country::christmas_island());
-            map.insert("170", Country::colombia());
-            map.insert("188", Country::costa_rica());
-            map.insert("384", Country::coted_ivoire());
-            map.insert("191", Country::croatia());
-            map.insert("192", Country::cuba());
-            map.insert("531", Country::curacao());
-            map.insert("196", Country::cyprus());
-            map.insert("203", Country::czechia());
-            map.insert("208", Country::denmark());
-            map.insert("262", Country::djibouti());
-            map.insert("212", Country::dominica());
-            map.insert("534", Country::dutch_part_sint_maarten());
-            map.insert("218", Country::ecuador());
-            map.insert("818", Country::egypt());
-            map.insert("222", Country::el_salvador());
-            map.insert("226", Country::equatorial_guinea());
-            map.insert("232", Country::eritrea());
-            map.insert("233", Country::estonia());
-            map.insert("748", Country::eswatini());
-            map.insert("231", Country::ethiopia());
-            map.insert("583", Country::federated_states_of_micronesia());
-            map.insert("242", Country::fiji());
-            map.insert("246", Country::finland());
-            map.insert("250", Country::france());
-            map.insert("254", Country::french_guiana());
-            map.insert("663", Country::french_part_saint_martin());
-            map.insert("258", Country::french_polynesia());
-            map.insert("266", Country::gabon());
-            map.insert("268", Country::georgia());
-            map.insert("276", Country::germany());
-            map.insert("288", Country::ghana());
-            map.insert("292", Country::gibraltar());
-            map.insert("300", Country::greece());
-            map.insert("304", Country::greenland());
-            map.insert("308", Country::grenada());
-            map.insert("312", Country::guadeloupe());
-            map.insert("316", Country::guam());
-            map.insert("320", Country::guatemala());
-            map.insert("831", Country::guernsey());
-            map.insert("324", Country::guinea());
-            map.insert("624", Country::guinea_bissau());
-            map.insert("328", Country::guyana());
-            map.insert("332", Country::haiti());
-            map.insert("334", Country::heard_island_and_mc_donald_islands());
-            map.insert("340", Country::honduras());
-            map.insert("344", Country::hong_kong());
-            map.insert("348", Country::hungary());
-            map.insert("352", Country::iceland());
-            map.insert("356", Country::india());
-            map.insert("360", Country::indonesia());
-            map.insert("368", Country::iraq());
-            map.insert("372", Country::ireland());
-            map.insert("364", Country::islamic_republic_of_iran());
-            map.insert("833", Country::isle_of_man());
-            map.insert("376", Country::israel());
-            map.insert("380", Country::italy());
-            map.insert("388", Country::jamaica());
-            map.insert("392", Country::japan());
-            map.insert("832", Country::jersey());
-            map.insert("400", Country::jordan());
-            map.insert("398", Country::kazakhstan());
-            map.insert("404", Country::kenya());
-            map.insert("296", Country::kiribati());
-            map.insert("383", Country::kosovo());
-            map.insert("414", Country::kuwait());
-            map.insert("417", Country::kyrgyzstan());
-            map.insert("428", Country::latvia());
-            map.insert("422", Country::lebanon());
-            map.insert("426", Country::lesotho());
-            map.insert("430", Country::liberia());
-            map.insert("434", Country::libya());
-            map.insert("438", Country::liechtenstein());
-            map.insert("440", Country::lithuania());
-            map.insert("442", Country::luxembourg());
-            map.insert("446", Country::macao());
-            map.insert("450", Country::madagascar());
-            map.insert("454", Country::malawi());
-            map.insert("458", Country::malaysia());
-            map.insert("462", Country::maldives());
-            map.insert("466", Country::mali());
-            map.insert("470", Country::malta());
-            map.insert("474", Country::martinique());
-            map.insert("478", Country::mauritania());
-            map.insert("480", Country::mauritius());
-            map.insert("175", Country::mayotte());
-            map.insert("484", Country::mexico());
-            map.insert("492", Country::monaco());
-            map.insert("496", Country::mongolia());
-            map.insert("499", Country::montenegro());
-            map.insert("500", Country::montserrat());
-            map.insert("504", Country::morocco());
-            map.insert("508", Country::mozambique());
-            map.insert("104", Country::myanmar());
-            map.insert("516", Country::namibia());
-            map.insert("520", Country::nauru());
-            map.insert("524", Country::nepal());
-            map.insert("540", Country::new_caledonia());
-            map.insert("554", Country::new_zealand());
-            map.insert("558", Country::nicaragua());
-            map.insert("566", Country::nigeria());
-            map.insert("570", Country::niue());
-            map.insert("574", Country::norfolk_island());
-            map.insert("578", Country::norway());
-            map.insert("512", Country::oman());
-            map.insert("586", Country::pakistan());
-            map.insert("585", Country::palau());
-            map.insert("591", Country::panama());
-            map.insert("598", Country::papua_new_guinea());
-            map.insert("600", Country::paraguay());
-            map.insert("604", Country::peru());
-            map.insert("612", Country::pitcairn());
-            map.insert("616", Country::poland());
-            map.insert("620", Country::portugal());
-            map.insert("630", Country::puerto_rico());
-            map.insert("634", Country::qatar());
-            map.insert("807", Country::republic_of_north_macedonia());
-            map.insert("638", Country::reunion());
-            map.insert("642", Country::romania());
-            map.insert("646", Country::rwanda());
-            map.insert("652", Country::saint_barthelemy());
-            map.insert("659", Country::saint_kitts_and_nevis());
-            map.insert("662", Country::saint_lucia());
-            map.insert("666", Country::saint_pierre_and_miquelon());
-            map.insert("670", Country::saint_vincent_and_the_grenadines());
-            map.insert("882", Country::samoa());
-            map.insert("674", Country::san_marino());
-            map.insert("678", Country::sao_tome_and_principe());
-            map.insert("682", Country::saudi_arabia());
-            map.insert("686", Country::senegal());
-            map.insert("688", Country::serbia());
-            map.insert("690", Country::seychelles());
-            map.insert("694", Country::sierra_leone());
-            map.insert("702", Country::singapore());
-            map.insert("703", Country::slovakia());
-            map.insert("705", Country::slovenia());
-            map.insert("090", Country::solomon_islands());
-            map.insert("706", Country::somalia());
-            map.insert("710", Country::south_africa());
-            map.insert(
-                "239",
-                Country::south_georgia_and_the_south_sandwich_islands(),
-            );
-            map.insert("728", Country::south_sudan());
-            map.insert("724", Country::spain());
-            map.insert("144", Country::sri_lanka());
-            map.insert("275", Country::state_of_palestine());
-            map.insert("740", Country::suriname());
-            map.insert("744", Country::svalbard_and_jan_mayen());
-            map.insert("752", Country::sweden());
-            map.insert("756", Country::switzerland());
-            map.insert("760", Country::syrian_arab_republic());
-            map.insert("158", Country::taiwan());
-            map.insert("762", Country::tajikistan());
-            map.insert("764", Country::thailand());
-            map.insert("044", Country::the_bahamas());
-            map.insert("136", Country::the_cayman_islands());
-            map.insert("140", Country::the_central_african_republic());
-            map.insert("166", Country::the_cocos_keeling_islands());
-            map.insert("174", Country::the_comoros());
-            map.insert("178", Country::the_congo());
-            map.insert("184", Country::the_cook_islands());
-            map.insert("408", Country::the_democratic_peoples_republic_of_korea());
-            map.insert("180", Country::the_democratic_republic_of_the_congo());
-            map.insert("214", Country::the_dominican_republic());
-            map.insert("238", Country::the_falkland_islands_malvinas());
-            map.insert("234", Country::the_faroe_islands());
-            map.insert("260", Country::the_french_southern_territories());
-            map.insert("270", Country::the_gambia());
-            map.insert("336", Country::the_holy_see());
-            map.insert("418", Country::the_lao_peoples_democratic_republic());
-            map.insert("584", Country::the_marshall_islands());
-            map.insert("528", Country::the_netherlands());
-            map.insert("562", Country::the_niger());
-            map.insert("580", Country::the_northern_mariana_islands());
-            map.insert("608", Country::the_philippines());
-            map.insert("410", Country::the_republic_of_korea());
-            map.insert("498", Country::the_republic_of_moldova());
-            map.insert("643", Country::the_russian_federation());
-            map.insert("729", Country::the_sudan());
-            map.insert("796", Country::the_turks_and_caicos_islands());
-            map.insert("784", Country::the_united_arab_emirates());
-            map.insert(
-                "826",
-                Country::the_united_kingdom_of_great_britain_and_northern_ireland(),
-            );
-            map.insert("581", Country::the_united_states_minor_outlying_islands());
-            map.insert("840", Country::the_united_states_of_america());
-            map.insert("626", Country::timor_leste());
-            map.insert("768", Country::togo());
-            map.insert("772", Country::tokelau());
-            map.insert("776", Country::tonga());
-            map.insert("780", Country::trinidad_and_tobago());
-            map.insert("788", Country::tunisia());
-            map.insert("792", Country::turkey());
-            map.insert("795", Country::turkmenistan());
-            map.insert("798", Country::tuvalu());
-            map.insert("850", Country::us_virgin_islands());
-            map.insert("800", Country::uganda());
-            map.insert("804", Country::ukraine());
-            map.insert("834", Country::united_republic_of_tanzania());
-            map.insert("858", Country::uruguay());
-            map.insert("860", Country::uzbekistan());
-            map.insert("548", Country::vanuatu());
-            map.insert("704", Country::vietnam());
-            map.insert("876", Country::wallis_and_futuna());
-            map.insert("732", Country::western_sahara());
-            map.insert("887", Country::yemen());
-            map.insert("894", Country::zambia());
-            map.insert("716", Country::zimbabwe());
-            map
-        });
-        (*CODES)
+        static CODES: Map<&'static str, Country> = phf_map! {
+            "004" => Country::afghanistan(),
+            "248" => Country::aland_islands(),
+            "008" => Country::albania(),
+            "012" => Country::algeria(),
+            "016" => Country::american_samoa(),
+            "020" => Country::andorra(),
+            "024" => Country::angola(),
+            "660" => Country::anguilla(),
+            "010" => Country::antarctica(),
+            "028" => Country::antigua_and_barbuda(),
+            "032" => Country::argentina(),
+            "051" => Country::armenia(),
+            "533" => Country::aruba(),
+            "654" => Country::ascension_and_tristan_da_cunha_saint_helena(),
+            "036" => Country::australia(),
+            "040" => Country::austria(),
+            "031" => Country::azerbaijan(),
+            "048" => Country::bahrain(),
+            "050" => Country::bangladesh(),
+            "052" => Country::barbados(),
+            "112" => Country::belarus(),
+            "056" => Country::belgium(),
+            "084" => Country::belize(),
+            "204" => Country::benin(),
+            "060" => Country::bermuda(),
+            "064" => Country::bhutan(),
+            "862" => Country::bolivarian_republic_of_venezuela(),
+            "068" => Country::bolivia(),
+            "535" => Country::bonaire(),
+            "070" => Country::bosnia_and_herzegovina(),
+            "072" => Country::botswana(),
+            "074" => Country::bouvet_island(),
+            "076" => Country::brazil(),
+            "086" => Country::british_indian_ocean_territory(),
+            "092" => Country::british_virgin_islands(),
+            "096" => Country::brunei_darussalam(),
+            "100" => Country::bulgaria(),
+            "854" => Country::burkina_faso(),
+            "108" => Country::burundi(),
+            "132" => Country::cabo_verde(),
+            "116" => Country::cambodia(),
+            "120" => Country::cameroon(),
+            "124" => Country::canada(),
+            "148" => Country::chad(),
+            "152" => Country::chile(),
+            "156" => Country::china(),
+            "162" => Country::christmas_island(),
+            "170" => Country::colombia(),
+            "188" => Country::costa_rica(),
+            "384" => Country::coted_ivoire(),
+            "191" => Country::croatia(),
+            "192" => Country::cuba(),
+            "531" => Country::curacao(),
+            "196" => Country::cyprus(),
+            "203" => Country::czechia(),
+            "208" => Country::denmark(),
+            "262" => Country::djibouti(),
+            "212" => Country::dominica(),
+            "534" => Country::dutch_part_sint_maarten(),
+            "218" => Country::ecuador(),
+            "818" => Country::egypt(),
+            "222" => Country::el_salvador(),
+            "226" => Country::equatorial_guinea(),
+            "232" => Country::eritrea(),
+            "233" => Country::estonia(),
+            "748" => Country::eswatini(),
+            "231" => Country::ethiopia(),
+            "583" => Country::federated_states_of_micronesia(),
+            "242" => Country::fiji(),
+            "246" => Country::finland(),
+            "250" => Country::france(),
+            "254" => Country::french_guiana(),
+            "663" => Country::french_part_saint_martin(),
+            "258" => Country::french_polynesia(),
+            "266" => Country::gabon(),
+            "268" => Country::georgia(),
+            "276" => Country::germany(),
+            "288" => Country::ghana(),
+            "292" => Country::gibraltar(),
+            "300" => Country::greece(),
+            "304" => Country::greenland(),
+            "308" => Country::grenada(),
+            "312" => Country::guadeloupe(),
+            "316" => Country::guam(),
+            "320" => Country::guatemala(),
+            "831" => Country::guernsey(),
+            "324" => Country::guinea(),
+            "624" => Country::guinea_bissau(),
+            "328" => Country::guyana(),
+            "332" => Country::haiti(),
+            "334" => Country::heard_island_and_mc_donald_islands(),
+            "340" => Country::honduras(),
+            "344" => Country::hong_kong(),
+            "348" => Country::hungary(),
+            "352" => Country::iceland(),
+            "356" => Country::india(),
+            "360" => Country::indonesia(),
+            "368" => Country::iraq(),
+            "372" => Country::ireland(),
+            "364" => Country::islamic_republic_of_iran(),
+            "833" => Country::isle_of_man(),
+            "376" => Country::israel(),
+            "380" => Country::italy(),
+            "388" => Country::jamaica(),
+            "392" => Country::japan(),
+            "832" => Country::jersey(),
+            "400" => Country::jordan(),
+            "398" => Country::kazakhstan(),
+            "404" => Country::kenya(),
+            "296" => Country::kiribati(),
+            "383" => Country::kosovo(),
+            "414" => Country::kuwait(),
+            "417" => Country::kyrgyzstan(),
+            "428" => Country::latvia(),
+            "422" => Country::lebanon(),
+            "426" => Country::lesotho(),
+            "430" => Country::liberia(),
+            "434" => Country::libya(),
+            "438" => Country::liechtenstein(),
+            "440" => Country::lithuania(),
+            "442" => Country::luxembourg(),
+            "446" => Country::macao(),
+            "450" => Country::madagascar(),
+            "454" => Country::malawi(),
+            "458" => Country::malaysia(),
+            "462" => Country::maldives(),
+            "466" => Country::mali(),
+            "470" => Country::malta(),
+            "474" => Country::martinique(),
+            "478" => Country::mauritania(),
+            "480" => Country::mauritius(),
+            "175" => Country::mayotte(),
+            "484" => Country::mexico(),
+            "492" => Country::monaco(),
+            "496" => Country::mongolia(),
+            "499" => Country::montenegro(),
+            "500" => Country::montserrat(),
+            "504" => Country::morocco(),
+            "508" => Country::mozambique(),
+            "104" => Country::myanmar(),
+            "516" => Country::namibia(),
+            "520" => Country::nauru(),
+            "524" => Country::nepal(),
+            "540" => Country::new_caledonia(),
+            "554" => Country::new_zealand(),
+            "558" => Country::nicaragua(),
+            "566" => Country::nigeria(),
+            "570" => Country::niue(),
+            "574" => Country::norfolk_island(),
+            "578" => Country::norway(),
+            "512" => Country::oman(),
+            "586" => Country::pakistan(),
+            "585" => Country::palau(),
+            "591" => Country::panama(),
+            "598" => Country::papua_new_guinea(),
+            "600" => Country::paraguay(),
+            "604" => Country::peru(),
+            "612" => Country::pitcairn(),
+            "616" => Country::poland(),
+            "620" => Country::portugal(),
+            "630" => Country::puerto_rico(),
+            "634" => Country::qatar(),
+            "807" => Country::republic_of_north_macedonia(),
+            "638" => Country::reunion(),
+            "642" => Country::romania(),
+            "646" => Country::rwanda(),
+            "652" => Country::saint_barthelemy(),
+            "659" => Country::saint_kitts_and_nevis(),
+            "662" => Country::saint_lucia(),
+            "666" => Country::saint_pierre_and_miquelon(),
+            "670" => Country::saint_vincent_and_the_grenadines(),
+            "882" => Country::samoa(),
+            "674" => Country::san_marino(),
+            "678" => Country::sao_tome_and_principe(),
+            "682" => Country::saudi_arabia(),
+            "686" => Country::senegal(),
+            "688" => Country::serbia(),
+            "690" => Country::seychelles(),
+            "694" => Country::sierra_leone(),
+            "702" => Country::singapore(),
+            "703" => Country::slovakia(),
+            "705" => Country::slovenia(),
+            "090" => Country::solomon_islands(),
+            "706" => Country::somalia(),
+            "710" => Country::south_africa(),
+            "239" => Country::south_georgia_and_the_south_sandwich_islands(),
+            "728" => Country::south_sudan(),
+            "724" => Country::spain(),
+            "144" => Country::sri_lanka(),
+            "275" => Country::state_of_palestine(),
+            "740" => Country::suriname(),
+            "744" => Country::svalbard_and_jan_mayen(),
+            "752" => Country::sweden(),
+            "756" => Country::switzerland(),
+            "760" => Country::syrian_arab_republic(),
+            "158" => Country::taiwan(),
+            "762" => Country::tajikistan(),
+            "764" => Country::thailand(),
+            "044" => Country::the_bahamas(),
+            "136" => Country::the_cayman_islands(),
+            "140" => Country::the_central_african_republic(),
+            "166" => Country::the_cocos_keeling_islands(),
+            "174" => Country::the_comoros(),
+            "178" => Country::the_congo(),
+            "184" => Country::the_cook_islands(),
+            "408" => Country::the_democratic_peoples_republic_of_korea(),
+            "180" => Country::the_democratic_republic_of_the_congo(),
+            "214" => Country::the_dominican_republic(),
+            "238" => Country::the_falkland_islands_malvinas(),
+            "234" => Country::the_faroe_islands(),
+            "260" => Country::the_french_southern_territories(),
+            "270" => Country::the_gambia(),
+            "336" => Country::the_holy_see(),
+            "418" => Country::the_lao_peoples_democratic_republic(),
+            "584" => Country::the_marshall_islands(),
+            "528" => Country::the_netherlands(),
+            "562" => Country::the_niger(),
+            "580" => Country::the_northern_mariana_islands(),
+            "608" => Country::the_philippines(),
+            "410" => Country::the_republic_of_korea(),
+            "498" => Country::the_republic_of_moldova(),
+            "643" => Country::the_russian_federation(),
+            "729" => Country::the_sudan(),
+            "796" => Country::the_turks_and_caicos_islands(),
+            "784" => Country::the_united_arab_emirates(),
+            "826" => Country::the_united_kingdom_of_great_britain_and_northern_ireland(),
+            "581" => Country::the_united_states_minor_outlying_islands(),
+            "840" => Country::the_united_states_of_america(),
+            "626" => Country::timor_leste(),
+            "768" => Country::togo(),
+            "772" => Country::tokelau(),
+            "776" => Country::tonga(),
+            "780" => Country::trinidad_and_tobago(),
+            "788" => Country::tunisia(),
+            "792" => Country::turkey(),
+            "795" => Country::turkmenistan(),
+            "798" => Country::tuvalu(),
+            "850" => Country::us_virgin_islands(),
+            "800" => Country::uganda(),
+            "804" => Country::ukraine(),
+            "834" => Country::united_republic_of_tanzania(),
+            "858" => Country::uruguay(),
+            "860" => Country::uzbekistan(),
+            "548" => Country::vanuatu(),
+            "704" => Country::vietnam(),
+            "876" => Country::wallis_and_futuna(),
+            "732" => Country::western_sahara(),
+            "887" => Country::yemen(),
+            "894" => Country::zambia(),
+            "716" => Country::zimbabwe(),
+        };
+        CODES
             .get(code.as_ref().to_lowercase().as_str())
             .copied()
             .ok_or("invalid code")
@@ -2220,267 +2198,259 @@ impl Country {
     /// assert_eq!(Country::the_united_states_of_america(), res.unwrap());
     /// ```
     pub fn from_alpha2<A: AsRef<str>>(alpha2: A) -> Result<Self, &'static str> {
-        static ALPHA2: LazyLock<HashMap<&'static str, Country>> = LazyLock::new(|| {
-            let mut map = HashMap::with_capacity(250);
-            map.insert("af", Country::afghanistan());
-            map.insert("ax", Country::aland_islands());
-            map.insert("al", Country::albania());
-            map.insert("dz", Country::algeria());
-            map.insert("as", Country::american_samoa());
-            map.insert("ad", Country::andorra());
-            map.insert("ao", Country::angola());
-            map.insert("ai", Country::anguilla());
-            map.insert("aq", Country::antarctica());
-            map.insert("ag", Country::antigua_and_barbuda());
-            map.insert("ar", Country::argentina());
-            map.insert("am", Country::armenia());
-            map.insert("aw", Country::aruba());
-            map.insert("sh", Country::ascension_and_tristan_da_cunha_saint_helena());
-            map.insert("au", Country::australia());
-            map.insert("at", Country::austria());
-            map.insert("az", Country::azerbaijan());
-            map.insert("bh", Country::bahrain());
-            map.insert("bd", Country::bangladesh());
-            map.insert("bb", Country::barbados());
-            map.insert("by", Country::belarus());
-            map.insert("be", Country::belgium());
-            map.insert("bz", Country::belize());
-            map.insert("bj", Country::benin());
-            map.insert("bm", Country::bermuda());
-            map.insert("bt", Country::bhutan());
-            map.insert("ve", Country::bolivarian_republic_of_venezuela());
-            map.insert("bo", Country::bolivia());
-            map.insert("bq", Country::bonaire());
-            map.insert("ba", Country::bosnia_and_herzegovina());
-            map.insert("bw", Country::botswana());
-            map.insert("bv", Country::bouvet_island());
-            map.insert("br", Country::brazil());
-            map.insert("io", Country::british_indian_ocean_territory());
-            map.insert("vg", Country::british_virgin_islands());
-            map.insert("bn", Country::brunei_darussalam());
-            map.insert("bg", Country::bulgaria());
-            map.insert("bf", Country::burkina_faso());
-            map.insert("bi", Country::burundi());
-            map.insert("cv", Country::cabo_verde());
-            map.insert("kh", Country::cambodia());
-            map.insert("cm", Country::cameroon());
-            map.insert("ca", Country::canada());
-            map.insert("td", Country::chad());
-            map.insert("cl", Country::chile());
-            map.insert("cn", Country::china());
-            map.insert("cx", Country::christmas_island());
-            map.insert("co", Country::colombia());
-            map.insert("cr", Country::costa_rica());
-            map.insert("ci", Country::coted_ivoire());
-            map.insert("hr", Country::croatia());
-            map.insert("cu", Country::cuba());
-            map.insert("cw", Country::curacao());
-            map.insert("cy", Country::cyprus());
-            map.insert("cz", Country::czechia());
-            map.insert("dk", Country::denmark());
-            map.insert("dj", Country::djibouti());
-            map.insert("dm", Country::dominica());
-            map.insert("sx", Country::dutch_part_sint_maarten());
-            map.insert("ec", Country::ecuador());
-            map.insert("eg", Country::egypt());
-            map.insert("sv", Country::el_salvador());
-            map.insert("gq", Country::equatorial_guinea());
-            map.insert("er", Country::eritrea());
-            map.insert("ee", Country::estonia());
-            map.insert("sz", Country::eswatini());
-            map.insert("et", Country::ethiopia());
-            map.insert("fm", Country::federated_states_of_micronesia());
-            map.insert("fj", Country::fiji());
-            map.insert("fi", Country::finland());
-            map.insert("fr", Country::france());
-            map.insert("gf", Country::french_guiana());
-            map.insert("mf", Country::french_part_saint_martin());
-            map.insert("pf", Country::french_polynesia());
-            map.insert("ga", Country::gabon());
-            map.insert("ge", Country::georgia());
-            map.insert("de", Country::germany());
-            map.insert("gh", Country::ghana());
-            map.insert("gi", Country::gibraltar());
-            map.insert("gr", Country::greece());
-            map.insert("gl", Country::greenland());
-            map.insert("gd", Country::grenada());
-            map.insert("gp", Country::guadeloupe());
-            map.insert("gu", Country::guam());
-            map.insert("gt", Country::guatemala());
-            map.insert("gg", Country::guernsey());
-            map.insert("gn", Country::guinea());
-            map.insert("gw", Country::guinea_bissau());
-            map.insert("gy", Country::guyana());
-            map.insert("ht", Country::haiti());
-            map.insert("hm", Country::heard_island_and_mc_donald_islands());
-            map.insert("hn", Country::honduras());
-            map.insert("hk", Country::hong_kong());
-            map.insert("hu", Country::hungary());
-            map.insert("is", Country::iceland());
-            map.insert("in", Country::india());
-            map.insert("id", Country::indonesia());
-            map.insert("iq", Country::iraq());
-            map.insert("ie", Country::ireland());
-            map.insert("ir", Country::islamic_republic_of_iran());
-            map.insert("im", Country::isle_of_man());
-            map.insert("il", Country::israel());
-            map.insert("it", Country::italy());
-            map.insert("jm", Country::jamaica());
-            map.insert("jp", Country::japan());
-            map.insert("je", Country::jersey());
-            map.insert("jo", Country::jordan());
-            map.insert("kz", Country::kazakhstan());
-            map.insert("ke", Country::kenya());
-            map.insert("ki", Country::kiribati());
-            map.insert("xk", Country::kosovo());
-            map.insert("kw", Country::kuwait());
-            map.insert("kg", Country::kyrgyzstan());
-            map.insert("lv", Country::latvia());
-            map.insert("lb", Country::lebanon());
-            map.insert("ls", Country::lesotho());
-            map.insert("lr", Country::liberia());
-            map.insert("ly", Country::libya());
-            map.insert("li", Country::liechtenstein());
-            map.insert("lt", Country::lithuania());
-            map.insert("lu", Country::luxembourg());
-            map.insert("mo", Country::macao());
-            map.insert("mg", Country::madagascar());
-            map.insert("mw", Country::malawi());
-            map.insert("my", Country::malaysia());
-            map.insert("mv", Country::maldives());
-            map.insert("ml", Country::mali());
-            map.insert("mt", Country::malta());
-            map.insert("mq", Country::martinique());
-            map.insert("mr", Country::mauritania());
-            map.insert("mu", Country::mauritius());
-            map.insert("yt", Country::mayotte());
-            map.insert("mx", Country::mexico());
-            map.insert("mc", Country::monaco());
-            map.insert("mn", Country::mongolia());
-            map.insert("me", Country::montenegro());
-            map.insert("ms", Country::montserrat());
-            map.insert("ma", Country::morocco());
-            map.insert("mz", Country::mozambique());
-            map.insert("mm", Country::myanmar());
-            map.insert("na", Country::namibia());
-            map.insert("nr", Country::nauru());
-            map.insert("np", Country::nepal());
-            map.insert("nc", Country::new_caledonia());
-            map.insert("nz", Country::new_zealand());
-            map.insert("ni", Country::nicaragua());
-            map.insert("ng", Country::nigeria());
-            map.insert("nu", Country::niue());
-            map.insert("nf", Country::norfolk_island());
-            map.insert("no", Country::norway());
-            map.insert("om", Country::oman());
-            map.insert("pk", Country::pakistan());
-            map.insert("pw", Country::palau());
-            map.insert("pa", Country::panama());
-            map.insert("pg", Country::papua_new_guinea());
-            map.insert("py", Country::paraguay());
-            map.insert("pe", Country::peru());
-            map.insert("pn", Country::pitcairn());
-            map.insert("pl", Country::poland());
-            map.insert("pt", Country::portugal());
-            map.insert("pr", Country::puerto_rico());
-            map.insert("qa", Country::qatar());
-            map.insert("mk", Country::republic_of_north_macedonia());
-            map.insert("re", Country::reunion());
-            map.insert("ro", Country::romania());
-            map.insert("rw", Country::rwanda());
-            map.insert("bl", Country::saint_barthelemy());
-            map.insert("kn", Country::saint_kitts_and_nevis());
-            map.insert("lc", Country::saint_lucia());
-            map.insert("pm", Country::saint_pierre_and_miquelon());
-            map.insert("vc", Country::saint_vincent_and_the_grenadines());
-            map.insert("ws", Country::samoa());
-            map.insert("sm", Country::san_marino());
-            map.insert("st", Country::sao_tome_and_principe());
-            map.insert("sa", Country::saudi_arabia());
-            map.insert("sn", Country::senegal());
-            map.insert("rs", Country::serbia());
-            map.insert("sc", Country::seychelles());
-            map.insert("sl", Country::sierra_leone());
-            map.insert("sg", Country::singapore());
-            map.insert("sk", Country::slovakia());
-            map.insert("si", Country::slovenia());
-            map.insert("sb", Country::solomon_islands());
-            map.insert("so", Country::somalia());
-            map.insert("za", Country::south_africa());
-            map.insert(
-                "gs",
-                Country::south_georgia_and_the_south_sandwich_islands(),
-            );
-            map.insert("ss", Country::south_sudan());
-            map.insert("es", Country::spain());
-            map.insert("lk", Country::sri_lanka());
-            map.insert("ps", Country::state_of_palestine());
-            map.insert("sr", Country::suriname());
-            map.insert("sj", Country::svalbard_and_jan_mayen());
-            map.insert("se", Country::sweden());
-            map.insert("ch", Country::switzerland());
-            map.insert("sy", Country::syrian_arab_republic());
-            map.insert("tw", Country::taiwan());
-            map.insert("tj", Country::tajikistan());
-            map.insert("th", Country::thailand());
-            map.insert("bs", Country::the_bahamas());
-            map.insert("ky", Country::the_cayman_islands());
-            map.insert("cf", Country::the_central_african_republic());
-            map.insert("cc", Country::the_cocos_keeling_islands());
-            map.insert("km", Country::the_comoros());
-            map.insert("cg", Country::the_congo());
-            map.insert("ck", Country::the_cook_islands());
-            map.insert("kp", Country::the_democratic_peoples_republic_of_korea());
-            map.insert("cd", Country::the_democratic_republic_of_the_congo());
-            map.insert("do", Country::the_dominican_republic());
-            map.insert("fk", Country::the_falkland_islands_malvinas());
-            map.insert("fo", Country::the_faroe_islands());
-            map.insert("tf", Country::the_french_southern_territories());
-            map.insert("gm", Country::the_gambia());
-            map.insert("va", Country::the_holy_see());
-            map.insert("la", Country::the_lao_peoples_democratic_republic());
-            map.insert("mh", Country::the_marshall_islands());
-            map.insert("nl", Country::the_netherlands());
-            map.insert("ne", Country::the_niger());
-            map.insert("mp", Country::the_northern_mariana_islands());
-            map.insert("ph", Country::the_philippines());
-            map.insert("kr", Country::the_republic_of_korea());
-            map.insert("md", Country::the_republic_of_moldova());
-            map.insert("ru", Country::the_russian_federation());
-            map.insert("sd", Country::the_sudan());
-            map.insert("tc", Country::the_turks_and_caicos_islands());
-            map.insert("ae", Country::the_united_arab_emirates());
-            map.insert(
-                "gb",
-                Country::the_united_kingdom_of_great_britain_and_northern_ireland(),
-            );
-            map.insert("um", Country::the_united_states_minor_outlying_islands());
-            map.insert("us", Country::the_united_states_of_america());
-            map.insert("tl", Country::timor_leste());
-            map.insert("tg", Country::togo());
-            map.insert("tk", Country::tokelau());
-            map.insert("to", Country::tonga());
-            map.insert("tt", Country::trinidad_and_tobago());
-            map.insert("tn", Country::tunisia());
-            map.insert("tr", Country::turkey());
-            map.insert("tm", Country::turkmenistan());
-            map.insert("tv", Country::tuvalu());
-            map.insert("vi", Country::us_virgin_islands());
-            map.insert("ug", Country::uganda());
-            map.insert("ua", Country::ukraine());
-            map.insert("tz", Country::united_republic_of_tanzania());
-            map.insert("uy", Country::uruguay());
-            map.insert("uz", Country::uzbekistan());
-            map.insert("vu", Country::vanuatu());
-            map.insert("vn", Country::vietnam());
-            map.insert("wf", Country::wallis_and_futuna());
-            map.insert("eh", Country::western_sahara());
-            map.insert("ye", Country::yemen());
-            map.insert("zm", Country::zambia());
-            map.insert("zw", Country::zimbabwe());
-            map
-        });
-        (*ALPHA2)
+        static ALPHA2: Map<&'static str, Country> = phf_map! {
+            "af" => Country::afghanistan(),
+            "ax" => Country::aland_islands(),
+            "al" => Country::albania(),
+            "dz" => Country::algeria(),
+            "as" => Country::american_samoa(),
+            "ad" => Country::andorra(),
+            "ao" => Country::angola(),
+            "ai" => Country::anguilla(),
+            "aq" => Country::antarctica(),
+            "ag" => Country::antigua_and_barbuda(),
+            "ar" => Country::argentina(),
+            "am" => Country::armenia(),
+            "aw" => Country::aruba(),
+            "sh" => Country::ascension_and_tristan_da_cunha_saint_helena(),
+            "au" => Country::australia(),
+            "at" => Country::austria(),
+            "az" => Country::azerbaijan(),
+            "bh" => Country::bahrain(),
+            "bd" => Country::bangladesh(),
+            "bb" => Country::barbados(),
+            "by" => Country::belarus(),
+            "be" => Country::belgium(),
+            "bz" => Country::belize(),
+            "bj" => Country::benin(),
+            "bm" => Country::bermuda(),
+            "bt" => Country::bhutan(),
+            "ve" => Country::bolivarian_republic_of_venezuela(),
+            "bo" => Country::bolivia(),
+            "bq" => Country::bonaire(),
+            "ba" => Country::bosnia_and_herzegovina(),
+            "bw" => Country::botswana(),
+            "bv" => Country::bouvet_island(),
+            "br" => Country::brazil(),
+            "io" => Country::british_indian_ocean_territory(),
+            "vg" => Country::british_virgin_islands(),
+            "bn" => Country::brunei_darussalam(),
+            "bg" => Country::bulgaria(),
+            "bf" => Country::burkina_faso(),
+            "bi" => Country::burundi(),
+            "cv" => Country::cabo_verde(),
+            "kh" => Country::cambodia(),
+            "cm" => Country::cameroon(),
+            "ca" => Country::canada(),
+            "td" => Country::chad(),
+            "cl" => Country::chile(),
+            "cn" => Country::china(),
+            "cx" => Country::christmas_island(),
+            "co" => Country::colombia(),
+            "cr" => Country::costa_rica(),
+            "ci" => Country::coted_ivoire(),
+            "hr" => Country::croatia(),
+            "cu" => Country::cuba(),
+            "cw" => Country::curacao(),
+            "cy" => Country::cyprus(),
+            "cz" => Country::czechia(),
+            "dk" => Country::denmark(),
+            "dj" => Country::djibouti(),
+            "dm" => Country::dominica(),
+            "sx" => Country::dutch_part_sint_maarten(),
+            "ec" => Country::ecuador(),
+            "eg" => Country::egypt(),
+            "sv" => Country::el_salvador(),
+            "gq" => Country::equatorial_guinea(),
+            "er" => Country::eritrea(),
+            "ee" => Country::estonia(),
+            "sz" => Country::eswatini(),
+            "et" => Country::ethiopia(),
+            "fm" => Country::federated_states_of_micronesia(),
+            "fj" => Country::fiji(),
+            "fi" => Country::finland(),
+            "fr" => Country::france(),
+            "gf" => Country::french_guiana(),
+            "mf" => Country::french_part_saint_martin(),
+            "pf" => Country::french_polynesia(),
+            "ga" => Country::gabon(),
+            "ge" => Country::georgia(),
+            "de" => Country::germany(),
+            "gh" => Country::ghana(),
+            "gi" => Country::gibraltar(),
+            "gr" => Country::greece(),
+            "gl" => Country::greenland(),
+            "gd" => Country::grenada(),
+            "gp" => Country::guadeloupe(),
+            "gu" => Country::guam(),
+            "gt" => Country::guatemala(),
+            "gg" => Country::guernsey(),
+            "gn" => Country::guinea(),
+            "gw" => Country::guinea_bissau(),
+            "gy" => Country::guyana(),
+            "ht" => Country::haiti(),
+            "hm" => Country::heard_island_and_mc_donald_islands(),
+            "hn" => Country::honduras(),
+            "hk" => Country::hong_kong(),
+            "hu" => Country::hungary(),
+            "is" => Country::iceland(),
+            "in" => Country::india(),
+            "id" => Country::indonesia(),
+            "iq" => Country::iraq(),
+            "ie" => Country::ireland(),
+            "ir" => Country::islamic_republic_of_iran(),
+            "im" => Country::isle_of_man(),
+            "il" => Country::israel(),
+            "it" => Country::italy(),
+            "jm" => Country::jamaica(),
+            "jp" => Country::japan(),
+            "je" => Country::jersey(),
+            "jo" => Country::jordan(),
+            "kz" => Country::kazakhstan(),
+            "ke" => Country::kenya(),
+            "ki" => Country::kiribati(),
+            "xk" => Country::kosovo(),
+            "kw" => Country::kuwait(),
+            "kg" => Country::kyrgyzstan(),
+            "lv" => Country::latvia(),
+            "lb" => Country::lebanon(),
+            "ls" => Country::lesotho(),
+            "lr" => Country::liberia(),
+            "ly" => Country::libya(),
+            "li" => Country::liechtenstein(),
+            "lt" => Country::lithuania(),
+            "lu" => Country::luxembourg(),
+            "mo" => Country::macao(),
+            "mg" => Country::madagascar(),
+            "mw" => Country::malawi(),
+            "my" => Country::malaysia(),
+            "mv" => Country::maldives(),
+            "ml" => Country::mali(),
+            "mt" => Country::malta(),
+            "mq" => Country::martinique(),
+            "mr" => Country::mauritania(),
+            "mu" => Country::mauritius(),
+            "yt" => Country::mayotte(),
+            "mx" => Country::mexico(),
+            "mc" => Country::monaco(),
+            "mn" => Country::mongolia(),
+            "me" => Country::montenegro(),
+            "ms" => Country::montserrat(),
+            "ma" => Country::morocco(),
+            "mz" => Country::mozambique(),
+            "mm" => Country::myanmar(),
+            "na" => Country::namibia(),
+            "nr" => Country::nauru(),
+            "np" => Country::nepal(),
+            "nc" => Country::new_caledonia(),
+            "nz" => Country::new_zealand(),
+            "ni" => Country::nicaragua(),
+            "ng" => Country::nigeria(),
+            "nu" => Country::niue(),
+            "nf" => Country::norfolk_island(),
+            "no" => Country::norway(),
+            "om" => Country::oman(),
+            "pk" => Country::pakistan(),
+            "pw" => Country::palau(),
+            "pa" => Country::panama(),
+            "pg" => Country::papua_new_guinea(),
+            "py" => Country::paraguay(),
+            "pe" => Country::peru(),
+            "pn" => Country::pitcairn(),
+            "pl" => Country::poland(),
+            "pt" => Country::portugal(),
+            "pr" => Country::puerto_rico(),
+            "qa" => Country::qatar(),
+            "mk" => Country::republic_of_north_macedonia(),
+            "re" => Country::reunion(),
+            "ro" => Country::romania(),
+            "rw" => Country::rwanda(),
+            "bl" => Country::saint_barthelemy(),
+            "kn" => Country::saint_kitts_and_nevis(),
+            "lc" => Country::saint_lucia(),
+            "pm" => Country::saint_pierre_and_miquelon(),
+            "vc" => Country::saint_vincent_and_the_grenadines(),
+            "ws" => Country::samoa(),
+            "sm" => Country::san_marino(),
+            "st" => Country::sao_tome_and_principe(),
+            "sa" => Country::saudi_arabia(),
+            "sn" => Country::senegal(),
+            "rs" => Country::serbia(),
+            "sc" => Country::seychelles(),
+            "sl" => Country::sierra_leone(),
+            "sg" => Country::singapore(),
+            "sk" => Country::slovakia(),
+            "si" => Country::slovenia(),
+            "sb" => Country::solomon_islands(),
+            "so" => Country::somalia(),
+            "za" => Country::south_africa(),
+            "gs" => Country::south_georgia_and_the_south_sandwich_islands(),
+            "ss" => Country::south_sudan(),
+            "es" => Country::spain(),
+            "lk" => Country::sri_lanka(),
+            "ps" => Country::state_of_palestine(),
+            "sr" => Country::suriname(),
+            "sj" => Country::svalbard_and_jan_mayen(),
+            "se" => Country::sweden(),
+            "ch" => Country::switzerland(),
+            "sy" => Country::syrian_arab_republic(),
+            "tw" => Country::taiwan(),
+            "tj" => Country::tajikistan(),
+            "th" => Country::thailand(),
+            "bs" => Country::the_bahamas(),
+            "ky" => Country::the_cayman_islands(),
+            "cf" => Country::the_central_african_republic(),
+            "cc" => Country::the_cocos_keeling_islands(),
+            "km" => Country::the_comoros(),
+            "cg" => Country::the_congo(),
+            "ck" => Country::the_cook_islands(),
+            "kp" => Country::the_democratic_peoples_republic_of_korea(),
+            "cd" => Country::the_democratic_republic_of_the_congo(),
+            "do" => Country::the_dominican_republic(),
+            "fk" => Country::the_falkland_islands_malvinas(),
+            "fo" => Country::the_faroe_islands(),
+            "tf" => Country::the_french_southern_territories(),
+            "gm" => Country::the_gambia(),
+            "va" => Country::the_holy_see(),
+            "la" => Country::the_lao_peoples_democratic_republic(),
+            "mh" => Country::the_marshall_islands(),
+            "nl" => Country::the_netherlands(),
+            "ne" => Country::the_niger(),
+            "mp" => Country::the_northern_mariana_islands(),
+            "ph" => Country::the_philippines(),
+            "kr" => Country::the_republic_of_korea(),
+            "md" => Country::the_republic_of_moldova(),
+            "ru" => Country::the_russian_federation(),
+            "sd" => Country::the_sudan(),
+            "tc" => Country::the_turks_and_caicos_islands(),
+            "ae" => Country::the_united_arab_emirates(),
+            "gb" => Country::the_united_kingdom_of_great_britain_and_northern_ireland(),
+            "um" => Country::the_united_states_minor_outlying_islands(),
+            "us" => Country::the_united_states_of_america(),
+            "tl" => Country::timor_leste(),
+            "tg" => Country::togo(),
+            "tk" => Country::tokelau(),
+            "to" => Country::tonga(),
+            "tt" => Country::trinidad_and_tobago(),
+            "tn" => Country::tunisia(),
+            "tr" => Country::turkey(),
+            "tm" => Country::turkmenistan(),
+            "tv" => Country::tuvalu(),
+            "vi" => Country::us_virgin_islands(),
+            "ug" => Country::uganda(),
+            "ua" => Country::ukraine(),
+            "tz" => Country::united_republic_of_tanzania(),
+            "uy" => Country::uruguay(),
+            "uz" => Country::uzbekistan(),
+            "vu" => Country::vanuatu(),
+            "vn" => Country::vietnam(),
+            "wf" => Country::wallis_and_futuna(),
+            "eh" => Country::western_sahara(),
+            "ye" => Country::yemen(),
+            "zm" => Country::zambia(),
+            "zw" => Country::zimbabwe(),
+        };
+        ALPHA2
             .get(alpha2.as_ref().to_lowercase().as_str())
             .copied()
             .ok_or("invalid alpha2")
@@ -2507,270 +2477,259 @@ impl Country {
     /// assert_eq!(Country::the_united_states_of_america(), res.unwrap());
     /// ```
     pub fn from_alpha3<A: AsRef<str>>(alpha3: A) -> Result<Self, &'static str> {
-        static ALPHA3: LazyLock<HashMap<&'static str, Country>> = LazyLock::new(|| {
-            let mut map = HashMap::with_capacity(250);
-            map.insert("afg", Country::afghanistan());
-            map.insert("ala", Country::aland_islands());
-            map.insert("alb", Country::albania());
-            map.insert("dza", Country::algeria());
-            map.insert("asm", Country::american_samoa());
-            map.insert("and", Country::andorra());
-            map.insert("ago", Country::angola());
-            map.insert("aia", Country::anguilla());
-            map.insert("ata", Country::antarctica());
-            map.insert("atg", Country::antigua_and_barbuda());
-            map.insert("arg", Country::argentina());
-            map.insert("arm", Country::armenia());
-            map.insert("abw", Country::aruba());
-            map.insert(
-                "shn",
-                Country::ascension_and_tristan_da_cunha_saint_helena(),
-            );
-            map.insert("aus", Country::australia());
-            map.insert("aut", Country::austria());
-            map.insert("aze", Country::azerbaijan());
-            map.insert("bhr", Country::bahrain());
-            map.insert("bgd", Country::bangladesh());
-            map.insert("brb", Country::barbados());
-            map.insert("blr", Country::belarus());
-            map.insert("bel", Country::belgium());
-            map.insert("blz", Country::belize());
-            map.insert("ben", Country::benin());
-            map.insert("bmu", Country::bermuda());
-            map.insert("btn", Country::bhutan());
-            map.insert("ven", Country::bolivarian_republic_of_venezuela());
-            map.insert("bol", Country::bolivia());
-            map.insert("bes", Country::bonaire());
-            map.insert("bih", Country::bosnia_and_herzegovina());
-            map.insert("bwa", Country::botswana());
-            map.insert("bvt", Country::bouvet_island());
-            map.insert("bra", Country::brazil());
-            map.insert("iot", Country::british_indian_ocean_territory());
-            map.insert("vgb", Country::british_virgin_islands());
-            map.insert("brn", Country::brunei_darussalam());
-            map.insert("bgr", Country::bulgaria());
-            map.insert("bfa", Country::burkina_faso());
-            map.insert("bdi", Country::burundi());
-            map.insert("cpv", Country::cabo_verde());
-            map.insert("khm", Country::cambodia());
-            map.insert("cmr", Country::cameroon());
-            map.insert("can", Country::canada());
-            map.insert("tcd", Country::chad());
-            map.insert("chl", Country::chile());
-            map.insert("chn", Country::china());
-            map.insert("cxr", Country::christmas_island());
-            map.insert("col", Country::colombia());
-            map.insert("cri", Country::costa_rica());
-            map.insert("civ", Country::coted_ivoire());
-            map.insert("hrv", Country::croatia());
-            map.insert("cub", Country::cuba());
-            map.insert("cuw", Country::curacao());
-            map.insert("cyp", Country::cyprus());
-            map.insert("cze", Country::czechia());
-            map.insert("dnk", Country::denmark());
-            map.insert("dji", Country::djibouti());
-            map.insert("dma", Country::dominica());
-            map.insert("sxm", Country::dutch_part_sint_maarten());
-            map.insert("ecu", Country::ecuador());
-            map.insert("egy", Country::egypt());
-            map.insert("slv", Country::el_salvador());
-            map.insert("gnq", Country::equatorial_guinea());
-            map.insert("eri", Country::eritrea());
-            map.insert("est", Country::estonia());
-            map.insert("swz", Country::eswatini());
-            map.insert("eth", Country::ethiopia());
-            map.insert("fsm", Country::federated_states_of_micronesia());
-            map.insert("fji", Country::fiji());
-            map.insert("fin", Country::finland());
-            map.insert("fra", Country::france());
-            map.insert("guf", Country::french_guiana());
-            map.insert("maf", Country::french_part_saint_martin());
-            map.insert("pyf", Country::french_polynesia());
-            map.insert("gab", Country::gabon());
-            map.insert("geo", Country::georgia());
-            map.insert("deu", Country::germany());
-            map.insert("gha", Country::ghana());
-            map.insert("gib", Country::gibraltar());
-            map.insert("grc", Country::greece());
-            map.insert("grl", Country::greenland());
-            map.insert("grd", Country::grenada());
-            map.insert("glp", Country::guadeloupe());
-            map.insert("gum", Country::guam());
-            map.insert("gtm", Country::guatemala());
-            map.insert("ggy", Country::guernsey());
-            map.insert("gin", Country::guinea());
-            map.insert("gnb", Country::guinea_bissau());
-            map.insert("guy", Country::guyana());
-            map.insert("hti", Country::haiti());
-            map.insert("hmd", Country::heard_island_and_mc_donald_islands());
-            map.insert("hnd", Country::honduras());
-            map.insert("hkg", Country::hong_kong());
-            map.insert("hun", Country::hungary());
-            map.insert("isl", Country::iceland());
-            map.insert("ind", Country::india());
-            map.insert("idn", Country::indonesia());
-            map.insert("irq", Country::iraq());
-            map.insert("irl", Country::ireland());
-            map.insert("irn", Country::islamic_republic_of_iran());
-            map.insert("imn", Country::isle_of_man());
-            map.insert("isr", Country::israel());
-            map.insert("ita", Country::italy());
-            map.insert("jam", Country::jamaica());
-            map.insert("jpn", Country::japan());
-            map.insert("jey", Country::jersey());
-            map.insert("jor", Country::jordan());
-            map.insert("kaz", Country::kazakhstan());
-            map.insert("ken", Country::kenya());
-            map.insert("xkx", Country::kosovo());
-            map.insert("kir", Country::kiribati());
-            map.insert("kwt", Country::kuwait());
-            map.insert("kgz", Country::kyrgyzstan());
-            map.insert("lva", Country::latvia());
-            map.insert("lbn", Country::lebanon());
-            map.insert("lso", Country::lesotho());
-            map.insert("lbr", Country::liberia());
-            map.insert("lby", Country::libya());
-            map.insert("lie", Country::liechtenstein());
-            map.insert("ltu", Country::lithuania());
-            map.insert("lux", Country::luxembourg());
-            map.insert("mac", Country::macao());
-            map.insert("mdg", Country::madagascar());
-            map.insert("mwi", Country::malawi());
-            map.insert("mys", Country::malaysia());
-            map.insert("mdv", Country::maldives());
-            map.insert("mli", Country::mali());
-            map.insert("mlt", Country::malta());
-            map.insert("mtq", Country::martinique());
-            map.insert("mrt", Country::mauritania());
-            map.insert("mus", Country::mauritius());
-            map.insert("myt", Country::mayotte());
-            map.insert("mex", Country::mexico());
-            map.insert("mco", Country::monaco());
-            map.insert("mng", Country::mongolia());
-            map.insert("mne", Country::montenegro());
-            map.insert("msr", Country::montserrat());
-            map.insert("mar", Country::morocco());
-            map.insert("moz", Country::mozambique());
-            map.insert("mmr", Country::myanmar());
-            map.insert("nam", Country::namibia());
-            map.insert("nru", Country::nauru());
-            map.insert("npl", Country::nepal());
-            map.insert("ncl", Country::new_caledonia());
-            map.insert("nzl", Country::new_zealand());
-            map.insert("nic", Country::nicaragua());
-            map.insert("nga", Country::nigeria());
-            map.insert("niu", Country::niue());
-            map.insert("nfk", Country::norfolk_island());
-            map.insert("nor", Country::norway());
-            map.insert("omn", Country::oman());
-            map.insert("pak", Country::pakistan());
-            map.insert("plw", Country::palau());
-            map.insert("pan", Country::panama());
-            map.insert("png", Country::papua_new_guinea());
-            map.insert("pry", Country::paraguay());
-            map.insert("per", Country::peru());
-            map.insert("pcn", Country::pitcairn());
-            map.insert("pol", Country::poland());
-            map.insert("prt", Country::portugal());
-            map.insert("pri", Country::puerto_rico());
-            map.insert("qat", Country::qatar());
-            map.insert("mkd", Country::republic_of_north_macedonia());
-            map.insert("reu", Country::reunion());
-            map.insert("rou", Country::romania());
-            map.insert("rwa", Country::rwanda());
-            map.insert("blm", Country::saint_barthelemy());
-            map.insert("kna", Country::saint_kitts_and_nevis());
-            map.insert("lca", Country::saint_lucia());
-            map.insert("spm", Country::saint_pierre_and_miquelon());
-            map.insert("vct", Country::saint_vincent_and_the_grenadines());
-            map.insert("wsm", Country::samoa());
-            map.insert("smr", Country::san_marino());
-            map.insert("stp", Country::sao_tome_and_principe());
-            map.insert("sau", Country::saudi_arabia());
-            map.insert("sen", Country::senegal());
-            map.insert("srb", Country::serbia());
-            map.insert("syc", Country::seychelles());
-            map.insert("sle", Country::sierra_leone());
-            map.insert("sgp", Country::singapore());
-            map.insert("svk", Country::slovakia());
-            map.insert("svn", Country::slovenia());
-            map.insert("slb", Country::solomon_islands());
-            map.insert("som", Country::somalia());
-            map.insert("zaf", Country::south_africa());
-            map.insert(
-                "sgs",
-                Country::south_georgia_and_the_south_sandwich_islands(),
-            );
-            map.insert("ssd", Country::south_sudan());
-            map.insert("esp", Country::spain());
-            map.insert("lka", Country::sri_lanka());
-            map.insert("pse", Country::state_of_palestine());
-            map.insert("sur", Country::suriname());
-            map.insert("sjm", Country::svalbard_and_jan_mayen());
-            map.insert("swe", Country::sweden());
-            map.insert("che", Country::switzerland());
-            map.insert("syr", Country::syrian_arab_republic());
-            map.insert("twn", Country::taiwan());
-            map.insert("tjk", Country::tajikistan());
-            map.insert("tha", Country::thailand());
-            map.insert("bhs", Country::the_bahamas());
-            map.insert("cym", Country::the_cayman_islands());
-            map.insert("caf", Country::the_central_african_republic());
-            map.insert("cck", Country::the_cocos_keeling_islands());
-            map.insert("com", Country::the_comoros());
-            map.insert("cog", Country::the_congo());
-            map.insert("cok", Country::the_cook_islands());
-            map.insert("prk", Country::the_democratic_peoples_republic_of_korea());
-            map.insert("cod", Country::the_democratic_republic_of_the_congo());
-            map.insert("dom", Country::the_dominican_republic());
-            map.insert("flk", Country::the_falkland_islands_malvinas());
-            map.insert("fro", Country::the_faroe_islands());
-            map.insert("atf", Country::the_french_southern_territories());
-            map.insert("gmb", Country::the_gambia());
-            map.insert("vat", Country::the_holy_see());
-            map.insert("lao", Country::the_lao_peoples_democratic_republic());
-            map.insert("mhl", Country::the_marshall_islands());
-            map.insert("nld", Country::the_netherlands());
-            map.insert("ner", Country::the_niger());
-            map.insert("mnp", Country::the_northern_mariana_islands());
-            map.insert("phl", Country::the_philippines());
-            map.insert("kor", Country::the_republic_of_korea());
-            map.insert("mda", Country::the_republic_of_moldova());
-            map.insert("rus", Country::the_russian_federation());
-            map.insert("sdn", Country::the_sudan());
-            map.insert("tca", Country::the_turks_and_caicos_islands());
-            map.insert("are", Country::the_united_arab_emirates());
-            map.insert(
-                "gbr",
-                Country::the_united_kingdom_of_great_britain_and_northern_ireland(),
-            );
-            map.insert("umi", Country::the_united_states_minor_outlying_islands());
-            map.insert("usa", Country::the_united_states_of_america());
-            map.insert("tls", Country::timor_leste());
-            map.insert("tgo", Country::togo());
-            map.insert("tkl", Country::tokelau());
-            map.insert("ton", Country::tonga());
-            map.insert("tto", Country::trinidad_and_tobago());
-            map.insert("tun", Country::tunisia());
-            map.insert("tur", Country::turkey());
-            map.insert("tkm", Country::turkmenistan());
-            map.insert("tuv", Country::tuvalu());
-            map.insert("vir", Country::us_virgin_islands());
-            map.insert("uga", Country::uganda());
-            map.insert("ukr", Country::ukraine());
-            map.insert("tza", Country::united_republic_of_tanzania());
-            map.insert("ury", Country::uruguay());
-            map.insert("uzb", Country::uzbekistan());
-            map.insert("vut", Country::vanuatu());
-            map.insert("vnm", Country::vietnam());
-            map.insert("wlf", Country::wallis_and_futuna());
-            map.insert("esh", Country::western_sahara());
-            map.insert("yem", Country::yemen());
-            map.insert("zmb", Country::zambia());
-            map.insert("zwe", Country::zimbabwe());
-            map
-        });
-        (*ALPHA3)
+        static ALPHA3: Map<&'static str, Country> = phf_map! {
+            "afg" => Country::afghanistan(),
+            "ala" => Country::aland_islands(),
+            "alb" => Country::albania(),
+            "dza" => Country::algeria(),
+            "asm" => Country::american_samoa(),
+            "and" => Country::andorra(),
+            "ago" => Country::angola(),
+            "aia" => Country::anguilla(),
+            "ata" => Country::antarctica(),
+            "atg" => Country::antigua_and_barbuda(),
+            "arg" => Country::argentina(),
+            "arm" => Country::armenia(),
+            "abw" => Country::aruba(),
+            "shn" => Country::ascension_and_tristan_da_cunha_saint_helena(),
+            "aus" => Country::australia(),
+            "aut" => Country::austria(),
+            "aze" => Country::azerbaijan(),
+            "bhr" => Country::bahrain(),
+            "bgd" => Country::bangladesh(),
+            "brb" => Country::barbados(),
+            "blr" => Country::belarus(),
+            "bel" => Country::belgium(),
+            "blz" => Country::belize(),
+            "ben" => Country::benin(),
+            "bmu" => Country::bermuda(),
+            "btn" => Country::bhutan(),
+            "ven" => Country::bolivarian_republic_of_venezuela(),
+            "bol" => Country::bolivia(),
+            "bes" => Country::bonaire(),
+            "bih" => Country::bosnia_and_herzegovina(),
+            "bwa" => Country::botswana(),
+            "bvt" => Country::bouvet_island(),
+            "bra" => Country::brazil(),
+            "iot" => Country::british_indian_ocean_territory(),
+            "vgb" => Country::british_virgin_islands(),
+            "brn" => Country::brunei_darussalam(),
+            "bgr" => Country::bulgaria(),
+            "bfa" => Country::burkina_faso(),
+            "bdi" => Country::burundi(),
+            "cpv" => Country::cabo_verde(),
+            "khm" => Country::cambodia(),
+            "cmr" => Country::cameroon(),
+            "can" => Country::canada(),
+            "tcd" => Country::chad(),
+            "chl" => Country::chile(),
+            "chn" => Country::china(),
+            "cxr" => Country::christmas_island(),
+            "col" => Country::colombia(),
+            "cri" => Country::costa_rica(),
+            "civ" => Country::coted_ivoire(),
+            "hrv" => Country::croatia(),
+            "cub" => Country::cuba(),
+            "cuw" => Country::curacao(),
+            "cyp" => Country::cyprus(),
+            "cze" => Country::czechia(),
+            "dnk" => Country::denmark(),
+            "dji" => Country::djibouti(),
+            "dma" => Country::dominica(),
+            "sxm" => Country::dutch_part_sint_maarten(),
+            "ecu" => Country::ecuador(),
+            "egy" => Country::egypt(),
+            "slv" => Country::el_salvador(),
+            "gnq" => Country::equatorial_guinea(),
+            "eri" => Country::eritrea(),
+            "est" => Country::estonia(),
+            "swz" => Country::eswatini(),
+            "eth" => Country::ethiopia(),
+            "fsm" => Country::federated_states_of_micronesia(),
+            "fji" => Country::fiji(),
+            "fin" => Country::finland(),
+            "fra" => Country::france(),
+            "guf" => Country::french_guiana(),
+            "maf" => Country::french_part_saint_martin(),
+            "pyf" => Country::french_polynesia(),
+            "gab" => Country::gabon(),
+            "geo" => Country::georgia(),
+            "deu" => Country::germany(),
+            "gha" => Country::ghana(),
+            "gib" => Country::gibraltar(),
+            "grc" => Country::greece(),
+            "grl" => Country::greenland(),
+            "grd" => Country::grenada(),
+            "glp" => Country::guadeloupe(),
+            "gum" => Country::guam(),
+            "gtm" => Country::guatemala(),
+            "ggy" => Country::guernsey(),
+            "gin" => Country::guinea(),
+            "gnb" => Country::guinea_bissau(),
+            "guy" => Country::guyana(),
+            "hti" => Country::haiti(),
+            "hmd" => Country::heard_island_and_mc_donald_islands(),
+            "hnd" => Country::honduras(),
+            "hkg" => Country::hong_kong(),
+            "hun" => Country::hungary(),
+            "isl" => Country::iceland(),
+            "ind" => Country::india(),
+            "idn" => Country::indonesia(),
+            "irq" => Country::iraq(),
+            "irl" => Country::ireland(),
+            "irn" => Country::islamic_republic_of_iran(),
+            "imn" => Country::isle_of_man(),
+            "isr" => Country::israel(),
+            "ita" => Country::italy(),
+            "jam" => Country::jamaica(),
+            "jpn" => Country::japan(),
+            "jey" => Country::jersey(),
+            "jor" => Country::jordan(),
+            "kaz" => Country::kazakhstan(),
+            "ken" => Country::kenya(),
+            "xkx" => Country::kosovo(),
+            "kir" => Country::kiribati(),
+            "kwt" => Country::kuwait(),
+            "kgz" => Country::kyrgyzstan(),
+            "lva" => Country::latvia(),
+            "lbn" => Country::lebanon(),
+            "lso" => Country::lesotho(),
+            "lbr" => Country::liberia(),
+            "lby" => Country::libya(),
+            "lie" => Country::liechtenstein(),
+            "ltu" => Country::lithuania(),
+            "lux" => Country::luxembourg(),
+            "mac" => Country::macao(),
+            "mdg" => Country::madagascar(),
+            "mwi" => Country::malawi(),
+            "mys" => Country::malaysia(),
+            "mdv" => Country::maldives(),
+            "mli" => Country::mali(),
+            "mlt" => Country::malta(),
+            "mtq" => Country::martinique(),
+            "mrt" => Country::mauritania(),
+            "mus" => Country::mauritius(),
+            "myt" => Country::mayotte(),
+            "mex" => Country::mexico(),
+            "mco" => Country::monaco(),
+            "mng" => Country::mongolia(),
+            "mne" => Country::montenegro(),
+            "msr" => Country::montserrat(),
+            "mar" => Country::morocco(),
+            "moz" => Country::mozambique(),
+            "mmr" => Country::myanmar(),
+            "nam" => Country::namibia(),
+            "nru" => Country::nauru(),
+            "npl" => Country::nepal(),
+            "ncl" => Country::new_caledonia(),
+            "nzl" => Country::new_zealand(),
+            "nic" => Country::nicaragua(),
+            "nga" => Country::nigeria(),
+            "niu" => Country::niue(),
+            "nfk" => Country::norfolk_island(),
+            "nor" => Country::norway(),
+            "omn" => Country::oman(),
+            "pak" => Country::pakistan(),
+            "plw" => Country::palau(),
+            "pan" => Country::panama(),
+            "png" => Country::papua_new_guinea(),
+            "pry" => Country::paraguay(),
+            "per" => Country::peru(),
+            "pcn" => Country::pitcairn(),
+            "pol" => Country::poland(),
+            "prt" => Country::portugal(),
+            "pri" => Country::puerto_rico(),
+            "qat" => Country::qatar(),
+            "mkd" => Country::republic_of_north_macedonia(),
+            "reu" => Country::reunion(),
+            "rou" => Country::romania(),
+            "rwa" => Country::rwanda(),
+            "blm" => Country::saint_barthelemy(),
+            "kna" => Country::saint_kitts_and_nevis(),
+            "lca" => Country::saint_lucia(),
+            "spm" => Country::saint_pierre_and_miquelon(),
+            "vct" => Country::saint_vincent_and_the_grenadines(),
+            "wsm" => Country::samoa(),
+            "smr" => Country::san_marino(),
+            "stp" => Country::sao_tome_and_principe(),
+            "sau" => Country::saudi_arabia(),
+            "sen" => Country::senegal(),
+            "srb" => Country::serbia(),
+            "syc" => Country::seychelles(),
+            "sle" => Country::sierra_leone(),
+            "sgp" => Country::singapore(),
+            "svk" => Country::slovakia(),
+            "svn" => Country::slovenia(),
+            "slb" => Country::solomon_islands(),
+            "som" => Country::somalia(),
+            "zaf" => Country::south_africa(),
+            "sgs" => Country::south_georgia_and_the_south_sandwich_islands(),
+            "ssd" => Country::south_sudan(),
+            "esp" => Country::spain(),
+            "lka" => Country::sri_lanka(),
+            "pse" => Country::state_of_palestine(),
+            "sur" => Country::suriname(),
+            "sjm" => Country::svalbard_and_jan_mayen(),
+            "swe" => Country::sweden(),
+            "che" => Country::switzerland(),
+            "syr" => Country::syrian_arab_republic(),
+            "twn" => Country::taiwan(),
+            "tjk" => Country::tajikistan(),
+            "tha" => Country::thailand(),
+            "bhs" => Country::the_bahamas(),
+            "cym" => Country::the_cayman_islands(),
+            "caf" => Country::the_central_african_republic(),
+            "cck" => Country::the_cocos_keeling_islands(),
+            "com" => Country::the_comoros(),
+            "cog" => Country::the_congo(),
+            "cok" => Country::the_cook_islands(),
+            "prk" => Country::the_democratic_peoples_republic_of_korea(),
+            "cod" => Country::the_democratic_republic_of_the_congo(),
+            "dom" => Country::the_dominican_republic(),
+            "flk" => Country::the_falkland_islands_malvinas(),
+            "fro" => Country::the_faroe_islands(),
+            "atf" => Country::the_french_southern_territories(),
+            "gmb" => Country::the_gambia(),
+            "vat" => Country::the_holy_see(),
+            "lao" => Country::the_lao_peoples_democratic_republic(),
+            "mhl" => Country::the_marshall_islands(),
+            "nld" => Country::the_netherlands(),
+            "ner" => Country::the_niger(),
+            "mnp" => Country::the_northern_mariana_islands(),
+            "phl" => Country::the_philippines(),
+            "kor" => Country::the_republic_of_korea(),
+            "mda" => Country::the_republic_of_moldova(),
+            "rus" => Country::the_russian_federation(),
+            "sdn" => Country::the_sudan(),
+            "tca" => Country::the_turks_and_caicos_islands(),
+            "are" => Country::the_united_arab_emirates(),
+            "gbr" => Country::the_united_kingdom_of_great_britain_and_northern_ireland(),
+            "umi" => Country::the_united_states_minor_outlying_islands(),
+            "usa" => Country::the_united_states_of_america(),
+            "tls" => Country::timor_leste(),
+            "tgo" => Country::togo(),
+            "tkl" => Country::tokelau(),
+            "ton" => Country::tonga(),
+            "tto" => Country::trinidad_and_tobago(),
+            "tun" => Country::tunisia(),
+            "tur" => Country::turkey(),
+            "tkm" => Country::turkmenistan(),
+            "tuv" => Country::tuvalu(),
+            "vir" => Country::us_virgin_islands(),
+            "uga" => Country::uganda(),
+            "ukr" => Country::ukraine(),
+            "tza" => Country::united_republic_of_tanzania(),
+            "ury" => Country::uruguay(),
+            "uzb" => Country::uzbekistan(),
+            "vut" => Country::vanuatu(),
+            "vnm" => Country::vietnam(),
+            "wlf" => Country::wallis_and_futuna(),
+            "esh" => Country::western_sahara(),
+            "yem" => Country::yemen(),
+            "zmb" => Country::zambia(),
+            "zwe" => Country::zimbabwe(),
+        };
+        ALPHA3
             .get(alpha3.as_ref().to_lowercase().as_str())
             .copied()
             .ok_or("invalid alpha3")
@@ -2802,136 +2761,90 @@ impl Country {
     /// assert_eq!(Country::the_united_kingdom_of_great_britain_and_northern_ireland(), res.unwrap());
     /// ```
     pub fn from_alias<A: AsRef<str>>(alias: A) -> Result<Self, &'static str> {
-        static ALIASES: LazyLock<HashMap<&'static str, Country>> = LazyLock::new(|| {
-            let mut map = HashMap::with_capacity(256);
-            map.insert("samoa", Country::american_samoa());
-            for s in ["sthelena", "sainthelena"] {
-                map.insert(s, Country::ascension_and_tristan_da_cunha_saint_helena());
-            }
-            map.insert("venezuela", Country::bolivarian_republic_of_venezuela());
-            for s in ["bosnia", "herzegovina"] {
-                map.insert(s, Country::bosnia_and_herzegovina());
-            }
-            map.insert("brunei", Country::brunei_darussalam());
-            map.insert("burkina", Country::burkina_faso());
-            for s in ["stmaarten", "saintmaarten"] {
-                map.insert(s, Country::dutch_part_sint_maarten());
-            }
-            map.insert("micronesia", Country::federated_states_of_micronesia());
-            for s in ["stmartin", "saintmartin"] {
-                map.insert(s, Country::french_part_saint_martin());
-            }
-            for s in ["heardisland", "mcdonaldislands"] {
-                map.insert(s, Country::heard_island_and_mc_donald_islands());
-            }
-            map.insert("iran", Country::islamic_republic_of_iran());
-            map.insert("macedonia", Country::republic_of_north_macedonia());
-            map.insert("stbarthelemy", Country::saint_barthelemy());
-            map.insert("stkitts", Country::saint_kitts_and_nevis());
-            map.insert("stlucia", Country::saint_lucia());
-            for s in ["stpierre", "saintpierre"] {
-                map.insert(s, Country::saint_pierre_and_miquelon());
-            }
-            for s in ["stvincent", "saintvincent"] {
-                map.insert(s, Country::saint_vincent_and_the_grenadines());
-            }
-            map.insert("saotome", Country::sao_tome_and_principe());
-            for s in ["southgeorgia", "southsandwichislands"] {
-                map.insert(s, Country::south_georgia_and_the_south_sandwich_islands());
-            }
-            map.insert("palestine", Country::state_of_palestine());
-            map.insert("taiwan", Country::taiwan());
-            map.insert("bahamas", Country::the_bahamas());
-            map.insert("caymanislands", Country::the_cayman_islands());
-            map.insert(
-                "centralafricanrepublic",
-                Country::the_central_african_republic(),
-            );
-            for s in ["cocosislands", "keelingislands"] {
-                map.insert(s, Country::the_cocos_keeling_islands());
-            }
-            map.insert("comoros", Country::the_comoros());
-            map.insert("congo", Country::the_congo());
-            map.insert("cookislands", Country::the_cook_islands());
-            map.insert("czechrepublic", Country::czechia());
-            for s in ["northkorea", "democraticpeoplesrepublicofkorea"] {
-                map.insert(s, Country::the_democratic_peoples_republic_of_korea());
-            }
-            map.insert(
-                "democraticrepublicofthecongo",
-                Country::the_democratic_republic_of_the_congo(),
-            );
-            map.insert("dominicanrepublic", Country::the_dominican_republic());
-            map.insert("easttimor", Country::timor_leste());
-            for s in ["malvinas", "falklandislands"] {
-                map.insert(s, Country::the_falkland_islands_malvinas());
-            }
-            map.insert("faroeislands", Country::the_faroe_islands());
-            map.insert(
-                "frenchsouthernterritories",
-                Country::the_french_southern_territories(),
-            );
-            map.insert("gambia", Country::the_gambia());
-            map.insert("holysee", Country::the_holy_see());
-            map.insert(
-                "laopeoplesdemocraticrepublic",
-                Country::the_lao_peoples_democratic_republic(),
-            );
-            map.insert("marshallislands", Country::the_marshall_islands());
-            for s in ["netherlands", "holland"] {
-                map.insert(s, Country::the_netherlands());
-            }
-            map.insert("niger", Country::the_niger());
-            map.insert(
-                "northernmarianaislands",
-                Country::the_northern_mariana_islands(),
-            );
-            map.insert("philippines", Country::the_philippines());
-            for s in ["southkorea", "republicofkorea"] {
-                map.insert(s, Country::the_republic_of_korea());
-            }
-            for s in ["moldova", "republicofmoldova"] {
-                map.insert(s, Country::the_republic_of_moldova());
-            }
-            for s in ["russia", "russianfederation"] {
-                map.insert(s, Country::the_russian_federation());
-            }
-            map.insert("sudan", Country::the_sudan());
-            map.insert(
-                "turksandcaicosislands",
-                Country::the_turks_and_caicos_islands(),
-            );
-            map.insert("unitedarabemirates", Country::the_united_arab_emirates());
-            for s in [
-                "england",
-                "scotland",
-                "greatbritain",
-                "unitedkingdom",
-                "northernireland",
-                "unitedkingdomofgreatbritain",
-                "unitedkingdomofgreatbritainandnorthernireland",
-            ] {
-                map.insert(
-                    s,
-                    Country::the_united_kingdom_of_great_britain_and_northern_ireland(),
-                );
-            }
-            map.insert(
-                "unitedstatesminoroutlyingislands",
-                Country::the_united_states_minor_outlying_islands(),
-            );
-            for s in ["america", "unitedstates", "unitedstatesofamerica"] {
-                map.insert(s, Country::the_united_states_of_america());
-            }
-            for s in ["trinidad", "tobago"] {
-                map.insert(s, Country::trinidad_and_tobago());
-            }
-            map.insert("tanzania", Country::united_republic_of_tanzania());
-            map.insert("türkiye", Country::turkey());
-            map.insert("turkey", Country::turkey());
-            map
-        });
-        (*ALIASES)
+        static ALIASES: Map<&'static str, Country> = phf_map! {
+            "samoa" => Country::american_samoa(),
+            "sthelena" => Country::ascension_and_tristan_da_cunha_saint_helena(),
+            "sainthelena" => Country::ascension_and_tristan_da_cunha_saint_helena(),
+            "venezuela" => Country::bolivarian_republic_of_venezuela(),
+            "bosnia" => Country::bosnia_and_herzegovina(),
+            "herzegovina" => Country::bosnia_and_herzegovina(),
+            "brunei" => Country::brunei_darussalam(),
+            "burkina" => Country::burkina_faso(),
+            "stmaarten" => Country::dutch_part_sint_maarten(),
+            "saintmaarten" => Country::dutch_part_sint_maarten(),
+            "micronesia" => Country::federated_states_of_micronesia(),
+            "stmartin" => Country::french_part_saint_martin(),
+            "saintmartin" => Country::french_part_saint_martin(),
+            "heardisland" => Country::heard_island_and_mc_donald_islands(),
+            "mcdonaldislands" => Country::heard_island_and_mc_donald_islands(),
+            "iran" => Country::islamic_republic_of_iran(),
+            "macedonia" => Country::republic_of_north_macedonia(),
+            "stbarthelemy" => Country::saint_barthelemy(),
+            "stkitts" => Country::saint_kitts_and_nevis(),
+            "stlucia" => Country::saint_lucia(),
+            "stpierre" => Country::saint_pierre_and_miquelon(),
+            "saintpierre" => Country::saint_pierre_and_miquelon(),
+            "stvincent" => Country::saint_vincent_and_the_grenadines(),
+            "saintvincent" => Country::saint_vincent_and_the_grenadines(),
+            "saotome" => Country::sao_tome_and_principe(),
+            "southgeorgia" => Country::south_georgia_and_the_south_sandwich_islands(),
+            "southsandwichislands" => Country::south_georgia_and_the_south_sandwich_islands(),
+            "palestine" => Country::state_of_palestine(),
+            "taiwan" => Country::taiwan(),
+            "bahamas" => Country::the_bahamas(),
+            "caymanislands" => Country::the_cayman_islands(),
+            "centralafricanrepublic" => Country::the_central_african_republic(),
+            "cocosislands" => Country::the_cocos_keeling_islands(),
+            "keelingislands" => Country::the_cocos_keeling_islands(),
+            "comoros" => Country::the_comoros(),
+            "congo" => Country::the_congo(),
+            "cookislands" => Country::the_cook_islands(),
+            "czechrepublic" => Country::czechia(),
+            "northkorea" => Country::the_democratic_peoples_republic_of_korea(),
+            "democraticpeoplesrepublicofkorea" => Country::the_democratic_peoples_republic_of_korea(),
+            "democraticrepublicofthecongo" => Country::the_democratic_republic_of_the_congo(),
+            "dominicanrepublic" => Country::the_dominican_republic(),
+            "easttimor" => Country::timor_leste(),
+            "malvinas" => Country::the_falkland_islands_malvinas(),
+            "falklandislands" => Country::the_falkland_islands_malvinas(),
+            "faroeislands" => Country::the_faroe_islands(),
+            "frenchsouthernterritories" => Country::the_french_southern_territories(),
+            "gambia" => Country::the_gambia(),
+            "holysee" => Country::the_holy_see(),
+            "laopeoplesdemocraticrepublic" => Country::the_lao_peoples_democratic_republic(),
+            "marshallislands" => Country::the_marshall_islands(),
+            "netherlands" => Country::the_netherlands(),
+            "holland" => Country::the_netherlands(),
+            "niger" => Country::the_niger(),
+            "northernmarianaislands" => Country::the_northern_mariana_islands(),
+            "philippines" => Country::the_philippines(),
+            "southkorea" => Country::the_republic_of_korea(),
+            "republicofkorea" => Country::the_republic_of_korea(),
+            "moldova" => Country::the_republic_of_moldova(),
+            "republicofmoldova" => Country::the_republic_of_moldova(),
+            "russia" => Country::the_russian_federation(),
+            "russianfederation" => Country::the_russian_federation(),
+            "sudan" => Country::the_sudan(),
+            "turksandcaicosislands" => Country::the_turks_and_caicos_islands(),
+            "unitedarabemirates" => Country::the_united_arab_emirates(),
+            "england" => Country::the_united_kingdom_of_great_britain_and_northern_ireland(),
+            "scotland" => Country::the_united_kingdom_of_great_britain_and_northern_ireland(),
+            "greatbritain" => Country::the_united_kingdom_of_great_britain_and_northern_ireland(),
+            "unitedkingdom" => Country::the_united_kingdom_of_great_britain_and_northern_ireland(),
+            "northernireland" => Country::the_united_kingdom_of_great_britain_and_northern_ireland(),
+            "unitedkingdomofgreatbritain" => Country::the_united_kingdom_of_great_britain_and_northern_ireland(),
+            "unitedkingdomofgreatbritainandnorthernireland" => Country::the_united_kingdom_of_great_britain_and_northern_ireland(),
+            "unitedstatesminoroutlyingislands" => Country::the_united_states_minor_outlying_islands(),
+            "america" => Country::the_united_states_of_america(),
+            "unitedstates" => Country::the_united_states_of_america(),
+            "unitedstatesofamerica" => Country::the_united_states_of_america(),
+            "trinidad" => Country::trinidad_and_tobago(),
+            "tobago" => Country::trinidad_and_tobago(),
+            "tanzania" => Country::united_republic_of_tanzania(),
+            "türkiye" => Country::turkey(),
+            "turkey" => Country::turkey(),
+        };
+        ALIASES
             .get(alias.as_ref().to_lowercase().as_str())
             .copied()
             .ok_or("invalid alias")
@@ -2965,329 +2878,261 @@ impl Country {
     /// assert_eq!(Country::the_united_kingdom_of_great_britain_and_northern_ireland(), res.unwrap());
     /// ```
     pub fn from_name<A: AsRef<str>>(name: A) -> Result<Self, &'static str> {
-        static NAMES: LazyLock<HashMap<&'static str, Country>> = LazyLock::new(|| {
-            let mut map = HashMap::with_capacity(250);
-            map.insert("afghanistan", Country::afghanistan());
-            map.insert("alandislands", Country::aland_islands());
-            map.insert("albania", Country::albania());
-            map.insert("algeria", Country::algeria());
-            map.insert("americansamoa", Country::american_samoa());
-            map.insert("andorra", Country::andorra());
-            map.insert("angola", Country::angola());
-            map.insert("anguilla", Country::anguilla());
-            map.insert("antarctica", Country::antarctica());
-            map.insert("antiguaandbarbuda", Country::antigua_and_barbuda());
-            map.insert("argentina", Country::argentina());
-            map.insert("armenia", Country::armenia());
-            map.insert("aruba", Country::aruba());
-            map.insert(
-                "ascensionandtristandacunhasainthelena",
-                Country::ascension_and_tristan_da_cunha_saint_helena(),
-            );
-            map.insert("australia", Country::australia());
-            map.insert("austria", Country::austria());
-            map.insert("azerbaijan", Country::azerbaijan());
-            map.insert("bahrain", Country::bahrain());
-            map.insert("bangladesh", Country::bangladesh());
-            map.insert("barbados", Country::barbados());
-            map.insert("belarus", Country::belarus());
-            map.insert("belgium", Country::belgium());
-            map.insert("belize", Country::belize());
-            map.insert("benin", Country::benin());
-            map.insert("bermuda", Country::bermuda());
-            map.insert("bhutan", Country::bhutan());
-            map.insert(
-                "bolivarianrepublicofvenezuela",
-                Country::bolivarian_republic_of_venezuela(),
-            );
-            map.insert("bolivia", Country::bolivia());
-            map.insert("bonaire", Country::bonaire());
-            map.insert("bosniaandherzegovina", Country::bosnia_and_herzegovina());
-            map.insert("botswana", Country::botswana());
-            map.insert("bouvetisland", Country::bouvet_island());
-            map.insert("brazil", Country::brazil());
-            map.insert(
-                "britishindianoceanterritory",
-                Country::british_indian_ocean_territory(),
-            );
-            map.insert("britishvirginislands", Country::british_virgin_islands());
-            map.insert("bruneidarussalam", Country::brunei_darussalam());
-            map.insert("bulgaria", Country::bulgaria());
-            map.insert("burkinafaso", Country::burkina_faso());
-            map.insert("burundi", Country::burundi());
-            map.insert("caboverde", Country::cabo_verde());
-            map.insert("cambodia", Country::cambodia());
-            map.insert("cameroon", Country::cameroon());
-            map.insert("canada", Country::canada());
-            map.insert("chad", Country::chad());
-            map.insert("chile", Country::chile());
-            map.insert("china", Country::china());
-            map.insert("christmasisland", Country::christmas_island());
-            map.insert("colombia", Country::colombia());
-            map.insert("costarica", Country::costa_rica());
-            map.insert("cotedivoire", Country::coted_ivoire());
-            map.insert("croatia", Country::croatia());
-            map.insert("cuba", Country::cuba());
-            map.insert("curacao", Country::curacao());
-            map.insert("cyprus", Country::cyprus());
-            map.insert("czechia", Country::czechia());
-            map.insert("denmark", Country::denmark());
-            map.insert("djibouti", Country::djibouti());
-            map.insert("dominica", Country::dominica());
-            map.insert("dutchpartsintmaarten", Country::dutch_part_sint_maarten());
-            map.insert("ecuador", Country::ecuador());
-            map.insert("egypt", Country::egypt());
-            map.insert("elsalvador", Country::el_salvador());
-            map.insert("equatorialguinea", Country::equatorial_guinea());
-            map.insert("eritrea", Country::eritrea());
-            map.insert("estonia", Country::estonia());
-            map.insert("eswatini", Country::eswatini());
-            map.insert("ethiopia", Country::ethiopia());
-            map.insert(
-                "federatedstatesofmicronesia",
-                Country::federated_states_of_micronesia(),
-            );
-            map.insert("fiji", Country::fiji());
-            map.insert("finland", Country::finland());
-            map.insert("france", Country::france());
-            map.insert("frenchguiana", Country::french_guiana());
-            map.insert("frenchpartsaintmartin", Country::french_part_saint_martin());
-            map.insert("frenchpolynesia", Country::french_polynesia());
-            map.insert("gabon", Country::gabon());
-            map.insert("georgia", Country::georgia());
-            map.insert("germany", Country::germany());
-            map.insert("ghana", Country::ghana());
-            map.insert("gibraltar", Country::gibraltar());
-            map.insert("greece", Country::greece());
-            map.insert("greenland", Country::greenland());
-            map.insert("grenada", Country::grenada());
-            map.insert("guadeloupe", Country::guadeloupe());
-            map.insert("guam", Country::guam());
-            map.insert("guatemala", Country::guatemala());
-            map.insert("guernsey", Country::guernsey());
-            map.insert("guinea", Country::guinea());
-            map.insert("guineabissau", Country::guinea_bissau());
-            map.insert("guyana", Country::guyana());
-            map.insert("haiti", Country::haiti());
-            map.insert(
-                "heardislandandmcdonaldislands",
-                Country::heard_island_and_mc_donald_islands(),
-            );
-            map.insert("honduras", Country::honduras());
-            map.insert("hongkong", Country::hong_kong());
-            map.insert("hungary", Country::hungary());
-            map.insert("iceland", Country::iceland());
-            map.insert("india", Country::india());
-            map.insert("indonesia", Country::indonesia());
-            map.insert("iraq", Country::iraq());
-            map.insert("ireland", Country::ireland());
-            map.insert("islamicrepublicofiran", Country::islamic_republic_of_iran());
-            map.insert("isleofman", Country::isle_of_man());
-            map.insert("israel", Country::israel());
-            map.insert("italy", Country::italy());
-            map.insert("jamaica", Country::jamaica());
-            map.insert("japan", Country::japan());
-            map.insert("jersey", Country::jersey());
-            map.insert("jordan", Country::jordan());
-            map.insert("kazakhstan", Country::kazakhstan());
-            map.insert("kenya", Country::kenya());
-            map.insert("kiribati", Country::kiribati());
-            map.insert("kosovo", Country::kosovo());
-            map.insert("kuwait", Country::kuwait());
-            map.insert("kyrgyzstan", Country::kyrgyzstan());
-            map.insert("latvia", Country::latvia());
-            map.insert("lebanon", Country::lebanon());
-            map.insert("lesotho", Country::lesotho());
-            map.insert("liberia", Country::liberia());
-            map.insert("libya", Country::libya());
-            map.insert("liechtenstein", Country::liechtenstein());
-            map.insert("lithuania", Country::lithuania());
-            map.insert("luxembourg", Country::luxembourg());
-            map.insert("macao", Country::macao());
-            map.insert("madagascar", Country::madagascar());
-            map.insert("malawi", Country::malawi());
-            map.insert("malaysia", Country::malaysia());
-            map.insert("maldives", Country::maldives());
-            map.insert("mali", Country::mali());
-            map.insert("malta", Country::malta());
-            map.insert("martinique", Country::martinique());
-            map.insert("mauritania", Country::mauritania());
-            map.insert("mauritius", Country::mauritius());
-            map.insert("mayotte", Country::mayotte());
-            map.insert("mexico", Country::mexico());
-            map.insert("monaco", Country::monaco());
-            map.insert("mongolia", Country::mongolia());
-            map.insert("montenegro", Country::montenegro());
-            map.insert("montserrat", Country::montserrat());
-            map.insert("morocco", Country::morocco());
-            map.insert("mozambique", Country::mozambique());
-            map.insert("myanmar", Country::myanmar());
-            map.insert("namibia", Country::namibia());
-            map.insert("nauru", Country::nauru());
-            map.insert("nepal", Country::nepal());
-            map.insert("newcaledonia", Country::new_caledonia());
-            map.insert("newzealand", Country::new_zealand());
-            map.insert("nicaragua", Country::nicaragua());
-            map.insert("nigeria", Country::nigeria());
-            map.insert("niue", Country::niue());
-            map.insert("norfolkisland", Country::norfolk_island());
-            map.insert("norway", Country::norway());
-            map.insert("oman", Country::oman());
-            map.insert("pakistan", Country::pakistan());
-            map.insert("palau", Country::palau());
-            map.insert("panama", Country::panama());
-            map.insert("papuanewguinea", Country::papua_new_guinea());
-            map.insert("paraguay", Country::paraguay());
-            map.insert("peru", Country::peru());
-            map.insert("pitcairn", Country::pitcairn());
-            map.insert("poland", Country::poland());
-            map.insert("portugal", Country::portugal());
-            map.insert("puertorico", Country::puerto_rico());
-            map.insert("qatar", Country::qatar());
-            map.insert(
-                "republicofnorthmacedonia",
-                Country::republic_of_north_macedonia(),
-            );
-            map.insert("reunion", Country::reunion());
-            map.insert("romania", Country::romania());
-            map.insert("rwanda", Country::rwanda());
-            map.insert("saintbarthelemy", Country::saint_barthelemy());
-            map.insert("saintkittsandnevis", Country::saint_kitts_and_nevis());
-            map.insert("saintlucia", Country::saint_lucia());
-            map.insert(
-                "saintpierreandmiquelon",
-                Country::saint_pierre_and_miquelon(),
-            );
-            map.insert(
-                "saintvincentandthegrenadines",
-                Country::saint_vincent_and_the_grenadines(),
-            );
-            map.insert("samoa", Country::samoa());
-            map.insert("sanmarino", Country::san_marino());
-            map.insert("saotomeandprincipe", Country::sao_tome_and_principe());
-            map.insert("saudiarabia", Country::saudi_arabia());
-            map.insert("senegal", Country::senegal());
-            map.insert("serbia", Country::serbia());
-            map.insert("seychelles", Country::seychelles());
-            map.insert("sierraleone", Country::sierra_leone());
-            map.insert("singapore", Country::singapore());
-            map.insert("slovakia", Country::slovakia());
-            map.insert("slovenia", Country::slovenia());
-            map.insert("solomonislands", Country::solomon_islands());
-            map.insert("somalia", Country::somalia());
-            map.insert("southafrica", Country::south_africa());
-            map.insert(
-                "southgeorgiaandthesouthsandwichislands",
-                Country::south_georgia_and_the_south_sandwich_islands(),
-            );
-            map.insert("southsudan", Country::south_sudan());
-            map.insert("spain", Country::spain());
-            map.insert("srilanka", Country::sri_lanka());
-            map.insert("stateofpalestine", Country::state_of_palestine());
-            map.insert("suriname", Country::suriname());
-            map.insert("svalbardandjanmayen", Country::svalbard_and_jan_mayen());
-            map.insert("sweden", Country::sweden());
-            map.insert("switzerland", Country::switzerland());
-            map.insert("syrianarabrepublic", Country::syrian_arab_republic());
-            map.insert("taiwan,republicofchina", Country::taiwan());
-            map.insert("tajikistan", Country::tajikistan());
-            map.insert("thailand", Country::thailand());
-            map.insert("thebahamas", Country::the_bahamas());
-            map.insert("thecaymanislands", Country::the_cayman_islands());
-            map.insert(
-                "thecentralafricanrepublic",
-                Country::the_central_african_republic(),
-            );
-            map.insert(
-                "thecocoskeelingislands",
-                Country::the_cocos_keeling_islands(),
-            );
-            map.insert("thecomoros", Country::the_comoros());
-            map.insert("thecongo", Country::the_congo());
-            map.insert("thecookislands", Country::the_cook_islands());
-            map.insert(
-                "thedemocraticpeoplesrepublicofkorea",
-                Country::the_democratic_peoples_republic_of_korea(),
-            );
-            map.insert(
-                "thedemocraticrepublicofthecongo",
-                Country::the_democratic_republic_of_the_congo(),
-            );
-            map.insert("thedominicanrepublic", Country::the_dominican_republic());
-            map.insert(
-                "thefalklandislandsmalvinas",
-                Country::the_falkland_islands_malvinas(),
-            );
-            map.insert("thefaroeislands", Country::the_faroe_islands());
-            map.insert(
-                "thefrenchsouthernterritories",
-                Country::the_french_southern_territories(),
-            );
-            map.insert("thegambia", Country::the_gambia());
-            map.insert("theholysee", Country::the_holy_see());
-            map.insert(
-                "thelaopeoplesdemocraticrepublic",
-                Country::the_lao_peoples_democratic_republic(),
-            );
-            map.insert("themarshallislands", Country::the_marshall_islands());
-            map.insert("thenetherlands", Country::the_netherlands());
-            map.insert("theniger", Country::the_niger());
-            map.insert(
-                "thenorthernmarianaislands",
-                Country::the_northern_mariana_islands(),
-            );
-            map.insert("thephilippines", Country::the_philippines());
-            map.insert("therepublicofkorea", Country::the_republic_of_korea());
-            map.insert("therepublicofmoldova", Country::the_republic_of_moldova());
-            map.insert("therussianfederation", Country::the_russian_federation());
-            map.insert("thesudan", Country::the_sudan());
-            map.insert(
-                "theturksandcaicosislands",
-                Country::the_turks_and_caicos_islands(),
-            );
-            map.insert("theunitedarabemirates", Country::the_united_arab_emirates());
-            map.insert(
-                "theunitedkingdomofgreatbritainandnorthernireland",
-                Country::the_united_kingdom_of_great_britain_and_northern_ireland(),
-            );
-            map.insert(
-                "theunitedstatesminoroutlyingislands",
-                Country::the_united_states_minor_outlying_islands(),
-            );
-            map.insert(
-                "theunitedstatesofamerica",
-                Country::the_united_states_of_america(),
-            );
-            map.insert("timorleste", Country::timor_leste());
-            map.insert("easttimor", Country::timor_leste());
-            map.insert("togo", Country::togo());
-            map.insert("tokelau", Country::tokelau());
-            map.insert("tonga", Country::tonga());
-            map.insert("trinidadandtobago", Country::trinidad_and_tobago());
-            map.insert("tunisia", Country::tunisia());
-            map.insert("turkey", Country::turkey());
-            map.insert("türkiye", Country::turkey());
-            map.insert("turkmenistan", Country::turkmenistan());
-            map.insert("tuvalu", Country::tuvalu());
-            map.insert("usvirginislands", Country::us_virgin_islands());
-            map.insert("uganda", Country::uganda());
-            map.insert("ukraine", Country::ukraine());
-            map.insert(
-                "unitedrepublicoftanzania",
-                Country::united_republic_of_tanzania(),
-            );
-            map.insert("uruguay", Country::uruguay());
-            map.insert("uzbekistan", Country::uzbekistan());
-            map.insert("vanuatu", Country::vanuatu());
-            map.insert("vietnam", Country::vietnam());
-            map.insert("wallisandfutuna", Country::wallis_and_futuna());
-            map.insert("westernsahara", Country::western_sahara());
-            map.insert("yemen", Country::yemen());
-            map.insert("zambia", Country::zambia());
-            map.insert("zimbabwe", Country::zimbabwe());
-            map
-        });
-        (*NAMES)
+        static NAMES: Map<&'static str, Country> = phf_map! {
+            "afghanistan" => Country::afghanistan(),
+            "alandislands" => Country::aland_islands(),
+            "albania" => Country::albania(),
+            "algeria" => Country::algeria(),
+            "americansamoa" => Country::american_samoa(),
+            "andorra" => Country::andorra(),
+            "angola" => Country::angola(),
+            "anguilla" => Country::anguilla(),
+            "antarctica" => Country::antarctica(),
+            "antiguaandbarbuda" => Country::antigua_and_barbuda(),
+            "argentina" => Country::argentina(),
+            "armenia" => Country::armenia(),
+            "aruba" => Country::aruba(),
+            "ascensionandtristandacunhasainthelena" => Country::ascension_and_tristan_da_cunha_saint_helena(),
+            "australia" => Country::australia(),
+            "austria" => Country::austria(),
+            "azerbaijan" => Country::azerbaijan(),
+            "bahrain" => Country::bahrain(),
+            "bangladesh" => Country::bangladesh(),
+            "barbados" => Country::barbados(),
+            "belarus" => Country::belarus(),
+            "belgium" => Country::belgium(),
+            "belize" => Country::belize(),
+            "benin" => Country::benin(),
+            "bermuda" => Country::bermuda(),
+            "bhutan" => Country::bhutan(),
+            "bolivarianrepublicofvenezuela" => Country::bolivarian_republic_of_venezuela(),
+            "bolivia" => Country::bolivia(),
+            "bonaire" => Country::bonaire(),
+            "bosniaandherzegovina" => Country::bosnia_and_herzegovina(),
+            "botswana" => Country::botswana(),
+            "bouvetisland" => Country::bouvet_island(),
+            "brazil" => Country::brazil(),
+            "britishindianoceanterritory" => Country::british_indian_ocean_territory(),
+            "britishvirginislands" => Country::british_virgin_islands(),
+            "bruneidarussalam" => Country::brunei_darussalam(),
+            "bulgaria" => Country::bulgaria(),
+            "burkinafaso" => Country::burkina_faso(),
+            "burundi" => Country::burundi(),
+            "caboverde" => Country::cabo_verde(),
+            "cambodia" => Country::cambodia(),
+            "cameroon" => Country::cameroon(),
+            "canada" => Country::canada(),
+            "chad" => Country::chad(),
+            "chile" => Country::chile(),
+            "china" => Country::china(),
+            "christmasisland" => Country::christmas_island(),
+            "colombia" => Country::colombia(),
+            "costarica" => Country::costa_rica(),
+            "cotedivoire" => Country::coted_ivoire(),
+            "croatia" => Country::croatia(),
+            "cuba" => Country::cuba(),
+            "curacao" => Country::curacao(),
+            "cyprus" => Country::cyprus(),
+            "czechia" => Country::czechia(),
+            "denmark" => Country::denmark(),
+            "djibouti" => Country::djibouti(),
+            "dominica" => Country::dominica(),
+            "dutchpartsintmaarten" => Country::dutch_part_sint_maarten(),
+            "ecuador" => Country::ecuador(),
+            "egypt" => Country::egypt(),
+            "elsalvador" => Country::el_salvador(),
+            "equatorialguinea" => Country::equatorial_guinea(),
+            "eritrea" => Country::eritrea(),
+            "estonia" => Country::estonia(),
+            "eswatini" => Country::eswatini(),
+            "ethiopia" => Country::ethiopia(),
+            "federatedstatesofmicronesia" => Country::federated_states_of_micronesia(),
+            "fiji" => Country::fiji(),
+            "finland" => Country::finland(),
+            "france" => Country::france(),
+            "frenchguiana" => Country::french_guiana(),
+            "frenchpartsaintmartin" => Country::french_part_saint_martin(),
+            "frenchpolynesia" => Country::french_polynesia(),
+            "gabon" => Country::gabon(),
+            "georgia" => Country::georgia(),
+            "germany" => Country::germany(),
+            "ghana" => Country::ghana(),
+            "gibraltar" => Country::gibraltar(),
+            "greece" => Country::greece(),
+            "greenland" => Country::greenland(),
+            "grenada" => Country::grenada(),
+            "guadeloupe" => Country::guadeloupe(),
+            "guam" => Country::guam(),
+            "guatemala" => Country::guatemala(),
+            "guernsey" => Country::guernsey(),
+            "guinea" => Country::guinea(),
+            "guineabissau" => Country::guinea_bissau(),
+            "guyana" => Country::guyana(),
+            "haiti" => Country::haiti(),
+            "heardislandandmcdonaldislands" => Country::heard_island_and_mc_donald_islands(),
+            "honduras" => Country::honduras(),
+            "hongkong" => Country::hong_kong(),
+            "hungary" => Country::hungary(),
+            "iceland" => Country::iceland(),
+            "india" => Country::india(),
+            "indonesia" => Country::indonesia(),
+            "iraq" => Country::iraq(),
+            "ireland" => Country::ireland(),
+            "islamicrepublicofiran" => Country::islamic_republic_of_iran(),
+            "isleofman" => Country::isle_of_man(),
+            "israel" => Country::israel(),
+            "italy" => Country::italy(),
+            "jamaica" => Country::jamaica(),
+            "japan" => Country::japan(),
+            "jersey" => Country::jersey(),
+            "jordan" => Country::jordan(),
+            "kazakhstan" => Country::kazakhstan(),
+            "kenya" => Country::kenya(),
+            "kiribati" => Country::kiribati(),
+            "kosovo" => Country::kosovo(),
+            "kuwait" => Country::kuwait(),
+            "kyrgyzstan" => Country::kyrgyzstan(),
+            "latvia" => Country::latvia(),
+            "lebanon" => Country::lebanon(),
+            "lesotho" => Country::lesotho(),
+            "liberia" => Country::liberia(),
+            "libya" => Country::libya(),
+            "liechtenstein" => Country::liechtenstein(),
+            "lithuania" => Country::lithuania(),
+            "luxembourg" => Country::luxembourg(),
+            "macao" => Country::macao(),
+            "madagascar" => Country::madagascar(),
+            "malawi" => Country::malawi(),
+            "malaysia" => Country::malaysia(),
+            "maldives" => Country::maldives(),
+            "mali" => Country::mali(),
+            "malta" => Country::malta(),
+            "martinique" => Country::martinique(),
+            "mauritania" => Country::mauritania(),
+            "mauritius" => Country::mauritius(),
+            "mayotte" => Country::mayotte(),
+            "mexico" => Country::mexico(),
+            "monaco" => Country::monaco(),
+            "mongolia" => Country::mongolia(),
+            "montenegro" => Country::montenegro(),
+            "montserrat" => Country::montserrat(),
+            "morocco" => Country::morocco(),
+            "mozambique" => Country::mozambique(),
+            "myanmar" => Country::myanmar(),
+            "namibia" => Country::namibia(),
+            "nauru" => Country::nauru(),
+            "nepal" => Country::nepal(),
+            "newcaledonia" => Country::new_caledonia(),
+            "newzealand" => Country::new_zealand(),
+            "nicaragua" => Country::nicaragua(),
+            "nigeria" => Country::nigeria(),
+            "niue" => Country::niue(),
+            "norfolkisland" => Country::norfolk_island(),
+            "norway" => Country::norway(),
+            "oman" => Country::oman(),
+            "pakistan" => Country::pakistan(),
+            "palau" => Country::palau(),
+            "panama" => Country::panama(),
+            "papuanewguinea" => Country::papua_new_guinea(),
+            "paraguay" => Country::paraguay(),
+            "peru" => Country::peru(),
+            "pitcairn" => Country::pitcairn(),
+            "poland" => Country::poland(),
+            "portugal" => Country::portugal(),
+            "puertorico" => Country::puerto_rico(),
+            "qatar" => Country::qatar(),
+            "republicofnorthmacedonia" => Country::republic_of_north_macedonia(),
+            "reunion" => Country::reunion(),
+            "romania" => Country::romania(),
+            "rwanda" => Country::rwanda(),
+            "saintbarthelemy" => Country::saint_barthelemy(),
+            "saintkittsandnevis" => Country::saint_kitts_and_nevis(),
+            "saintlucia" => Country::saint_lucia(),
+            "saintpierreandmiquelon" => Country::saint_pierre_and_miquelon(),
+            "saintvincentandthegrenadines" => Country::saint_vincent_and_the_grenadines(),
+            "samoa" => Country::samoa(),
+            "sanmarino" => Country::san_marino(),
+            "saotomeandprincipe" => Country::sao_tome_and_principe(),
+            "saudiarabia" => Country::saudi_arabia(),
+            "senegal" => Country::senegal(),
+            "serbia" => Country::serbia(),
+            "seychelles" => Country::seychelles(),
+            "sierraleone" => Country::sierra_leone(),
+            "singapore" => Country::singapore(),
+            "slovakia" => Country::slovakia(),
+            "slovenia" => Country::slovenia(),
+            "solomonislands" => Country::solomon_islands(),
+            "somalia" => Country::somalia(),
+            "southafrica" => Country::south_africa(),
+            "southgeorgiaandthesouthsandwichislands" => Country::south_georgia_and_the_south_sandwich_islands(),
+            "southsudan" => Country::south_sudan(),
+            "spain" => Country::spain(),
+            "srilanka" => Country::sri_lanka(),
+            "stateofpalestine" => Country::state_of_palestine(),
+            "suriname" => Country::suriname(),
+            "svalbardandjanmayen" => Country::svalbard_and_jan_mayen(),
+            "sweden" => Country::sweden(),
+            "switzerland" => Country::switzerland(),
+            "syrianarabrepublic" => Country::syrian_arab_republic(),
+            "taiwan,republicofchina" => Country::taiwan(),
+            "tajikistan" => Country::tajikistan(),
+            "thailand" => Country::thailand(),
+            "thebahamas" => Country::the_bahamas(),
+            "thecaymanislands" => Country::the_cayman_islands(),
+            "thecentralafricanrepublic" => Country::the_central_african_republic(),
+            "thecocoskeelingislands" => Country::the_cocos_keeling_islands(),
+            "thecomoros" => Country::the_comoros(),
+            "thecongo" => Country::the_congo(),
+            "thecookislands" => Country::the_cook_islands(),
+            "thedemocraticpeoplesrepublicofkorea" => Country::the_democratic_peoples_republic_of_korea(),
+            "thedemocraticrepublicofthecongo" => Country::the_democratic_republic_of_the_congo(),
+            "thedominicanrepublic" => Country::the_dominican_republic(),
+            "thefalklandislandsmalvinas" => Country::the_falkland_islands_malvinas(),
+            "thefaroeislands" => Country::the_faroe_islands(),
+            "thefrenchsouthernterritories" => Country::the_french_southern_territories(),
+            "thegambia" => Country::the_gambia(),
+            "theholysee" => Country::the_holy_see(),
+            "thelaopeoplesdemocraticrepublic" => Country::the_lao_peoples_democratic_republic(),
+            "themarshallislands" => Country::the_marshall_islands(),
+            "thenetherlands" => Country::the_netherlands(),
+            "theniger" => Country::the_niger(),
+            "thenorthernmarianaislands" => Country::the_northern_mariana_islands(),
+            "thephilippines" => Country::the_philippines(),
+            "therepublicofkorea" => Country::the_republic_of_korea(),
+            "therepublicofmoldova" => Country::the_republic_of_moldova(),
+            "therussianfederation" => Country::the_russian_federation(),
+            "thesudan" => Country::the_sudan(),
+            "theturksandcaicosislands" => Country::the_turks_and_caicos_islands(),
+            "theunitedarabemirates" => Country::the_united_arab_emirates(),
+            "theunitedkingdomofgreatbritainandnorthernireland" => Country::the_united_kingdom_of_great_britain_and_northern_ireland(),
+            "theunitedstatesminoroutlyingislands" => Country::the_united_states_minor_outlying_islands(),
+            "theunitedstatesofamerica" => Country::the_united_states_of_america(),
+            "timorleste" => Country::timor_leste(),
+            "easttimor" => Country::timor_leste(),
+            "togo" => Country::togo(),
+            "tokelau" => Country::tokelau(),
+            "tonga" => Country::tonga(),
+            "trinidadandtobago" => Country::trinidad_and_tobago(),
+            "tunisia" => Country::tunisia(),
+            "turkey" => Country::turkey(),
+            "türkiye" => Country::turkey(),
+            "turkmenistan" => Country::turkmenistan(),
+            "tuvalu" => Country::tuvalu(),
+            "usvirginislands" => Country::us_virgin_islands(),
+            "uganda" => Country::uganda(),
+            "ukraine" => Country::ukraine(),
+            "unitedrepublicoftanzania" => Country::united_republic_of_tanzania(),
+            "uruguay" => Country::uruguay(),
+            "uzbekistan" => Country::uzbekistan(),
+            "vanuatu" => Country::vanuatu(),
+            "vietnam" => Country::vietnam(),
+            "wallisandfutuna" => Country::wallis_and_futuna(),
+            "westernsahara" => Country::western_sahara(),
+            "yemen" => Country::yemen(),
+            "zambia" => Country::zambia(),
+            "zimbabwe" => Country::zimbabwe(),
+        };
+        NAMES
             .get(name.as_ref().to_lowercase().as_str())
             .copied()
             .ok_or("unknown value")
@@ -3298,1113 +3143,1174 @@ impl FromStr for Country {
     type Err = &'static str;
 
     fn from_str(code: &str) -> Result<Self, &'static str> {
-        static CODES: LazyLock<HashMap<&'static str, Country>> = LazyLock::new(|| {
-            let mut map = HashMap::with_capacity(20000);
-            for s in ["afghanistan", "004", "af", "afg"] {
-                map.insert(s, Country::afghanistan());
-            }
-            for s in ["alandislands", "aland_islands", "248", "ax", "ala"] {
-                map.insert(s, Country::aland_islands());
-            }
-            for s in ["albania", "008", "al", "alb"] {
-                map.insert(s, Country::albania());
-            }
-            for s in ["algeria", "012", "dz", "dza"] {
-                map.insert(s, Country::algeria());
-            }
-            for s in ["americansamoa", "american_samoa", "016", "as", "asm"] {
-                map.insert(s, Country::american_samoa());
-            }
-            for s in ["andorra", "020", "ad", "and"] {
-                map.insert(s, Country::andorra());
-            }
-            for s in ["angola", "024", "ao", "ago"] {
-                map.insert(s, Country::angola());
-            }
-            for s in ["anguilla", "660", "ai", "aia"] {
-                map.insert(s, Country::anguilla());
-            }
-            for s in ["antarctica", "010", "aq", "ata"] {
-                map.insert(s, Country::antarctica());
-            }
-            for s in [
-                "antiguaandbarbuda",
-                "antigua_and_barbuda",
-                "028",
-                "ag",
-                "atg",
-            ] {
-                map.insert(s, Country::antigua_and_barbuda());
-            }
-            for s in ["argentina", "032", "ar", "arg"] {
-                map.insert(s, Country::argentina());
-            }
-            for s in ["armenia", "051", "am", "arm"] {
-                map.insert(s, Country::armenia());
-            }
-            for s in ["aruba", "533", "aw", "abw"] {
-                map.insert(s, Country::aruba());
-            }
-            for s in [
-                "ascensionandtristandacunhasainthelena",
-                "ascension_and_tristan_da_cunha_saint_helena",
-                "654",
-                "sh",
-                "shn",
-                "sthelena",
-                "sainthelena",
-            ] {
-                map.insert(s, Country::ascension_and_tristan_da_cunha_saint_helena());
-            }
-            for s in ["australia", "036", "au", "aus"] {
-                map.insert(s, Country::australia());
-            }
-            for s in ["austria", "040", "at", "aut"] {
-                map.insert(s, Country::austria());
-            }
-            for s in ["azerbaijan", "031", "az", "aze"] {
-                map.insert(s, Country::azerbaijan());
-            }
-            for s in ["bahrain", "048", "bh", "bhr"] {
-                map.insert(s, Country::bahrain());
-            }
-            for s in ["bangladesh", "050", "bd", "bgd"] {
-                map.insert(s, Country::bangladesh());
-            }
-            for s in ["barbados", "052", "bb", "brb"] {
-                map.insert(s, Country::barbados());
-            }
-            for s in ["belarus", "112", "by", "blr"] {
-                map.insert(s, Country::belarus());
-            }
-            for s in ["belgium", "056", "be", "bel"] {
-                map.insert(s, Country::belgium());
-            }
-            for s in ["belize", "084", "bz", "blz"] {
-                map.insert(s, Country::belize());
-            }
-            for s in ["benin", "204", "bj", "ben"] {
-                map.insert(s, Country::benin());
-            }
-            for s in ["bermuda", "060", "bm", "bmu"] {
-                map.insert(s, Country::bermuda());
-            }
-            for s in ["bhutan", "064", "bt", "btn"] {
-                map.insert(s, Country::bhutan());
-            }
-            for s in [
-                "bolivarianrepublicofvenezuela",
-                "bolivarian_republic_of_venezuela",
-                "862",
-                "ve",
-                "ven",
-                "venezuela",
-            ] {
-                map.insert(s, Country::bolivarian_republic_of_venezuela());
-            }
-            for s in ["bolivia", "068", "bo", "bol"] {
-                map.insert(s, Country::bolivia());
-            }
-            for s in ["bonaire", "535", "bq", "bes"] {
-                map.insert(s, Country::bonaire());
-            }
-            for s in [
-                "bosniaandherzegovina",
-                "bosnia_and_herzegovina",
-                "070",
-                "ba",
-                "bih",
-                "bosnia",
-                "herzegovina",
-            ] {
-                map.insert(s, Country::bosnia_and_herzegovina());
-            }
-            for s in ["botswana", "072", "bw", "bwa"] {
-                map.insert(s, Country::botswana());
-            }
-            for s in ["bouvetisland", "bouvet_island", "074", "bv", "bvt"] {
-                map.insert(s, Country::bouvet_island());
-            }
-            for s in ["brazil", "076", "br", "bra"] {
-                map.insert(s, Country::brazil());
-            }
-            for s in [
-                "britishindianoceanterritory",
-                "british_indian_ocean_territory",
-                "086",
-                "io",
-                "iot",
-            ] {
-                map.insert(s, Country::british_indian_ocean_territory());
-            }
-            for s in [
-                "britishvirginislands",
-                "british_virgin_islands",
-                "092",
-                "vg",
-                "vgb",
-            ] {
-                map.insert(s, Country::british_virgin_islands());
-            }
-            for s in [
-                "bruneidarussalam",
-                "brunei_darussalam",
-                "096",
-                "bn",
-                "brn",
-                "brunei",
-            ] {
-                map.insert(s, Country::brunei_darussalam());
-            }
-            for s in ["bulgaria", "100", "bg", "bgr"] {
-                map.insert(s, Country::bulgaria());
-            }
-            for s in ["burkinafaso", "burkina_faso", "854", "bf", "bfa", "burkina"] {
-                map.insert(s, Country::burkina_faso());
-            }
-            for s in ["burundi", "108", "bi", "bdi"] {
-                map.insert(s, Country::burundi());
-            }
-            for s in ["caboverde", "cabo_verde", "132", "cv", "cpv"] {
-                map.insert(s, Country::cabo_verde());
-            }
-            for s in ["cambodia", "116", "kh", "khm"] {
-                map.insert(s, Country::cambodia());
-            }
-            for s in ["cameroon", "120", "cm", "cmr"] {
-                map.insert(s, Country::cameroon());
-            }
-            for s in ["canada", "124", "ca", "can"] {
-                map.insert(s, Country::canada());
-            }
-            for s in ["chad", "148", "td", "tcd"] {
-                map.insert(s, Country::chad());
-            }
-            for s in ["chile", "152", "cl", "chl"] {
-                map.insert(s, Country::chile());
-            }
-            for s in ["china", "156", "cn", "chn"] {
-                map.insert(s, Country::china());
-            }
-            for s in ["christmasisland", "christmas_island", "162", "cx", "cxr"] {
-                map.insert(s, Country::christmas_island());
-            }
-            for s in ["colombia", "170", "co", "col"] {
-                map.insert(s, Country::colombia());
-            }
-            for s in ["costarica", "costa_rica", "188", "cr", "cri"] {
-                map.insert(s, Country::costa_rica());
-            }
-            for s in ["cotedivoire", "coted_ivoire", "384", "ci", "civ"] {
-                map.insert(s, Country::coted_ivoire());
-            }
-            for s in ["croatia", "191", "hr", "hrv"] {
-                map.insert(s, Country::croatia());
-            }
-            for s in ["cuba", "192", "cu", "cub"] {
-                map.insert(s, Country::cuba());
-            }
-            for s in ["curacao", "531", "cw", "cuw"] {
-                map.insert(s, Country::curacao());
-            }
-            for s in ["cyprus", "196", "cy", "cyp"] {
-                map.insert(s, Country::cyprus());
-            }
-            for s in ["czechia", "czechrepublic", "203", "cz", "cze"] {
-                map.insert(s, Country::czechia());
-            }
-            for s in ["denmark", "208", "dk", "dnk"] {
-                map.insert(s, Country::denmark());
-            }
-            for s in ["djibouti", "262", "dj", "dji"] {
-                map.insert(s, Country::djibouti());
-            }
-            for s in ["dominica", "212", "dm", "dma"] {
-                map.insert(s, Country::dominica());
-            }
-            for s in [
-                "dutchpartsintmaarten",
-                "dutch_part_sint_maarten",
-                "534",
-                "sx",
-                "sxm",
-                "stmaarten",
-                "sintmaarten",
-            ] {
-                map.insert(s, Country::dutch_part_sint_maarten());
-            }
-            for s in ["ecuador", "218", "ec", "ecu"] {
-                map.insert(s, Country::ecuador());
-            }
-            for s in ["egypt", "818", "eg", "egy"] {
-                map.insert(s, Country::egypt());
-            }
-            for s in ["elsalvador", "el_salvador", "222", "sv", "slv"] {
-                map.insert(s, Country::el_salvador());
-            }
-            for s in ["equatorialguinea", "equatorial_guinea", "226", "gq", "gnq"] {
-                map.insert(s, Country::equatorial_guinea());
-            }
-            for s in ["eritrea", "232", "er", "eri"] {
-                map.insert(s, Country::eritrea());
-            }
-            for s in ["estonia", "233", "ee", "est"] {
-                map.insert(s, Country::estonia());
-            }
-            for s in ["eswatini", "748", "sz", "swz"] {
-                map.insert(s, Country::eswatini());
-            }
-            for s in ["ethiopia", "231", "et", "eth"] {
-                map.insert(s, Country::ethiopia());
-            }
-            for s in [
-                "federatedstatesofmicronesia",
-                "federated_states_of_micronesia",
-                "583",
-                "fm",
-                "fsm",
-                "micronesia",
-            ] {
-                map.insert(s, Country::federated_states_of_micronesia());
-            }
-            for s in ["fiji", "242", "fj", "fji"] {
-                map.insert(s, Country::fiji());
-            }
-            for s in ["finland", "246", "fi", "fin"] {
-                map.insert(s, Country::finland());
-            }
-            for s in ["france", "250", "fr", "fra"] {
-                map.insert(s, Country::france());
-            }
-            for s in ["frenchguiana", "french_guiana", "254", "gf", "guf"] {
-                map.insert(s, Country::french_guiana());
-            }
-            for s in [
-                "frenchpartsaintmartin",
-                "french_part_saint_martin",
-                "663",
-                "mf",
-                "maf",
-                "stmartin",
-                "saintmartin",
-            ] {
-                map.insert(s, Country::french_part_saint_martin());
-            }
-            for s in ["frenchpolynesia", "258", "pf", "pyf"] {
-                map.insert(s, Country::french_polynesia());
-            }
-            for s in ["gabon", "266", "ga", "gab"] {
-                map.insert(s, Country::gabon());
-            }
-            for s in ["georgia", "268", "ge", "geo"] {
-                map.insert(s, Country::georgia());
-            }
-            for s in ["germany", "276", "de", "deu"] {
-                map.insert(s, Country::germany());
-            }
-            for s in ["ghana", "288", "gh", "gha"] {
-                map.insert(s, Country::ghana());
-            }
-            for s in ["gibraltar", "292", "gi", "gib"] {
-                map.insert(s, Country::gibraltar());
-            }
-            for s in ["greece", "300", "gr", "grc"] {
-                map.insert(s, Country::greece());
-            }
-            for s in ["greenland", "304", "gl", "grl"] {
-                map.insert(s, Country::greenland());
-            }
-            for s in ["grenada", "308", "gd", "grd"] {
-                map.insert(s, Country::grenada());
-            }
-            for s in ["guadeloupe", "312", "gp", "glp"] {
-                map.insert(s, Country::guadeloupe());
-            }
-            for s in ["guam", "316", "gu", "gum"] {
-                map.insert(s, Country::guam());
-            }
-            for s in ["guatemala", "320", "gt", "gtm"] {
-                map.insert(s, Country::guatemala());
-            }
-            for s in ["guernsey", "831", "gg", "ggy"] {
-                map.insert(s, Country::guernsey());
-            }
-            for s in ["guinea", "324", "gn", "gin"] {
-                map.insert(s, Country::guinea());
-            }
-            for s in ["guineabissau", "guinea_bissau", "624", "gw", "gnb"] {
-                map.insert(s, Country::guinea_bissau());
-            }
-            for s in ["guyana", "328", "gy", "guy"] {
-                map.insert(s, Country::guyana());
-            }
-            for s in ["haiti", "332", "ht", "hti"] {
-                map.insert(s, Country::haiti());
-            }
-            for s in [
-                "heardislandandmcdonaldislands",
-                "heard_island_and_mc_donald_islands",
-                "334",
-                "hm",
-                "hmd",
-                "heardisland",
-                "mcdonaldislands",
-            ] {
-                map.insert(s, Country::heard_island_and_mc_donald_islands());
-            }
-            for s in ["honduras", "340", "hn", "hnd"] {
-                map.insert(s, Country::honduras());
-            }
-            for s in ["hongkong", "hong_kong", "344", "hk", "hkg"] {
-                map.insert(s, Country::hong_kong());
-            }
-            for s in ["hungary", "348", "hu", "hun"] {
-                map.insert(s, Country::hungary());
-            }
-            for s in ["iceland", "352", "is", "isl"] {
-                map.insert(s, Country::iceland());
-            }
-            for s in ["india", "356", "in", "ind"] {
-                map.insert(s, Country::india());
-            }
-            for s in ["indonesia", "360", "id", "idn"] {
-                map.insert(s, Country::indonesia());
-            }
-            for s in ["iraq", "368", "iq", "irq"] {
-                map.insert(s, Country::iraq());
-            }
-            for s in ["ireland", "372", "ie", "irl"] {
-                map.insert(s, Country::ireland());
-            }
-            for s in [
-                "islamicrepublicofiran",
-                "islamic_republic_of_iran",
-                "364",
-                "ir",
-                "irn",
-                "iran",
-            ] {
-                map.insert(s, Country::islamic_republic_of_iran());
-            }
-            for s in ["isleofman", "isle_of_man", "833", "im", "imn"] {
-                map.insert(s, Country::isle_of_man());
-            }
-            for s in ["israel", "376", "il", "isr"] {
-                map.insert(s, Country::israel());
-            }
-            for s in ["italy", "380", "it", "ita"] {
-                map.insert(s, Country::italy());
-            }
-            for s in ["jamaica", "388", "jm", "jam"] {
-                map.insert(s, Country::jamaica());
-            }
-            for s in ["japan", "392", "jp", "jpn"] {
-                map.insert(s, Country::japan());
-            }
-            for s in ["jersey", "832", "je", "jey"] {
-                map.insert(s, Country::jersey());
-            }
-            for s in ["jordan", "400", "jo", "jor"] {
-                map.insert(s, Country::jordan());
-            }
-            for s in ["kazakhstan", "398", "kz", "kaz"] {
-                map.insert(s, Country::kazakhstan());
-            }
-            for s in ["kenya", "404", "ke", "ken"] {
-                map.insert(s, Country::kenya());
-            }
-            for s in ["kiribati", "296", "ki", "kir"] {
-                map.insert(s, Country::kiribati());
-            }
-            for s in ["kosovo", "383", "xk", "xkx"] {
-                map.insert(s, Country::kosovo());
-            }
-            for s in ["kuwait", "414", "kw", "kwt"] {
-                map.insert(s, Country::kuwait());
-            }
-            for s in ["kyrgyzstan", "417", "kg", "kgz"] {
-                map.insert(s, Country::kyrgyzstan());
-            }
-            for s in ["latvia", "428", "lv", "lva"] {
-                map.insert(s, Country::latvia());
-            }
-            for s in ["lebanon", "422", "lb", "lbn"] {
-                map.insert(s, Country::lebanon());
-            }
-            for s in ["lesotho", "426", "ls", "lso"] {
-                map.insert(s, Country::lesotho());
-            }
-            for s in ["liberia", "430", "lr", "lbr"] {
-                map.insert(s, Country::liberia());
-            }
-            for s in ["libya", "434", "ly", "lby"] {
-                map.insert(s, Country::libya());
-            }
-            for s in ["liechtenstein", "438", "li", "lie"] {
-                map.insert(s, Country::liechtenstein());
-            }
-            for s in ["lithuania", "440", "lt", "ltu"] {
-                map.insert(s, Country::lithuania());
-            }
-            for s in ["luxembourg", "442", "lu", "lux"] {
-                map.insert(s, Country::luxembourg());
-            }
-            for s in ["macao", "446", "mo", "mac"] {
-                map.insert(s, Country::macao());
-            }
-            for s in ["madagascar", "450", "mg", "mdg"] {
-                map.insert(s, Country::madagascar());
-            }
-            for s in ["malawi", "454", "mw", "mwi"] {
-                map.insert(s, Country::malawi());
-            }
-            for s in ["malaysia", "458", "my", "mys"] {
-                map.insert(s, Country::malaysia());
-            }
-            for s in ["maldives", "462", "mv", "mdv"] {
-                map.insert(s, Country::maldives());
-            }
-            for s in ["mali", "466", "ml", "mli"] {
-                map.insert(s, Country::mali());
-            }
-            for s in ["malta", "470", "mt", "mlt"] {
-                map.insert(s, Country::malta());
-            }
-            for s in ["martinique", "474", "mq", "mtq"] {
-                map.insert(s, Country::martinique());
-            }
-            for s in ["mauritania", "478", "mr", "mrt"] {
-                map.insert(s, Country::mauritania());
-            }
-            for s in ["mauritius", "480", "mu", "mus"] {
-                map.insert(s, Country::mauritius());
-            }
-            for s in ["mayotte", "175", "yt", "myt"] {
-                map.insert(s, Country::mayotte());
-            }
-            for s in ["mexico", "484", "mx", "mex"] {
-                map.insert(s, Country::mexico());
-            }
-            for s in ["monaco", "492", "mc", "mco"] {
-                map.insert(s, Country::monaco());
-            }
-            for s in ["mongolia", "496", "mn", "mng"] {
-                map.insert(s, Country::mongolia());
-            }
-            for s in ["montenegro", "499", "me", "mne"] {
-                map.insert(s, Country::montenegro());
-            }
-            for s in ["montserrat", "500", "ms", "msr"] {
-                map.insert(s, Country::montserrat());
-            }
-            for s in ["morocco", "504", "ma", "mar"] {
-                map.insert(s, Country::morocco());
-            }
-            for s in ["mozambique", "508", "mz", "moz"] {
-                map.insert(s, Country::mozambique());
-            }
-            for s in ["myanmar", "104", "mm", "mmr"] {
-                map.insert(s, Country::myanmar());
-            }
-            for s in ["namibia", "516", "na", "nam"] {
-                map.insert(s, Country::namibia());
-            }
-            for s in ["nauru", "520", "nr", "nru"] {
-                map.insert(s, Country::nauru());
-            }
-            for s in ["nepal", "524", "np", "npl"] {
-                map.insert(s, Country::nepal());
-            }
-            for s in ["newcaledonia", "new_caledonia", "540", "nc", "ncl"] {
-                map.insert(s, Country::new_caledonia());
-            }
-            for s in ["newzealand", "new_zealand", "554", "nz", "nzl"] {
-                map.insert(s, Country::new_zealand());
-            }
-            for s in ["nicaragua", "558", "ni", "nic"] {
-                map.insert(s, Country::nicaragua());
-            }
-            for s in ["nigeria", "566", "ng", "nga"] {
-                map.insert(s, Country::nigeria());
-            }
-            for s in ["niue", "570", "nu", "niu"] {
-                map.insert(s, Country::niue());
-            }
-            for s in ["norfolkisland", "norfolk_island", "574", "nf", "nfk"] {
-                map.insert(s, Country::norfolk_island());
-            }
-            for s in ["norway", "578", "no", "nor"] {
-                map.insert(s, Country::norway());
-            }
-            for s in ["oman", "512", "om", "omn"] {
-                map.insert(s, Country::oman());
-            }
-            for s in ["pakistan", "586", "pk", "pak"] {
-                map.insert(s, Country::pakistan());
-            }
-            for s in ["palau", "585", "pw", "plw"] {
-                map.insert(s, Country::palau());
-            }
-            for s in ["panama", "591", "pa", "pan"] {
-                map.insert(s, Country::panama());
-            }
-            for s in ["papuanewguinea", "papua_new_guinea", "598", "pg", "png"] {
-                map.insert(s, Country::papua_new_guinea());
-            }
-            for s in ["paraguay", "600", "py", "pry"] {
-                map.insert(s, Country::paraguay());
-            }
-            for s in ["peru", "604", "pe", "per"] {
-                map.insert(s, Country::peru());
-            }
-            for s in ["pitcairn", "612", "pn", "pcn"] {
-                map.insert(s, Country::pitcairn());
-            }
-            for s in ["poland", "616", "pl", "pol"] {
-                map.insert(s, Country::poland());
-            }
-            for s in ["portugal", "620", "pt", "prt"] {
-                map.insert(s, Country::portugal());
-            }
-            for s in ["puertorico", "puerto_rico", "630", "pr", "pri"] {
-                map.insert(s, Country::puerto_rico());
-            }
-            for s in ["qatar", "634", "qa", "qat"] {
-                map.insert(s, Country::qatar());
-            }
-            for s in [
-                "republicofnorthmacedonia",
-                "republic_of_north_macedonia",
-                "807",
-                "mk",
-                "mkd",
-                "macedonia",
-            ] {
-                map.insert(s, Country::republic_of_north_macedonia());
-            }
-            for s in ["reunion", "638", "re", "reu"] {
-                map.insert(s, Country::reunion());
-            }
-            for s in ["romania", "642", "ro", "rou"] {
-                map.insert(s, Country::romania());
-            }
-            for s in ["rwanda", "646", "rw", "rwa"] {
-                map.insert(s, Country::rwanda());
-            }
-            for s in [
-                "saintbarthelemy",
-                "saint_barthelemy",
-                "652",
-                "bl",
-                "blm",
-                "stbarthelemy",
-            ] {
-                map.insert(s, Country::saint_barthelemy());
-            }
-            for s in [
-                "saintkittsandnevis",
-                "saint_kitts_and_nevis",
-                "659",
-                "kn",
-                "kna",
-                "stkitts",
-            ] {
-                map.insert(s, Country::saint_kitts_and_nevis());
-            }
-            for s in ["saintlucia", "saint_lucia", "662", "lc", "lca", "stlucia"] {
-                map.insert(s, Country::saint_lucia());
-            }
-            for s in [
-                "saintpierreandmiquelon",
-                "saint_pierre_and_miquelon",
-                "666",
-                "pm",
-                "spm",
-                "stpierre",
-                "saintpierre",
-            ] {
-                map.insert(s, Country::saint_pierre_and_miquelon());
-            }
-            for s in [
-                "saintvincentandthegrenadines",
-                "saint_vincent_and_the_grenadines",
-                "670",
-                "vc",
-                "vct",
-                "stvincent",
-                "saintvincent",
-            ] {
-                map.insert(s, Country::saint_vincent_and_the_grenadines());
-            }
-            for s in ["samoa", "882", "ws", "wsm"] {
-                map.insert(s, Country::samoa());
-            }
-            for s in ["sanmarino", "san_marino", "674", "sm", "smr"] {
-                map.insert(s, Country::san_marino());
-            }
-            for s in [
-                "saotomeandprincipe",
-                "sao_tome_and_principe",
-                "678",
-                "st",
-                "stp",
-                "saotome",
-            ] {
-                map.insert(s, Country::sao_tome_and_principe());
-            }
-            for s in ["saudiarabia", "saudi_arabia", "682", "sa", "sau"] {
-                map.insert(s, Country::saudi_arabia());
-            }
-            for s in ["senegal", "686", "sn", "sen"] {
-                map.insert(s, Country::senegal());
-            }
-            for s in ["serbia", "688", "rs", "srb"] {
-                map.insert(s, Country::serbia());
-            }
-            for s in ["seychelles", "690", "sc", "syc"] {
-                map.insert(s, Country::seychelles());
-            }
-            for s in ["sierraleone", "sierra_leone", "694", "sl", "sle"] {
-                map.insert(s, Country::sierra_leone());
-            }
-            for s in ["singapore", "702", "sg", "sgp"] {
-                map.insert(s, Country::singapore());
-            }
-            for s in ["slovakia", "703", "sk", "svk"] {
-                map.insert(s, Country::slovakia());
-            }
-            for s in ["slovenia", "705", "si", "svn"] {
-                map.insert(s, Country::slovenia());
-            }
-            for s in ["solomonislands", "solomon_islands", "090", "sb", "slb"] {
-                map.insert(s, Country::solomon_islands());
-            }
-            for s in ["somalia", "706", "so", "som"] {
-                map.insert(s, Country::somalia());
-            }
-            for s in ["southafrica", "south_africa", "710", "za", "zaf"] {
-                map.insert(s, Country::south_africa());
-            }
-            for s in [
-                "southgeorgiaandthesouthsandwichislands",
-                "south_georgia_and_the_south_sandwich_islands",
-                "239",
-                "gs",
-                "sgs",
-                "southgeorgia",
-                "southsandwichislands",
-            ] {
-                map.insert(s, Country::south_georgia_and_the_south_sandwich_islands());
-            }
-            for s in ["southsudan", "south_sudan", "728", "ss", "ssd"] {
-                map.insert(s, Country::south_sudan());
-            }
-            for s in ["spain", "724", "es", "esp"] {
-                map.insert(s, Country::spain());
-            }
-            for s in ["srilanka", "sri_lanka", "144", "lk", "lka"] {
-                map.insert(s, Country::sri_lanka());
-            }
-            for s in [
-                "stateofpalestine",
-                "state_of_palestine",
-                "275",
-                "ps",
-                "pse",
-                "palestine",
-            ] {
-                map.insert(s, Country::state_of_palestine());
-            }
-            for s in ["suriname", "740", "sr", "sur"] {
-                map.insert(s, Country::suriname());
-            }
-            for s in [
-                "svalbardandjanmayen",
-                "svalbard_and_jan_mayen",
-                "744",
-                "sj",
-                "sjm",
-            ] {
-                map.insert(s, Country::svalbard_and_jan_mayen());
-            }
-            for s in ["sweden", "752", "se", "swe"] {
-                map.insert(s, Country::sweden());
-            }
-            for s in ["switzerland", "756", "ch", "che"] {
-                map.insert(s, Country::switzerland());
-            }
-            for s in [
-                "syrianarabrepublic",
-                "syrian_arab_republic",
-                "760",
-                "sy",
-                "syr",
-            ] {
-                map.insert(s, Country::syrian_arab_republic());
-            }
-            for s in ["taiwan,republicofchina", "taiwan", "158", "tw", "twn"] {
-                map.insert(s, Country::taiwan());
-            }
-            for s in ["tajikistan", "762", "tj", "tjk"] {
-                map.insert(s, Country::tajikistan());
-            }
-            for s in ["thailand", "764", "th", "tha"] {
-                map.insert(s, Country::thailand());
-            }
-            for s in ["thebahamas", "the_bahamas", "044", "bs", "bhs", "bahamas"] {
-                map.insert(s, Country::the_bahamas());
-            }
-            for s in [
-                "thecaymanislands",
-                "the_cayman_islands",
-                "136",
-                "ky",
-                "cym",
-                "caymanislands",
-            ] {
-                map.insert(s, Country::the_cayman_islands());
-            }
-            for s in [
-                "thecentralafricanrepublic",
-                "the_central_african_republic",
-                "140",
-                "cf",
-                "caf",
-                "centralafricanrepublic",
-            ] {
-                map.insert(s, Country::the_central_african_republic());
-            }
-            for s in [
-                "thecocoskeelingislands",
-                "the_cocos_keeling_islands",
-                "166",
-                "cc",
-                "cck",
-                "cocosislands",
-                "keelingislands",
-            ] {
-                map.insert(s, Country::the_cocos_keeling_islands());
-            }
-            for s in ["thecomoros", "the_comoros", "174", "km", "com", "comoros"] {
-                map.insert(s, Country::the_comoros());
-            }
-            for s in ["thecongo", "the_congo", "178", "cg", "cog", "congo"] {
-                map.insert(s, Country::the_congo());
-            }
-            for s in [
-                "thecookislands",
-                "the_cook_islands",
-                "184",
-                "ck",
-                "cok",
-                "cookislands",
-            ] {
-                map.insert(s, Country::the_cook_islands());
-            }
-            for s in [
-                "thedemocraticpeoplesrepublicofkorea",
-                "the_democratic_peoples_republic_of_korea",
-                "408",
-                "kp",
-                "prk",
-                "northkorea",
-                "democraticpeoplesrepublicofkorea",
-            ] {
-                map.insert(s, Country::the_democratic_peoples_republic_of_korea());
-            }
-            for s in [
-                "thedemocraticrepublicofthecongo",
-                "the_democratic_republic_of_the_congo",
-                "180",
-                "cd",
-                "cod",
-                "democraticrepublicofthecongo",
-            ] {
-                map.insert(s, Country::the_democratic_republic_of_the_congo());
-            }
-            for s in [
-                "thedominicanrepublic",
-                "the_dominican_republic",
-                "214",
-                "do",
-                "dom",
-                "dominicanrepublic",
-            ] {
-                map.insert(s, Country::the_dominican_republic());
-            }
-            for s in [
-                "thefalklandislandsmalvinas",
-                "the_falkland_islands_malvinas",
-                "238",
-                "fk",
-                "flk",
-                "malvinas",
-                "falklandislands",
-            ] {
-                map.insert(s, Country::the_falkland_islands_malvinas());
-            }
-            for s in [
-                "thefaroeislands",
-                "the_faroe_islands",
-                "234",
-                "fo",
-                "fro",
-                "faroeislands",
-            ] {
-                map.insert(s, Country::the_faroe_islands());
-            }
-            for s in [
-                "thefrenchsouthernterritories",
-                "the_french_southern_territories",
-                "260",
-                "tf",
-                "atf",
-                "frenchsouthernterritories",
-            ] {
-                map.insert(s, Country::the_french_southern_territories());
-            }
-            for s in ["thegambia", "the_gambia", "270", "gm", "gmb", "gambia"] {
-                map.insert(s, Country::the_gambia());
-            }
-            for s in ["theholysee", "the_holy_see", "336", "va", "vat", "holysee"] {
-                map.insert(s, Country::the_holy_see());
-            }
-            for s in [
-                "thelaopeoplesdemocraticrepublic",
-                "the_lao_peoples_democratic_republic",
-                "418",
-                "la",
-                "lao",
-                "laopeoplesdemocraticrepublic",
-            ] {
-                map.insert(s, Country::the_lao_peoples_democratic_republic());
-            }
-            for s in [
-                "themarshallislands",
-                "the_marshall_islands",
-                "584",
-                "mh",
-                "mhl",
-                "marshallislands",
-            ] {
-                map.insert(s, Country::the_marshall_islands());
-            }
-            for s in [
-                "thenetherlands",
-                "the_netherlands",
-                "528",
-                "nl",
-                "nld",
-                "netherlands",
-                "holland",
-            ] {
-                map.insert(s, Country::the_netherlands());
-            }
-            for s in ["theniger", "the_niger", "562", "ne", "ner", "niger"] {
-                map.insert(s, Country::the_niger());
-            }
-            for s in [
-                "thenorthernmarianaislands",
-                "the_northern_mariana_islands",
-                "580",
-                "mp",
-                "mnp",
-                "northernmarianaislands",
-            ] {
-                map.insert(s, Country::the_northern_mariana_islands());
-            }
-            for s in [
-                "thephilippines",
-                "the_philippines",
-                "608",
-                "ph",
-                "phl",
-                "philippines",
-            ] {
-                map.insert(s, Country::the_philippines());
-            }
-            for s in [
-                "therepublicofkorea",
-                "the_republic_of_korea",
-                "410",
-                "kr",
-                "kor",
-                "southkorea",
-                "republicofkorea",
-            ] {
-                map.insert(s, Country::the_republic_of_korea());
-            }
-            for s in [
-                "therepublicofmoldova",
-                "the_republic_of_moldova",
-                "498",
-                "md",
-                "mda",
-                "moldova",
-                "republicofmoldova",
-            ] {
-                map.insert(s, Country::the_republic_of_moldova());
-            }
-            for s in [
-                "therussianfederation",
-                "the_russian_federation",
-                "643",
-                "ru",
-                "rus",
-                "russia",
-                "russianfederation",
-            ] {
-                map.insert(s, Country::the_russian_federation());
-            }
-            for s in ["thesudan", "the_sudan", "729", "sd", "sdn", "sudan"] {
-                map.insert(s, Country::the_sudan());
-            }
-            for s in [
-                "theturksandcaicosislands",
-                "the_turks_and_caicos_islands",
-                "796",
-                "tc",
-                "tca",
-                "turksandcaicosislands",
-            ] {
-                map.insert(s, Country::the_turks_and_caicos_islands());
-            }
-            for s in [
-                "theunitedarabemirates",
-                "the_united_arab_emirates",
-                "784",
-                "ae",
-                "are",
-                "unitedarabemirates",
-            ] {
-                map.insert(s, Country::the_united_arab_emirates());
-            }
-            for s in [
-                "theunitedkingdomofgreatbritainandnorthernireland",
-                "the_united_kingdom_of_great_britain_and_northern_ireland",
-                "826",
-                "gb",
-                "gbr",
-                "england",
-                "scotland",
-                "greatbritain",
-                "unitedkingdom",
-                "northernireland",
-                "unitedkingdomofgreatbritain",
-                "unitedkingdomofgreatbritainandnorthernireland",
-            ] {
-                map.insert(
-                    s,
-                    Country::the_united_kingdom_of_great_britain_and_northern_ireland(),
-                );
-            }
-            for s in [
-                "theunitedstatesminoroutlyingislands",
-                "the_united_states_minor_outlying_islands",
-                "581",
-                "um",
-                "umi",
-                "unitedstatesminoroutlyingislands",
-            ] {
-                map.insert(s, Country::the_united_states_minor_outlying_islands());
-            }
-            for s in [
-                "theunitedstatesofamerica",
-                "the_united_states_of_america",
-                "840",
-                "us",
-                "usa",
-                "america",
-                "united states",
-                "unitedstates",
-                "unitedstatesofamerica",
-            ] {
-                map.insert(s, Country::the_united_states_of_america());
-            }
-            for s in ["timorleste", "timor_leste", "626", "tl", "tls"] {
-                map.insert(s, Country::timor_leste());
-            }
-            for s in ["togo", "768", "tg", "tgo"] {
-                map.insert(s, Country::togo());
-            }
-            for s in ["tokelau", "772", "tk", "tkl"] {
-                map.insert(s, Country::tokelau());
-            }
-            for s in ["tonga", "776", "to", "ton"] {
-                map.insert(s, Country::tonga());
-            }
-            for s in [
-                "trinidadandtobago",
-                "trinidad_and_tobago",
-                "780",
-                "tt",
-                "tto",
-                "trinidad",
-                "tobago",
-            ] {
-                map.insert(s, Country::trinidad_and_tobago());
-            }
-            for s in ["tunisia", "788", "tn", "tun"] {
-                map.insert(s, Country::tunisia());
-            }
-            for s in ["turkey", "türkiye", "792", "tr", "tur"] {
-                map.insert(s, Country::turkey());
-            }
-            for s in ["turkmenistan", "795", "tm", "tkm"] {
-                map.insert(s, Country::turkmenistan());
-            }
-            for s in ["tuvalu", "798", "tv", "tuv"] {
-                map.insert(s, Country::tuvalu());
-            }
-            for s in ["usvirginislands", "us_virgin_islands", "850", "vi", "vir"] {
-                map.insert(s, Country::us_virgin_islands());
-            }
-            for s in ["uganda", "800", "ug", "uga"] {
-                map.insert(s, Country::uganda());
-            }
-            for s in ["ukraine", "804", "ua", "ukr"] {
-                map.insert(s, Country::ukraine());
-            }
-            for s in [
-                "unitedrepublicoftanzania",
-                "united_republic_of_tanzania",
-                "834",
-                "tz",
-                "tza",
-                "tanzania",
-            ] {
-                map.insert(s, Country::united_republic_of_tanzania());
-            }
-            for s in ["uruguay", "858", "uy", "ury"] {
-                map.insert(s, Country::uruguay());
-            }
-            for s in ["uzbekistan", "860", "uz", "uzb"] {
-                map.insert(s, Country::uzbekistan());
-            }
-            for s in ["vanuatu", "548", "vu", "vut"] {
-                map.insert(s, Country::vanuatu());
-            }
-            for s in ["vietnam", "704", "vn", "vnm"] {
-                map.insert(s, Country::vietnam());
-            }
-            for s in ["wallisandfutuna", "wallis_and_futuna", "876", "wf", "wlf"] {
-                map.insert(s, Country::wallis_and_futuna());
-            }
-            for s in ["westernsahara", "western_sahara", "732", "eh", "esh"] {
-                map.insert(s, Country::western_sahara());
-            }
-            for s in ["yemen", "887", "ye", "yem"] {
-                map.insert(s, Country::yemen());
-            }
-            for s in ["zambia", "894", "zm", "zmb"] {
-                map.insert(s, Country::zambia());
-            }
-            for s in ["zimbabwe", "716", "zw", "zwe"] {
-                map.insert(s, Country::zimbabwe());
-            }
-            map
-        });
-        (*CODES)
+        static CODES: Map<&'static str, Country> = phf_map! {
+            "afghanistan" => Country::afghanistan(),
+            "004" => Country::afghanistan(),
+            "af" => Country::afghanistan(),
+            "afg" => Country::afghanistan(),
+            "alandislands" => Country::aland_islands(),
+            "aland_islands" => Country::aland_islands(),
+            "248" => Country::aland_islands(),
+            "ax" => Country::aland_islands(),
+            "ala" => Country::aland_islands(),
+            "albania" => Country::albania(),
+            "008" => Country::albania(),
+            "al" => Country::albania(),
+            "alb" => Country::albania(),
+            "algeria" => Country::algeria(),
+            "012" => Country::algeria(),
+            "dz" => Country::algeria(),
+            "dza" => Country::algeria(),
+            "americansamoa" => Country::american_samoa(),
+            "american_samoa" => Country::american_samoa(),
+            "016" => Country::american_samoa(),
+            "as" => Country::american_samoa(),
+            "asm" => Country::american_samoa(),
+            "andorra" => Country::andorra(),
+            "020" => Country::andorra(),
+            "ad" => Country::andorra(),
+            "and" => Country::andorra(),
+            "angola" => Country::angola(),
+            "024" => Country::angola(),
+            "ao" => Country::angola(),
+            "ago" => Country::angola(),
+            "anguilla" => Country::anguilla(),
+            "660" => Country::anguilla(),
+            "ai" => Country::anguilla(),
+            "aia" => Country::anguilla(),
+            "antarctica" => Country::antarctica(),
+            "010" => Country::antarctica(),
+            "aq" => Country::antarctica(),
+            "ata" => Country::antarctica(),
+            "antiguaandbarbuda" => Country::antigua_and_barbuda(),
+            "antigua_and_barbuda" => Country::antigua_and_barbuda(),
+            "028" => Country::antigua_and_barbuda(),
+            "ag" => Country::antigua_and_barbuda(),
+            "atg" => Country::antigua_and_barbuda(),
+            "argentina" => Country::argentina(),
+            "032" => Country::argentina(),
+            "ar" => Country::argentina(),
+            "arg" => Country::argentina(),
+            "armenia" => Country::armenia(),
+            "051" => Country::armenia(),
+            "am" => Country::armenia(),
+            "arm" => Country::armenia(),
+            "aruba" => Country::aruba(),
+            "533" => Country::aruba(),
+            "aw" => Country::aruba(),
+            "abw" => Country::aruba(),
+            "ascensionandtristandacunhasainthelena" => Country::ascension_and_tristan_da_cunha_saint_helena(),
+            "ascension_and_tristan_da_cunha_saint_helena" => Country::ascension_and_tristan_da_cunha_saint_helena(),
+            "654" => Country::ascension_and_tristan_da_cunha_saint_helena(),
+            "sh" => Country::ascension_and_tristan_da_cunha_saint_helena(),
+            "shn" => Country::ascension_and_tristan_da_cunha_saint_helena(),
+            "sthelena" => Country::ascension_and_tristan_da_cunha_saint_helena(),
+            "sainthelena" => Country::ascension_and_tristan_da_cunha_saint_helena(),
+            "australia" => Country::australia(),
+            "036" => Country::australia(),
+            "au" => Country::australia(),
+            "aus" => Country::australia(),
+            "austria" => Country::austria(),
+            "040" => Country::austria(),
+            "at" => Country::austria(),
+            "aut" => Country::austria(),
+            "azerbaijan" => Country::azerbaijan(),
+            "031" => Country::azerbaijan(),
+            "az" => Country::azerbaijan(),
+            "aze" => Country::azerbaijan(),
+            "bahrain" => Country::bahrain(),
+            "048" => Country::bahrain(),
+            "bh" => Country::bahrain(),
+            "bhr" => Country::bahrain(),
+            "bangladesh" => Country::bangladesh(),
+            "050" => Country::bangladesh(),
+            "bd" => Country::bangladesh(),
+            "bgd" => Country::bangladesh(),
+            "barbados" => Country::barbados(),
+            "052" => Country::barbados(),
+            "bb" => Country::barbados(),
+            "brb" => Country::barbados(),
+            "belarus" => Country::belarus(),
+            "112" => Country::belarus(),
+            "by" => Country::belarus(),
+            "blr" => Country::belarus(),
+            "belgium" => Country::belgium(),
+            "056" => Country::belgium(),
+            "be" => Country::belgium(),
+            "bel" => Country::belgium(),
+            "belize" => Country::belize(),
+            "084" => Country::belize(),
+            "bz" => Country::belize(),
+            "blz" => Country::belize(),
+            "benin" => Country::benin(),
+            "204" => Country::benin(),
+            "bj" => Country::benin(),
+            "ben" => Country::benin(),
+            "bermuda" => Country::bermuda(),
+            "060" => Country::bermuda(),
+            "bm" => Country::bermuda(),
+            "bmu" => Country::bermuda(),
+            "bhutan" => Country::bhutan(),
+            "064" => Country::bhutan(),
+            "bt" => Country::bhutan(),
+            "btn" => Country::bhutan(),
+            "bolivarianrepublicofvenezuela" => Country::bolivarian_republic_of_venezuela(),
+            "bolivarian_republic_of_venezuela" => Country::bolivarian_republic_of_venezuela(),
+            "862" => Country::bolivarian_republic_of_venezuela(),
+            "ve" => Country::bolivarian_republic_of_venezuela(),
+            "ven" => Country::bolivarian_republic_of_venezuela(),
+            "venezuela" => Country::bolivarian_republic_of_venezuela(),
+            "bolivia" => Country::bolivia(),
+            "068" => Country::bolivia(),
+            "bo" => Country::bolivia(),
+            "bol" => Country::bolivia(),
+            "bonaire" => Country::bonaire(),
+            "535" => Country::bonaire(),
+            "bq" => Country::bonaire(),
+            "bes" => Country::bonaire(),
+            "bosniaandherzegovina" => Country::bosnia_and_herzegovina(),
+            "bosnia_and_herzegovina" => Country::bosnia_and_herzegovina(),
+            "070" => Country::bosnia_and_herzegovina(),
+            "ba" => Country::bosnia_and_herzegovina(),
+            "bih" => Country::bosnia_and_herzegovina(),
+            "bosnia" => Country::bosnia_and_herzegovina(),
+            "herzegovina" => Country::bosnia_and_herzegovina(),
+            "botswana" => Country::botswana(),
+            "072" => Country::botswana(),
+            "bw" => Country::botswana(),
+            "bwa" => Country::botswana(),
+            "bouvetisland" => Country::bouvet_island(),
+            "bouvet_island" => Country::bouvet_island(),
+            "074" => Country::bouvet_island(),
+            "bv" => Country::bouvet_island(),
+            "bvt" => Country::bouvet_island(),
+            "brazil" => Country::brazil(),
+            "076" => Country::brazil(),
+            "br" => Country::brazil(),
+            "bra" => Country::brazil(),
+            "britishindianoceanterritory" => Country::british_indian_ocean_territory(),
+            "british_indian_ocean_territory" => Country::british_indian_ocean_territory(),
+            "086" => Country::british_indian_ocean_territory(),
+            "io" => Country::british_indian_ocean_territory(),
+            "iot" => Country::british_indian_ocean_territory(),
+            "britishvirginislands" => Country::british_virgin_islands(),
+            "british_virgin_islands" => Country::british_virgin_islands(),
+            "092" => Country::british_virgin_islands(),
+            "vg" => Country::british_virgin_islands(),
+            "vgb" => Country::british_virgin_islands(),
+            "bruneidarussalam" => Country::brunei_darussalam(),
+            "brunei_darussalam" => Country::brunei_darussalam(),
+            "096" => Country::brunei_darussalam(),
+            "bn" => Country::brunei_darussalam(),
+            "brn" => Country::brunei_darussalam(),
+            "brunei" => Country::brunei_darussalam(),
+            "bulgaria" => Country::bulgaria(),
+            "100" => Country::bulgaria(),
+            "bg" => Country::bulgaria(),
+            "bgr" => Country::bulgaria(),
+            "burkinafaso" => Country::burkina_faso(),
+            "burkina_faso" => Country::burkina_faso(),
+            "854" => Country::burkina_faso(),
+            "bf" => Country::burkina_faso(),
+            "bfa" => Country::burkina_faso(),
+            "burkina" => Country::burkina_faso(),
+            "burundi" => Country::burundi(),
+            "108" => Country::burundi(),
+            "bi" => Country::burundi(),
+            "bdi" => Country::burundi(),
+            "caboverde" => Country::cabo_verde(),
+            "cabo_verde" => Country::cabo_verde(),
+            "132" => Country::cabo_verde(),
+            "cv" => Country::cabo_verde(),
+            "cpv" => Country::cabo_verde(),
+            "cambodia" => Country::cambodia(),
+            "116" => Country::cambodia(),
+            "kh" => Country::cambodia(),
+            "khm" => Country::cambodia(),
+            "cameroon" => Country::cameroon(),
+            "120" => Country::cameroon(),
+            "cm" => Country::cameroon(),
+            "cmr" => Country::cameroon(),
+            "canada" => Country::canada(),
+            "124" => Country::canada(),
+            "ca" => Country::canada(),
+            "can" => Country::canada(),
+            "chad" => Country::chad(),
+            "148" => Country::chad(),
+            "td" => Country::chad(),
+            "tcd" => Country::chad(),
+            "chile" => Country::chile(),
+            "152" => Country::chile(),
+            "cl" => Country::chile(),
+            "chl" => Country::chile(),
+            "china" => Country::china(),
+            "156" => Country::china(),
+            "cn" => Country::china(),
+            "chn" => Country::china(),
+            "christmasisland" => Country::christmas_island(),
+            "christmas_island" => Country::christmas_island(),
+            "162" => Country::christmas_island(),
+            "cx" => Country::christmas_island(),
+            "cxr" => Country::christmas_island(),
+            "colombia" => Country::colombia(),
+            "170" => Country::colombia(),
+            "co" => Country::colombia(),
+            "col" => Country::colombia(),
+            "costarica" => Country::costa_rica(),
+            "costa_rica" => Country::costa_rica(),
+            "188" => Country::costa_rica(),
+            "cr" => Country::costa_rica(),
+            "cri" => Country::costa_rica(),
+            "cotedivoire" => Country::coted_ivoire(),
+            "coted_ivoire" => Country::coted_ivoire(),
+            "384" => Country::coted_ivoire(),
+            "ci" => Country::coted_ivoire(),
+            "civ" => Country::coted_ivoire(),
+            "croatia" => Country::croatia(),
+            "191" => Country::croatia(),
+            "hr" => Country::croatia(),
+            "hrv" => Country::croatia(),
+            "cuba" => Country::cuba(),
+            "192" => Country::cuba(),
+            "cu" => Country::cuba(),
+            "cub" => Country::cuba(),
+            "curacao" => Country::curacao(),
+            "531" => Country::curacao(),
+            "cw" => Country::curacao(),
+            "cuw" => Country::curacao(),
+            "cyprus" => Country::cyprus(),
+            "196" => Country::cyprus(),
+            "cy" => Country::cyprus(),
+            "cyp" => Country::cyprus(),
+            "czechia" => Country::czechia(),
+            "czechrepublic" => Country::czechia(),
+            "203" => Country::czechia(),
+            "cz" => Country::czechia(),
+            "cze" => Country::czechia(),
+            "denmark" => Country::denmark(),
+            "208" => Country::denmark(),
+            "dk" => Country::denmark(),
+            "dnk" => Country::denmark(),
+            "djibouti" => Country::djibouti(),
+            "262" => Country::djibouti(),
+            "dj" => Country::djibouti(),
+            "dji" => Country::djibouti(),
+            "dominica" => Country::dominica(),
+            "212" => Country::dominica(),
+            "dm" => Country::dominica(),
+            "dma" => Country::dominica(),
+            "dutchpartsintmaarten" => Country::dutch_part_sint_maarten(),
+            "dutch_part_sint_maarten" => Country::dutch_part_sint_maarten(),
+            "534" => Country::dutch_part_sint_maarten(),
+            "sx" => Country::dutch_part_sint_maarten(),
+            "sxm" => Country::dutch_part_sint_maarten(),
+            "stmaarten" => Country::dutch_part_sint_maarten(),
+            "sintmaarten" => Country::dutch_part_sint_maarten(),
+            "ecuador" => Country::ecuador(),
+            "218" => Country::ecuador(),
+            "ec" => Country::ecuador(),
+            "ecu" => Country::ecuador(),
+            "egypt" => Country::egypt(),
+            "818" => Country::egypt(),
+            "eg" => Country::egypt(),
+            "egy" => Country::egypt(),
+            "elsalvador" => Country::el_salvador(),
+            "el_salvador" => Country::el_salvador(),
+            "222" => Country::el_salvador(),
+            "sv" => Country::el_salvador(),
+            "slv" => Country::el_salvador(),
+            "equatorialguinea" => Country::equatorial_guinea(),
+            "equatorial_guinea" => Country::equatorial_guinea(),
+            "226" => Country::equatorial_guinea(),
+            "gq" => Country::equatorial_guinea(),
+            "gnq" => Country::equatorial_guinea(),
+            "eritrea" => Country::eritrea(),
+            "232" => Country::eritrea(),
+            "er" => Country::eritrea(),
+            "eri" => Country::eritrea(),
+            "estonia" => Country::estonia(),
+            "233" => Country::estonia(),
+            "ee" => Country::estonia(),
+            "est" => Country::estonia(),
+            "eswatini" => Country::eswatini(),
+            "748" => Country::eswatini(),
+            "sz" => Country::eswatini(),
+            "swz" => Country::eswatini(),
+            "ethiopia" => Country::ethiopia(),
+            "231" => Country::ethiopia(),
+            "et" => Country::ethiopia(),
+            "eth" => Country::ethiopia(),
+            "federatedstatesofmicronesia" => Country::federated_states_of_micronesia(),
+            "federated_states_of_micronesia" => Country::federated_states_of_micronesia(),
+            "583" => Country::federated_states_of_micronesia(),
+            "fm" => Country::federated_states_of_micronesia(),
+            "fsm" => Country::federated_states_of_micronesia(),
+            "micronesia" => Country::federated_states_of_micronesia(),
+            "fiji" => Country::fiji(),
+            "242" => Country::fiji(),
+            "fj" => Country::fiji(),
+            "fji" => Country::fiji(),
+            "finland" => Country::finland(),
+            "246" => Country::finland(),
+            "fi" => Country::finland(),
+            "fin" => Country::finland(),
+            "france" => Country::france(),
+            "250" => Country::france(),
+            "fr" => Country::france(),
+            "fra" => Country::france(),
+            "frenchguiana" => Country::french_guiana(),
+            "french_guiana" => Country::french_guiana(),
+            "254" => Country::french_guiana(),
+            "gf" => Country::french_guiana(),
+            "guf" => Country::french_guiana(),
+            "frenchpartsaintmartin" => Country::french_part_saint_martin(),
+            "french_part_saint_martin" => Country::french_part_saint_martin(),
+            "663" => Country::french_part_saint_martin(),
+            "mf" => Country::french_part_saint_martin(),
+            "maf" => Country::french_part_saint_martin(),
+            "stmartin" => Country::french_part_saint_martin(),
+            "saintmartin" => Country::french_part_saint_martin(),
+            "frenchpolynesia" => Country::french_polynesia(),
+            "258" => Country::french_polynesia(),
+            "pf" => Country::french_polynesia(),
+            "pyf" => Country::french_polynesia(),
+            "gabon" => Country::gabon(),
+            "266" => Country::gabon(),
+            "ga" => Country::gabon(),
+            "gab" => Country::gabon(),
+            "georgia" => Country::georgia(),
+            "268" => Country::georgia(),
+            "ge" => Country::georgia(),
+            "geo" => Country::georgia(),
+            "germany" => Country::germany(),
+            "276" => Country::germany(),
+            "de" => Country::germany(),
+            "deu" => Country::germany(),
+            "ghana" => Country::ghana(),
+            "288" => Country::ghana(),
+            "gh" => Country::ghana(),
+            "gha" => Country::ghana(),
+            "gibraltar" => Country::gibraltar(),
+            "292" => Country::gibraltar(),
+            "gi" => Country::gibraltar(),
+            "gib" => Country::gibraltar(),
+            "greece" => Country::greece(),
+            "300" => Country::greece(),
+            "gr" => Country::greece(),
+            "grc" => Country::greece(),
+            "greenland" => Country::greenland(),
+            "304" => Country::greenland(),
+            "gl" => Country::greenland(),
+            "grl" => Country::greenland(),
+            "grenada" => Country::grenada(),
+            "308" => Country::grenada(),
+            "gd" => Country::grenada(),
+            "grd" => Country::grenada(),
+            "guadeloupe" => Country::guadeloupe(),
+            "312" => Country::guadeloupe(),
+            "gp" => Country::guadeloupe(),
+            "glp" => Country::guadeloupe(),
+            "guam" => Country::guam(),
+            "316" => Country::guam(),
+            "gu" => Country::guam(),
+            "gum" => Country::guam(),
+            "guatemala" => Country::guatemala(),
+            "320" => Country::guatemala(),
+            "gt" => Country::guatemala(),
+            "gtm" => Country::guatemala(),
+            "guernsey" => Country::guernsey(),
+            "831" => Country::guernsey(),
+            "gg" => Country::guernsey(),
+            "ggy" => Country::guernsey(),
+            "guinea" => Country::guinea(),
+            "324" => Country::guinea(),
+            "gn" => Country::guinea(),
+            "gin" => Country::guinea(),
+            "guineabissau" => Country::guinea_bissau(),
+            "guinea_bissau" => Country::guinea_bissau(),
+            "624" => Country::guinea_bissau(),
+            "gw" => Country::guinea_bissau(),
+            "gnb" => Country::guinea_bissau(),
+            "guyana" => Country::guyana(),
+            "328" => Country::guyana(),
+            "gy" => Country::guyana(),
+            "guy" => Country::guyana(),
+            "haiti" => Country::haiti(),
+            "332" => Country::haiti(),
+            "ht" => Country::haiti(),
+            "hti" => Country::haiti(),
+            "heardislandandmcdonaldislands" => Country::heard_island_and_mc_donald_islands(),
+            "heard_island_and_mc_donald_islands" => Country::heard_island_and_mc_donald_islands(),
+            "334" => Country::heard_island_and_mc_donald_islands(),
+            "hm" => Country::heard_island_and_mc_donald_islands(),
+            "hmd" => Country::heard_island_and_mc_donald_islands(),
+            "heardisland" => Country::heard_island_and_mc_donald_islands(),
+            "mcdonaldislands" => Country::heard_island_and_mc_donald_islands(),
+            "honduras" => Country::honduras(),
+            "340" => Country::honduras(),
+            "hn" => Country::honduras(),
+            "hnd" => Country::honduras(),
+            "hongkong" => Country::hong_kong(),
+            "hong_kong" => Country::hong_kong(),
+            "344" => Country::hong_kong(),
+            "hk" => Country::hong_kong(),
+            "hkg" => Country::hong_kong(),
+            "hungary" => Country::hungary(),
+            "348" => Country::hungary(),
+            "hu" => Country::hungary(),
+            "hun" => Country::hungary(),
+            "iceland" => Country::iceland(),
+            "352" => Country::iceland(),
+            "is" => Country::iceland(),
+            "isl" => Country::iceland(),
+            "india" => Country::india(),
+            "356" => Country::india(),
+            "in" => Country::india(),
+            "ind" => Country::india(),
+            "indonesia" => Country::indonesia(),
+            "360" => Country::indonesia(),
+            "id" => Country::indonesia(),
+            "idn" => Country::indonesia(),
+            "iraq" => Country::iraq(),
+            "368" => Country::iraq(),
+            "iq" => Country::iraq(),
+            "irq" => Country::iraq(),
+            "ireland" => Country::ireland(),
+            "372" => Country::ireland(),
+            "ie" => Country::ireland(),
+            "irl" => Country::ireland(),
+            "islamicrepublicofiran" => Country::islamic_republic_of_iran(),
+            "islamic_republic_of_iran" => Country::islamic_republic_of_iran(),
+            "364" => Country::islamic_republic_of_iran(),
+            "ir" => Country::islamic_republic_of_iran(),
+            "irn" => Country::islamic_republic_of_iran(),
+            "iran" => Country::islamic_republic_of_iran(),
+            "isleofman" => Country::isle_of_man(),
+            "isle_of_man" => Country::isle_of_man(),
+            "833" => Country::isle_of_man(),
+            "im" => Country::isle_of_man(),
+            "imn" => Country::isle_of_man(),
+            "israel" => Country::israel(),
+            "376" => Country::israel(),
+            "il" => Country::israel(),
+            "isr" => Country::israel(),
+            "italy" => Country::italy(),
+            "380" => Country::italy(),
+            "it" => Country::italy(),
+            "ita" => Country::italy(),
+            "jamaica" => Country::jamaica(),
+            "388" => Country::jamaica(),
+            "jm" => Country::jamaica(),
+            "jam" => Country::jamaica(),
+            "japan" => Country::japan(),
+            "392" => Country::japan(),
+            "jp" => Country::japan(),
+            "jpn" => Country::japan(),
+            "jersey" => Country::jersey(),
+            "832" => Country::jersey(),
+            "je" => Country::jersey(),
+            "jey" => Country::jersey(),
+            "jordan" => Country::jordan(),
+            "400" => Country::jordan(),
+            "jo" => Country::jordan(),
+            "jor" => Country::jordan(),
+            "kazakhstan" => Country::kazakhstan(),
+            "398" => Country::kazakhstan(),
+            "kz" => Country::kazakhstan(),
+            "kaz" => Country::kazakhstan(),
+            "kenya" => Country::kenya(),
+            "404" => Country::kenya(),
+            "ke" => Country::kenya(),
+            "ken" => Country::kenya(),
+            "kiribati" => Country::kiribati(),
+            "296" => Country::kiribati(),
+            "ki" => Country::kiribati(),
+            "kir" => Country::kiribati(),
+            "kosovo" => Country::kosovo(),
+            "383" => Country::kosovo(),
+            "xk" => Country::kosovo(),
+            "xkx" => Country::kosovo(),
+            "kuwait" => Country::kuwait(),
+            "414" => Country::kuwait(),
+            "kw" => Country::kuwait(),
+            "kwt" => Country::kuwait(),
+            "kyrgyzstan" => Country::kyrgyzstan(),
+            "417" => Country::kyrgyzstan(),
+            "kg" => Country::kyrgyzstan(),
+            "kgz" => Country::kyrgyzstan(),
+            "latvia" => Country::latvia(),
+            "428" => Country::latvia(),
+            "lv" => Country::latvia(),
+            "lva" => Country::latvia(),
+            "lebanon" => Country::lebanon(),
+            "422" => Country::lebanon(),
+            "lb" => Country::lebanon(),
+            "lbn" => Country::lebanon(),
+            "lesotho" => Country::lesotho(),
+            "426" => Country::lesotho(),
+            "ls" => Country::lesotho(),
+            "lso" => Country::lesotho(),
+            "liberia" => Country::liberia(),
+            "430" => Country::liberia(),
+            "lr" => Country::liberia(),
+            "lbr" => Country::liberia(),
+            "libya" => Country::libya(),
+            "434" => Country::libya(),
+            "ly" => Country::libya(),
+            "lby" => Country::libya(),
+            "liechtenstein" => Country::liechtenstein(),
+            "438" => Country::liechtenstein(),
+            "li" => Country::liechtenstein(),
+            "lie" => Country::liechtenstein(),
+            "lithuania" => Country::lithuania(),
+            "440" => Country::lithuania(),
+            "lt" => Country::lithuania(),
+            "ltu" => Country::lithuania(),
+            "luxembourg" => Country::luxembourg(),
+            "442" => Country::luxembourg(),
+            "lu" => Country::luxembourg(),
+            "lux" => Country::luxembourg(),
+            "macao" => Country::macao(),
+            "446" => Country::macao(),
+            "mo" => Country::macao(),
+            "mac" => Country::macao(),
+            "madagascar" => Country::madagascar(),
+            "450" => Country::madagascar(),
+            "mg" => Country::madagascar(),
+            "mdg" => Country::madagascar(),
+            "malawi" => Country::malawi(),
+            "454" => Country::malawi(),
+            "mw" => Country::malawi(),
+            "mwi" => Country::malawi(),
+            "malaysia" => Country::malaysia(),
+            "458" => Country::malaysia(),
+            "my" => Country::malaysia(),
+            "mys" => Country::malaysia(),
+            "maldives" => Country::maldives(),
+            "462" => Country::maldives(),
+            "mv" => Country::maldives(),
+            "mdv" => Country::maldives(),
+            "mali" => Country::mali(),
+            "466" => Country::mali(),
+            "ml" => Country::mali(),
+            "mli" => Country::mali(),
+            "malta" => Country::malta(),
+            "470" => Country::malta(),
+            "mt" => Country::malta(),
+            "mlt" => Country::malta(),
+            "martinique" => Country::martinique(),
+            "474" => Country::martinique(),
+            "mq" => Country::martinique(),
+            "mtq" => Country::martinique(),
+            "mauritania" => Country::mauritania(),
+            "478" => Country::mauritania(),
+            "mr" => Country::mauritania(),
+            "mrt" => Country::mauritania(),
+            "mauritius" => Country::mauritius(),
+            "480" => Country::mauritius(),
+            "mu" => Country::mauritius(),
+            "mus" => Country::mauritius(),
+            "mayotte" => Country::mayotte(),
+            "175" => Country::mayotte(),
+            "yt" => Country::mayotte(),
+            "myt" => Country::mayotte(),
+            "mexico" => Country::mexico(),
+            "484" => Country::mexico(),
+            "mx" => Country::mexico(),
+            "mex" => Country::mexico(),
+            "monaco" => Country::monaco(),
+            "492" => Country::monaco(),
+            "mc" => Country::monaco(),
+            "mco" => Country::monaco(),
+            "mongolia" => Country::mongolia(),
+            "496" => Country::mongolia(),
+            "mn" => Country::mongolia(),
+            "mng" => Country::mongolia(),
+            "montenegro" => Country::montenegro(),
+            "499" => Country::montenegro(),
+            "me" => Country::montenegro(),
+            "mne" => Country::montenegro(),
+            "montserrat" => Country::montserrat(),
+            "500" => Country::montserrat(),
+            "ms" => Country::montserrat(),
+            "msr" => Country::montserrat(),
+            "morocco" => Country::morocco(),
+            "504" => Country::morocco(),
+            "ma" => Country::morocco(),
+            "mar" => Country::morocco(),
+            "mozambique" => Country::mozambique(),
+            "508" => Country::mozambique(),
+            "mz" => Country::mozambique(),
+            "moz" => Country::mozambique(),
+            "myanmar" => Country::myanmar(),
+            "104" => Country::myanmar(),
+            "mm" => Country::myanmar(),
+            "mmr" => Country::myanmar(),
+            "namibia" => Country::namibia(),
+            "516" => Country::namibia(),
+            "na" => Country::namibia(),
+            "nam" => Country::namibia(),
+            "nauru" => Country::nauru(),
+            "520" => Country::nauru(),
+            "nr" => Country::nauru(),
+            "nru" => Country::nauru(),
+            "nepal" => Country::nepal(),
+            "524" => Country::nepal(),
+            "np" => Country::nepal(),
+            "npl" => Country::nepal(),
+            "newcaledonia" => Country::new_caledonia(),
+            "new_caledonia" => Country::new_caledonia(),
+            "540" => Country::new_caledonia(),
+            "nc" => Country::new_caledonia(),
+            "ncl" => Country::new_caledonia(),
+            "newzealand" => Country::new_zealand(),
+            "new_zealand" => Country::new_zealand(),
+            "554" => Country::new_zealand(),
+            "nz" => Country::new_zealand(),
+            "nzl" => Country::new_zealand(),
+            "nicaragua" => Country::nicaragua(),
+            "558" => Country::nicaragua(),
+            "ni" => Country::nicaragua(),
+            "nic" => Country::nicaragua(),
+            "nigeria" => Country::nigeria(),
+            "566" => Country::nigeria(),
+            "ng" => Country::nigeria(),
+            "nga" => Country::nigeria(),
+            "niue" => Country::niue(),
+            "570" => Country::niue(),
+            "nu" => Country::niue(),
+            "niu" => Country::niue(),
+            "norfolkisland" => Country::norfolk_island(),
+            "norfolk_island" => Country::norfolk_island(),
+            "574" => Country::norfolk_island(),
+            "nf" => Country::norfolk_island(),
+            "nfk" => Country::norfolk_island(),
+            "norway" => Country::norway(),
+            "578" => Country::norway(),
+            "no" => Country::norway(),
+            "nor" => Country::norway(),
+            "oman" => Country::oman(),
+            "512" => Country::oman(),
+            "om" => Country::oman(),
+            "omn" => Country::oman(),
+            "pakistan" => Country::pakistan(),
+            "586" => Country::pakistan(),
+            "pk" => Country::pakistan(),
+            "pak" => Country::pakistan(),
+            "palau" => Country::palau(),
+            "585" => Country::palau(),
+            "pw" => Country::palau(),
+            "plw" => Country::palau(),
+            "panama" => Country::panama(),
+            "591" => Country::panama(),
+            "pa" => Country::panama(),
+            "pan" => Country::panama(),
+            "papuanewguinea" => Country::papua_new_guinea(),
+            "papua_new_guinea" => Country::papua_new_guinea(),
+            "598" => Country::papua_new_guinea(),
+            "pg" => Country::papua_new_guinea(),
+            "png" => Country::papua_new_guinea(),
+            "paraguay" => Country::paraguay(),
+            "600" => Country::paraguay(),
+            "py" => Country::paraguay(),
+            "pry" => Country::paraguay(),
+            "peru" => Country::peru(),
+            "604" => Country::peru(),
+            "pe" => Country::peru(),
+            "per" => Country::peru(),
+            "pitcairn" => Country::pitcairn(),
+            "612" => Country::pitcairn(),
+            "pn" => Country::pitcairn(),
+            "pcn" => Country::pitcairn(),
+            "poland" => Country::poland(),
+            "616" => Country::poland(),
+            "pl" => Country::poland(),
+            "pol" => Country::poland(),
+            "portugal" => Country::portugal(),
+            "620" => Country::portugal(),
+            "pt" => Country::portugal(),
+            "prt" => Country::portugal(),
+            "puertorico" => Country::puerto_rico(),
+            "puerto_rico" => Country::puerto_rico(),
+            "630" => Country::puerto_rico(),
+            "pr" => Country::puerto_rico(),
+            "pri" => Country::puerto_rico(),
+            "qatar" => Country::qatar(),
+            "634" => Country::qatar(),
+            "qa" => Country::qatar(),
+            "qat" => Country::qatar(),
+            "republicofnorthmacedonia" => Country::republic_of_north_macedonia(),
+            "republic_of_north_macedonia" => Country::republic_of_north_macedonia(),
+            "807" => Country::republic_of_north_macedonia(),
+            "mk" => Country::republic_of_north_macedonia(),
+            "mkd" => Country::republic_of_north_macedonia(),
+            "macedonia" => Country::republic_of_north_macedonia(),
+            "reunion" => Country::reunion(),
+            "638" => Country::reunion(),
+            "re" => Country::reunion(),
+            "reu" => Country::reunion(),
+            "romania" => Country::romania(),
+            "642" => Country::romania(),
+            "ro" => Country::romania(),
+            "rou" => Country::romania(),
+            "rwanda" => Country::rwanda(),
+            "646" => Country::rwanda(),
+            "rw" => Country::rwanda(),
+            "rwa" => Country::rwanda(),
+            "saintbarthelemy" => Country::saint_barthelemy(),
+            "saint_barthelemy" => Country::saint_barthelemy(),
+            "652" => Country::saint_barthelemy(),
+            "bl" => Country::saint_barthelemy(),
+            "blm" => Country::saint_barthelemy(),
+            "stbarthelemy" => Country::saint_barthelemy(),
+            "saintkittsandnevis" => Country::saint_kitts_and_nevis(),
+            "saint_kitts_and_nevis" => Country::saint_kitts_and_nevis(),
+            "659" => Country::saint_kitts_and_nevis(),
+            "kn" => Country::saint_kitts_and_nevis(),
+            "kna" => Country::saint_kitts_and_nevis(),
+            "stkitts" => Country::saint_kitts_and_nevis(),
+            "saintlucia" => Country::saint_lucia(),
+            "saint_lucia" => Country::saint_lucia(),
+            "662" => Country::saint_lucia(),
+            "lc" => Country::saint_lucia(),
+            "lca" => Country::saint_lucia(),
+            "stlucia" => Country::saint_lucia(),
+            "saintpierreandmiquelon" => Country::saint_pierre_and_miquelon(),
+            "saint_pierre_and_miquelon" => Country::saint_pierre_and_miquelon(),
+            "666" => Country::saint_pierre_and_miquelon(),
+            "pm" => Country::saint_pierre_and_miquelon(),
+            "spm" => Country::saint_pierre_and_miquelon(),
+            "stpierre" => Country::saint_pierre_and_miquelon(),
+            "saintpierre" => Country::saint_pierre_and_miquelon(),
+            "saintvincentandthegrenadines" => Country::saint_vincent_and_the_grenadines(),
+            "saint_vincent_and_the_grenadines" => Country::saint_vincent_and_the_grenadines(),
+            "670" => Country::saint_vincent_and_the_grenadines(),
+            "vc" => Country::saint_vincent_and_the_grenadines(),
+            "vct" => Country::saint_vincent_and_the_grenadines(),
+            "stvincent" => Country::saint_vincent_and_the_grenadines(),
+            "saintvincent" => Country::saint_vincent_and_the_grenadines(),
+            "samoa" => Country::samoa(),
+            "882" => Country::samoa(),
+            "ws" => Country::samoa(),
+            "wsm" => Country::samoa(),
+            "sanmarino" => Country::san_marino(),
+            "san_marino" => Country::san_marino(),
+            "674" => Country::san_marino(),
+            "sm" => Country::san_marino(),
+            "smr" => Country::san_marino(),
+            "saotomeandprincipe" => Country::sao_tome_and_principe(),
+            "sao_tome_and_principe" => Country::sao_tome_and_principe(),
+            "678" => Country::sao_tome_and_principe(),
+            "st" => Country::sao_tome_and_principe(),
+            "stp" => Country::sao_tome_and_principe(),
+            "saotome" => Country::sao_tome_and_principe(),
+            "saudiarabia" => Country::saudi_arabia(),
+            "saudi_arabia" => Country::saudi_arabia(),
+            "682" => Country::saudi_arabia(),
+            "sa" => Country::saudi_arabia(),
+            "sau" => Country::saudi_arabia(),
+            "senegal" => Country::senegal(),
+            "686" => Country::senegal(),
+            "sn" => Country::senegal(),
+            "sen" => Country::senegal(),
+            "serbia" => Country::serbia(),
+            "688" => Country::serbia(),
+            "rs" => Country::serbia(),
+            "srb" => Country::serbia(),
+            "seychelles" => Country::seychelles(),
+            "690" => Country::seychelles(),
+            "sc" => Country::seychelles(),
+            "syc" => Country::seychelles(),
+            "sierraleone" => Country::sierra_leone(),
+            "sierra_leone" => Country::sierra_leone(),
+            "694" => Country::sierra_leone(),
+            "sl" => Country::sierra_leone(),
+            "sle" => Country::sierra_leone(),
+            "singapore" => Country::singapore(),
+            "702" => Country::singapore(),
+            "sg" => Country::singapore(),
+            "sgp" => Country::singapore(),
+            "slovakia" => Country::slovakia(),
+            "703" => Country::slovakia(),
+            "sk" => Country::slovakia(),
+            "svk" => Country::slovakia(),
+            "slovenia" => Country::slovenia(),
+            "705" => Country::slovenia(),
+            "si" => Country::slovenia(),
+            "svn" => Country::slovenia(),
+            "solomonislands" => Country::solomon_islands(),
+            "solomon_islands" => Country::solomon_islands(),
+            "090" => Country::solomon_islands(),
+            "sb" => Country::solomon_islands(),
+            "slb" => Country::solomon_islands(),
+            "somalia" => Country::somalia(),
+            "706" => Country::somalia(),
+            "so" => Country::somalia(),
+            "som" => Country::somalia(),
+            "southafrica" => Country::south_africa(),
+            "south_africa" => Country::south_africa(),
+            "710" => Country::south_africa(),
+            "za" => Country::south_africa(),
+            "zaf" => Country::south_africa(),
+            "southgeorgiaandthesouthsandwichislands" => Country::south_georgia_and_the_south_sandwich_islands(),
+            "south_georgia_and_the_south_sandwich_islands" => Country::south_georgia_and_the_south_sandwich_islands(),
+            "239" => Country::south_georgia_and_the_south_sandwich_islands(),
+            "gs" => Country::south_georgia_and_the_south_sandwich_islands(),
+            "sgs" => Country::south_georgia_and_the_south_sandwich_islands(),
+            "southgeorgia" => Country::south_georgia_and_the_south_sandwich_islands(),
+            "southsandwichislands" => Country::south_georgia_and_the_south_sandwich_islands(),
+            "southsudan" => Country::south_sudan(),
+            "south_sudan" => Country::south_sudan(),
+            "728" => Country::south_sudan(),
+            "ss" => Country::south_sudan(),
+            "ssd" => Country::south_sudan(),
+            "spain" => Country::spain(),
+            "724" => Country::spain(),
+            "es" => Country::spain(),
+            "esp" => Country::spain(),
+            "srilanka" => Country::sri_lanka(),
+            "sri_lanka" => Country::sri_lanka(),
+            "144" => Country::sri_lanka(),
+            "lk" => Country::sri_lanka(),
+            "lka" => Country::sri_lanka(),
+            "stateofpalestine" => Country::state_of_palestine(),
+            "state_of_palestine" => Country::state_of_palestine(),
+            "275" => Country::state_of_palestine(),
+            "ps" => Country::state_of_palestine(),
+            "pse" => Country::state_of_palestine(),
+            "palestine" => Country::state_of_palestine(),
+            "suriname" => Country::suriname(),
+            "740" => Country::suriname(),
+            "sr" => Country::suriname(),
+            "sur" => Country::suriname(),
+            "svalbardandjanmayen" => Country::svalbard_and_jan_mayen(),
+            "svalbard_and_jan_mayen" => Country::svalbard_and_jan_mayen(),
+            "744" => Country::svalbard_and_jan_mayen(),
+            "sj" => Country::svalbard_and_jan_mayen(),
+            "sjm" => Country::svalbard_and_jan_mayen(),
+            "sweden" => Country::sweden(),
+            "752" => Country::sweden(),
+            "se" => Country::sweden(),
+            "swe" => Country::sweden(),
+            "switzerland" => Country::switzerland(),
+            "756" => Country::switzerland(),
+            "ch" => Country::switzerland(),
+            "che" => Country::switzerland(),
+            "syrianarabrepublic" => Country::syrian_arab_republic(),
+            "syrian_arab_republic" => Country::syrian_arab_republic(),
+            "760" => Country::syrian_arab_republic(),
+            "sy" => Country::syrian_arab_republic(),
+            "syr" => Country::syrian_arab_republic(),
+            "taiwan,republicofchina" => Country::taiwan(),
+            "taiwan" => Country::taiwan(),
+            "158" => Country::taiwan(),
+            "tw" => Country::taiwan(),
+            "twn" => Country::taiwan(),
+            "tajikistan" => Country::tajikistan(),
+            "762" => Country::tajikistan(),
+            "tj" => Country::tajikistan(),
+            "tjk" => Country::tajikistan(),
+            "thailand" => Country::thailand(),
+            "764" => Country::thailand(),
+            "th" => Country::thailand(),
+            "tha" => Country::thailand(),
+            "thebahamas" => Country::the_bahamas(),
+            "the_bahamas" => Country::the_bahamas(),
+            "044" => Country::the_bahamas(),
+            "bs" => Country::the_bahamas(),
+            "bhs" => Country::the_bahamas(),
+            "bahamas" => Country::the_bahamas(),
+            "thecaymanislands" => Country::the_cayman_islands(),
+            "the_cayman_islands" => Country::the_cayman_islands(),
+            "136" => Country::the_cayman_islands(),
+            "ky" => Country::the_cayman_islands(),
+            "cym" => Country::the_cayman_islands(),
+            "caymanislands" => Country::the_cayman_islands(),
+            "thecentralafricanrepublic" => Country::the_central_african_republic(),
+            "the_central_african_republic" => Country::the_central_african_republic(),
+            "140" => Country::the_central_african_republic(),
+            "cf" => Country::the_central_african_republic(),
+            "caf" => Country::the_central_african_republic(),
+            "centralafricanrepublic" => Country::the_central_african_republic(),
+            "thecocoskeelingislands" => Country::the_cocos_keeling_islands(),
+            "the_cocos_keeling_islands" => Country::the_cocos_keeling_islands(),
+            "166" => Country::the_cocos_keeling_islands(),
+            "cc" => Country::the_cocos_keeling_islands(),
+            "cck" => Country::the_cocos_keeling_islands(),
+            "cocosislands" => Country::the_cocos_keeling_islands(),
+            "keelingislands" => Country::the_cocos_keeling_islands(),
+            "thecomoros" => Country::the_comoros(),
+            "the_comoros" => Country::the_comoros(),
+            "174" => Country::the_comoros(),
+            "km" => Country::the_comoros(),
+            "com" => Country::the_comoros(),
+            "comoros" => Country::the_comoros(),
+            "thecongo" => Country::the_congo(),
+            "the_congo" => Country::the_congo(),
+            "178" => Country::the_congo(),
+            "cg" => Country::the_congo(),
+            "cog" => Country::the_congo(),
+            "congo" => Country::the_congo(),
+            "thecookislands" => Country::the_cook_islands(),
+            "the_cook_islands" => Country::the_cook_islands(),
+            "184" => Country::the_cook_islands(),
+            "ck" => Country::the_cook_islands(),
+            "cok" => Country::the_cook_islands(),
+            "cookislands" => Country::the_cook_islands(),
+            "thedemocraticpeoplesrepublicofkorea" => Country::the_democratic_peoples_republic_of_korea(),
+            "the_democratic_peoples_republic_of_korea" => Country::the_democratic_peoples_republic_of_korea(),
+            "408" => Country::the_democratic_peoples_republic_of_korea(),
+            "kp" => Country::the_democratic_peoples_republic_of_korea(),
+            "prk" => Country::the_democratic_peoples_republic_of_korea(),
+            "northkorea" => Country::the_democratic_peoples_republic_of_korea(),
+            "democraticpeoplesrepublicofkorea" => Country::the_democratic_peoples_republic_of_korea(),
+            "thedemocraticrepublicofthecongo" => Country::the_democratic_republic_of_the_congo(),
+            "the_democratic_republic_of_the_congo" => Country::the_democratic_republic_of_the_congo(),
+            "180" => Country::the_democratic_republic_of_the_congo(),
+            "cd" => Country::the_democratic_republic_of_the_congo(),
+            "cod" => Country::the_democratic_republic_of_the_congo(),
+            "democraticrepublicofthecongo" => Country::the_democratic_republic_of_the_congo(),
+            "thedominicanrepublic" => Country::the_dominican_republic(),
+            "the_dominican_republic" => Country::the_dominican_republic(),
+            "214" => Country::the_dominican_republic(),
+            "do" => Country::the_dominican_republic(),
+            "dom" => Country::the_dominican_republic(),
+            "dominicanrepublic" => Country::the_dominican_republic(),
+            "thefalklandislandsmalvinas" => Country::the_falkland_islands_malvinas(),
+            "the_falkland_islands_malvinas" => Country::the_falkland_islands_malvinas(),
+            "238" => Country::the_falkland_islands_malvinas(),
+            "fk" => Country::the_falkland_islands_malvinas(),
+            "flk" => Country::the_falkland_islands_malvinas(),
+            "malvinas" => Country::the_falkland_islands_malvinas(),
+            "falklandislands" => Country::the_falkland_islands_malvinas(),
+            "thefaroeislands" => Country::the_faroe_islands(),
+            "the_faroe_islands" => Country::the_faroe_islands(),
+            "234" => Country::the_faroe_islands(),
+            "fo" => Country::the_faroe_islands(),
+            "fro" => Country::the_faroe_islands(),
+            "faroeislands" => Country::the_faroe_islands(),
+            "thefrenchsouthernterritories" => Country::the_french_southern_territories(),
+            "the_french_southern_territories" => Country::the_french_southern_territories(),
+            "260" => Country::the_french_southern_territories(),
+            "tf" => Country::the_french_southern_territories(),
+            "atf" => Country::the_french_southern_territories(),
+            "frenchsouthernterritories" => Country::the_french_southern_territories(),
+            "thegambia" => Country::the_gambia(),
+            "the_gambia" => Country::the_gambia(),
+            "270" => Country::the_gambia(),
+            "gm" => Country::the_gambia(),
+            "gmb" => Country::the_gambia(),
+            "gambia" => Country::the_gambia(),
+            "theholysee" => Country::the_holy_see(),
+            "the_holy_see" => Country::the_holy_see(),
+            "336" => Country::the_holy_see(),
+            "va" => Country::the_holy_see(),
+            "vat" => Country::the_holy_see(),
+            "holysee" => Country::the_holy_see(),
+            "thelaopeoplesdemocraticrepublic" => Country::the_lao_peoples_democratic_republic(),
+            "the_lao_peoples_democratic_republic" => Country::the_lao_peoples_democratic_republic(),
+            "418" => Country::the_lao_peoples_democratic_republic(),
+            "la" => Country::the_lao_peoples_democratic_republic(),
+            "lao" => Country::the_lao_peoples_democratic_republic(),
+            "laopeoplesdemocraticrepublic" => Country::the_lao_peoples_democratic_republic(),
+            "themarshallislands" => Country::the_marshall_islands(),
+            "the_marshall_islands" => Country::the_marshall_islands(),
+            "584" => Country::the_marshall_islands(),
+            "mh" => Country::the_marshall_islands(),
+            "mhl" => Country::the_marshall_islands(),
+            "marshallislands" => Country::the_marshall_islands(),
+            "thenetherlands" => Country::the_netherlands(),
+            "the_netherlands" => Country::the_netherlands(),
+            "528" => Country::the_netherlands(),
+            "nl" => Country::the_netherlands(),
+            "nld" => Country::the_netherlands(),
+            "netherlands" => Country::the_netherlands(),
+            "holland" => Country::the_netherlands(),
+            "theniger" => Country::the_niger(),
+            "the_niger" => Country::the_niger(),
+            "562" => Country::the_niger(),
+            "ne" => Country::the_niger(),
+            "ner" => Country::the_niger(),
+            "niger" => Country::the_niger(),
+            "thenorthernmarianaislands" => Country::the_northern_mariana_islands(),
+            "the_northern_mariana_islands" => Country::the_northern_mariana_islands(),
+            "580" => Country::the_northern_mariana_islands(),
+            "mp" => Country::the_northern_mariana_islands(),
+            "mnp" => Country::the_northern_mariana_islands(),
+            "northernmarianaislands" => Country::the_northern_mariana_islands(),
+            "thephilippines" => Country::the_philippines(),
+            "the_philippines" => Country::the_philippines(),
+            "608" => Country::the_philippines(),
+            "ph" => Country::the_philippines(),
+            "phl" => Country::the_philippines(),
+            "philippines" => Country::the_philippines(),
+            "therepublicofkorea" => Country::the_republic_of_korea(),
+            "the_republic_of_korea" => Country::the_republic_of_korea(),
+            "410" => Country::the_republic_of_korea(),
+            "kr" => Country::the_republic_of_korea(),
+            "kor" => Country::the_republic_of_korea(),
+            "southkorea" => Country::the_republic_of_korea(),
+            "republicofkorea" => Country::the_republic_of_korea(),
+            "therepublicofmoldova" => Country::the_republic_of_moldova(),
+            "the_republic_of_moldova" => Country::the_republic_of_moldova(),
+            "498" => Country::the_republic_of_moldova(),
+            "md" => Country::the_republic_of_moldova(),
+            "mda" => Country::the_republic_of_moldova(),
+            "moldova" => Country::the_republic_of_moldova(),
+            "republicofmoldova" => Country::the_republic_of_moldova(),
+            "therussianfederation" => Country::the_russian_federation(),
+            "the_russian_federation" => Country::the_russian_federation(),
+            "643" => Country::the_russian_federation(),
+            "ru" => Country::the_russian_federation(),
+            "rus" => Country::the_russian_federation(),
+            "russia" => Country::the_russian_federation(),
+            "russianfederation" => Country::the_russian_federation(),
+            "thesudan" => Country::the_sudan(),
+            "the_sudan" => Country::the_sudan(),
+            "729" => Country::the_sudan(),
+            "sd" => Country::the_sudan(),
+            "sdn" => Country::the_sudan(),
+            "sudan" => Country::the_sudan(),
+            "theturksandcaicosislands" => Country::the_turks_and_caicos_islands(),
+            "the_turks_and_caicos_islands" => Country::the_turks_and_caicos_islands(),
+            "796" => Country::the_turks_and_caicos_islands(),
+            "tc" => Country::the_turks_and_caicos_islands(),
+            "tca" => Country::the_turks_and_caicos_islands(),
+            "turksandcaicosislands" => Country::the_turks_and_caicos_islands(),
+            "theunitedarabemirates" => Country::the_united_arab_emirates(),
+            "the_united_arab_emirates" => Country::the_united_arab_emirates(),
+            "784" => Country::the_united_arab_emirates(),
+            "ae" => Country::the_united_arab_emirates(),
+            "are" => Country::the_united_arab_emirates(),
+            "unitedarabemirates" => Country::the_united_arab_emirates(),
+            "theunitedkingdomofgreatbritainandnorthernireland" => Country::the_united_kingdom_of_great_britain_and_northern_ireland(),
+            "the_united_kingdom_of_great_britain_and_northern_ireland" => Country::the_united_kingdom_of_great_britain_and_northern_ireland(),
+            "826" => Country::the_united_kingdom_of_great_britain_and_northern_ireland(),
+            "gb" => Country::the_united_kingdom_of_great_britain_and_northern_ireland(),
+            "gbr" => Country::the_united_kingdom_of_great_britain_and_northern_ireland(),
+            "england" => Country::the_united_kingdom_of_great_britain_and_northern_ireland(),
+            "scotland" => Country::the_united_kingdom_of_great_britain_and_northern_ireland(),
+            "greatbritain" => Country::the_united_kingdom_of_great_britain_and_northern_ireland(),
+            "unitedkingdom" => Country::the_united_kingdom_of_great_britain_and_northern_ireland(),
+            "northernireland" => Country::the_united_kingdom_of_great_britain_and_northern_ireland(),
+            "unitedkingdomofgreatbritain" => Country::the_united_kingdom_of_great_britain_and_northern_ireland(),
+            "unitedkingdomofgreatbritainandnorthernireland" => Country::the_united_kingdom_of_great_britain_and_northern_ireland(),
+            "theunitedstatesminoroutlyingislands" => Country::the_united_states_minor_outlying_islands(),
+            "the_united_states_minor_outlying_islands" => Country::the_united_states_minor_outlying_islands(),
+            "581" => Country::the_united_states_minor_outlying_islands(),
+            "um" => Country::the_united_states_minor_outlying_islands(),
+            "umi" => Country::the_united_states_minor_outlying_islands(),
+            "unitedstatesminoroutlyingislands" => Country::the_united_states_minor_outlying_islands(),
+            "theunitedstatesofamerica" => Country::the_united_states_of_america(),
+            "the_united_states_of_america" => Country::the_united_states_of_america(),
+            "840" => Country::the_united_states_of_america(),
+            "us" => Country::the_united_states_of_america(),
+            "usa" => Country::the_united_states_of_america(),
+            "america" => Country::the_united_states_of_america(),
+            "united states" => Country::the_united_states_of_america(),
+            "unitedstates" => Country::the_united_states_of_america(),
+            "unitedstatesofamerica" => Country::the_united_states_of_america(),
+            "united_states_of_america" => Country::the_united_states_of_america(),
+            "timorleste" => Country::timor_leste(),
+            "timor_leste" => Country::timor_leste(),
+            "626" => Country::timor_leste(),
+            "tl" => Country::timor_leste(),
+            "tls" => Country::timor_leste(),
+            "togo" => Country::togo(),
+            "768" => Country::togo(),
+            "tg" => Country::togo(),
+            "tgo" => Country::togo(),
+            "tokelau" => Country::tokelau(),
+            "772" => Country::tokelau(),
+            "tk" => Country::tokelau(),
+            "tkl" => Country::tokelau(),
+            "tonga" => Country::tonga(),
+            "776" => Country::tonga(),
+            "to" => Country::tonga(),
+            "ton" => Country::tonga(),
+            "trinidadandtobago" => Country::trinidad_and_tobago(),
+            "trinidad_and_tobago" => Country::trinidad_and_tobago(),
+            "780" => Country::trinidad_and_tobago(),
+            "tt" => Country::trinidad_and_tobago(),
+            "tto" => Country::trinidad_and_tobago(),
+            "trinidad" => Country::trinidad_and_tobago(),
+            "tobago" => Country::trinidad_and_tobago(),
+            "tunisia" => Country::tunisia(),
+            "788" => Country::tunisia(),
+            "tn" => Country::tunisia(),
+            "tun" => Country::tunisia(),
+            "turkey" => Country::turkey(),
+            "türkiye" => Country::turkey(),
+            "792" => Country::turkey(),
+            "tr" => Country::turkey(),
+            "tur" => Country::turkey(),
+            "turkmenistan" => Country::turkmenistan(),
+            "795" => Country::turkmenistan(),
+            "tm" => Country::turkmenistan(),
+            "tkm" => Country::turkmenistan(),
+            "tuvalu" => Country::tuvalu(),
+            "798" => Country::tuvalu(),
+            "tv" => Country::tuvalu(),
+            "tuv" => Country::tuvalu(),
+            "usvirginislands" => Country::us_virgin_islands(),
+            "us_virgin_islands" => Country::us_virgin_islands(),
+            "850" => Country::us_virgin_islands(),
+            "vi" => Country::us_virgin_islands(),
+            "vir" => Country::us_virgin_islands(),
+            "uganda" => Country::uganda(),
+            "800" => Country::uganda(),
+            "ug" => Country::uganda(),
+            "uga" => Country::uganda(),
+            "ukraine" => Country::ukraine(),
+            "804" => Country::ukraine(),
+            "ua" => Country::ukraine(),
+            "ukr" => Country::ukraine(),
+            "unitedrepublicoftanzania" => Country::united_republic_of_tanzania(),
+            "united_republic_of_tanzania" => Country::united_republic_of_tanzania(),
+            "834" => Country::united_republic_of_tanzania(),
+            "tz" => Country::united_republic_of_tanzania(),
+            "tza" => Country::united_republic_of_tanzania(),
+            "tanzania" => Country::united_republic_of_tanzania(),
+            "uruguay" => Country::uruguay(),
+            "858" => Country::uruguay(),
+            "uy" => Country::uruguay(),
+            "ury" => Country::uruguay(),
+            "uzbekistan" => Country::uzbekistan(),
+            "860" => Country::uzbekistan(),
+            "uz" => Country::uzbekistan(),
+            "uzb" => Country::uzbekistan(),
+            "vanuatu" => Country::vanuatu(),
+            "548" => Country::vanuatu(),
+            "vu" => Country::vanuatu(),
+            "vut" => Country::vanuatu(),
+            "vietnam" => Country::vietnam(),
+            "704" => Country::vietnam(),
+            "vn" => Country::vietnam(),
+            "vnm" => Country::vietnam(),
+            "wallisandfutuna" => Country::wallis_and_futuna(),
+            "wallis_and_futuna" => Country::wallis_and_futuna(),
+            "876" => Country::wallis_and_futuna(),
+            "wf" => Country::wallis_and_futuna(),
+            "wlf" => Country::wallis_and_futuna(),
+            "westernsahara" => Country::western_sahara(),
+            "western_sahara" => Country::western_sahara(),
+            "732" => Country::western_sahara(),
+            "eh" => Country::western_sahara(),
+            "esh" => Country::western_sahara(),
+            "yemen" => Country::yemen(),
+            "887" => Country::yemen(),
+            "ye" => Country::yemen(),
+            "yem" => Country::yemen(),
+            "zambia" => Country::zambia(),
+            "894" => Country::zambia(),
+            "zm" => Country::zambia(),
+            "zmb" => Country::zambia(),
+            "zimbabwe" => Country::zimbabwe(),
+            "716" => Country::zimbabwe(),
+            "zw" => Country::zimbabwe(),
+            "zwe" => Country::zimbabwe(),
+        };
+        CODES
             .get(code.to_lowercase().as_str())
             .copied()
             .ok_or("unknown value")

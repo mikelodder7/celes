@@ -7,7 +7,7 @@ full state name, and short english aliases.
 """
 documentation = "https://docs.rs/celes/"
 categories = ["encoding", "parsing"]
-edition = "2021"
+edition = "2024"
 homepage = "https://crates.io/crates/celes"
 include = [
     "src/*.rs",
@@ -21,13 +21,11 @@ license = "Apache-2.0 OR MIT"
 name = "celes"
 readme = "README.md"
 repository = "https://github.com/mikelodder7/celes"
-version = "2.5.0"
-# 1.79, released June 2024, required for inline const
-# 1.80, released July 2024, required for LazyLock::new()
-rust-version = "1.80"
+version = "2.6.0"
 
 [dependencies]
 serde = { version = "1", default-features = false, features = ["derive"] }
+phf = { version = "0.11", features = ["macros"] }
 
 [dev-dependencies]
 serde_json = "1.0"
