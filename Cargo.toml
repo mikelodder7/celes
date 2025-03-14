@@ -7,7 +7,7 @@ full state name, and short english aliases.
 """
 documentation = "https://docs.rs/celes/"
 categories = ["encoding", "parsing"]
-edition = "2024"
+edition = "2021"
 homepage = "https://crates.io/crates/celes"
 include = [
     "src/*.rs",
@@ -22,6 +22,7 @@ name = "celes"
 readme = "README.md"
 repository = "https://github.com/mikelodder7/celes"
 version = "2.6.0"
+rust-version = "1.80"
 
 [dependencies]
 serde = { version = "1", default-features = false, features = ["derive"] }
