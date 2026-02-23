@@ -21,7 +21,7 @@ license = "Apache-2.0 OR MIT"
 name = "celes"
 readme = "README.md"
 repository = "https://github.com/mikelodder7/celes"
-version = "2.7.0"
+version = "2.8.0"
 
 [dependencies]
 serde = { version = "1", default-features = false, features = ["derive"] }
@@ -42,3 +42,11 @@ unused = "warn"
 [lints.clippy]
 mod_module_files = "warn"
 unwrap_used = "deny"
+pedantic = { level = "deny", priority = -1 }
+needless_pass_by_value = "deny"
+cloned_instead_of_copied = "deny"
+doc_markdown = "deny"
+must_use_candidate = "deny"
+return_self_not_must_use = "deny"
+semicolon_if_nothing_returned = "deny"
+uninlined_format_args = "deny"

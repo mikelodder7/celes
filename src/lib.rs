@@ -50,7 +50,7 @@
 //! `Country` implements the [core::str::FromStr](https://doc.rust-lang.org/core/str/trait.FromStr.html) trait that accepts any valid argument to the previously mentioned functions
 //! such as:
 //!
-//! - The country aliases like UnitedKingdom, GreatBritain, Russia, America
+//! - The country aliases like `UnitedKingdom`, `GreatBritain`, Russia, America
 //! - The full country name
 //! - The numeric code (e.g. "840")
 //! - The alpha2 code
@@ -405,7 +405,16 @@ impl Country {
 
     country!(burundi, "108", 108, "BI", "BDI", "Burundi");
 
-    country!(cabo_verde, "132", 132, "CV", "CPV", "Cabo Verde");
+    country!(
+        cabo_verde,
+        "132",
+        132,
+        "CV",
+        "CPV",
+        "Cabo Verde",
+        CapeVerdeTable,
+        "CapeVerde"
+    );
 
     country!(cambodia, "116", 116, "KH", "KHM", "Cambodia");
 
@@ -432,7 +441,17 @@ impl Country {
 
     country!(costa_rica, "188", 188, "CR", "CRI", "Costa Rica");
 
-    country!(coted_ivoire, "384", 384, "CI", "CIV", "Coted Ivoire");
+    country!(
+        coted_ivoire,
+        "384",
+        384,
+        "CI",
+        "CIV",
+        "Coted Ivoire",
+        IvoryCoastTable,
+        "IvoryCoast",
+        "CoteDIvoire"
+    );
 
     country!(croatia, "191", 191, "HR", "HRV", "Croatia");
 
@@ -490,7 +509,16 @@ impl Country {
 
     country!(estonia, "233", 233, "EE", "EST", "Estonia");
 
-    country!(eswatini, "748", 748, "SZ", "SWZ", "Eswatini");
+    country!(
+        eswatini,
+        "748",
+        748,
+        "SZ",
+        "SWZ",
+        "Eswatini",
+        SwazilandTable,
+        "Swaziland"
+    );
 
     country!(ethiopia, "231", 231, "ET", "ETH", "Ethiopia");
 
@@ -647,7 +675,7 @@ impl Country {
 
     country!(luxembourg, "442", 442, "LU", "LUX", "Luxembourg");
 
-    country!(macao, "446", 446, "MO", "MAC", "Macao");
+    country!(macao, "446", 446, "MO", "MAC", "Macao", MacauTable, "Macau");
 
     country!(madagascar, "450", 450, "MG", "MDG", "Madagascar");
 
@@ -683,7 +711,9 @@ impl Country {
 
     country!(mozambique, "508", 508, "MZ", "MOZ", "Mozambique");
 
-    country!(myanmar, "104", 104, "MM", "MMR", "Myanmar");
+    country!(
+        myanmar, "104", 104, "MM", "MMR", "Myanmar", BurmaTable, "Burma"
+    );
 
     country!(namibia, "516", 516, "NA", "NAM", "Namibia");
 
@@ -897,7 +927,9 @@ impl Country {
         760,
         "SY",
         "SYR",
-        "Syrian Arab Republic"
+        "Syrian Arab Republic",
+        SyriaTable,
+        "Syria"
     );
 
     country!(
@@ -1072,7 +1104,7 @@ impl Country {
         "GMB",
         "The Gambia",
         GambiaTable,
-        "Gabmia"
+        "Gambia"
     );
 
     country!(
@@ -1083,7 +1115,9 @@ impl Country {
         "VAT",
         "The Holy See",
         HolySeeTable,
-        "HolySee"
+        "HolySee",
+        "Vatican",
+        "VaticanCity"
     );
 
     country!(
@@ -1094,7 +1128,8 @@ impl Country {
         "LAO",
         "The Lao Peoples Democratic Republic",
         LaoPeoplesDemocraticRepublicTable,
-        "LaoPeoplesDemocraticRepublic"
+        "LaoPeoplesDemocraticRepublic",
+        "Laos"
     );
 
     country!(
@@ -1383,6 +1418,8 @@ impl Country {
     /// let lookup = countries.iter().map(|cty| (cty.alpha2.to_string(), cty.clone())).collect::<BTreeMap<String, Country>>();
     ///
     /// ```
+    #[must_use]
+    #[allow(clippy::too_many_lines, clippy::large_stack_arrays)]
     pub const fn get_countries() -> [Self; 250] {
         [
             Self::afghanistan(),
@@ -1641,6 +1678,10 @@ impl Country {
     /// Given the numeric code, return a country or an error if
     /// the parameter doesn't match any country
     ///
+    /// # Errors
+    ///
+    /// Returns an error if the value does not match any known country code.
+    ///
     /// ```
     /// use celes::Country;
     ///
@@ -1655,6 +1696,7 @@ impl Country {
     ///
     /// assert_eq!(Country::afghanistan(), res.unwrap());
     /// ```
+    #[allow(clippy::too_many_lines)]
     pub fn from_value(value: usize) -> Result<Self, &'static str> {
         static VALUES: Map<usize, Country> = phf_map! {
             4usize => Country::afghanistan(),
@@ -1915,6 +1957,10 @@ impl Country {
     /// the parameter doesn't match any country. The value MUST be
     /// the three digit code which includes leading zeros.
     ///
+    /// # Errors
+    ///
+    /// Returns an error if the code does not match any known country.
+    ///
     /// ```
     /// use celes::Country;
     ///
@@ -1929,6 +1975,7 @@ impl Country {
     ///
     /// assert_eq!(Country::albania(), res.unwrap());
     /// ```
+    #[allow(clippy::too_many_lines)]
     pub fn from_code<A: AsRef<str>>(code: A) -> Result<Self, &'static str> {
         static CODES: Map<&'static str, Country> = phf_map! {
             "004" => Country::afghanistan(),
@@ -2188,6 +2235,10 @@ impl Country {
     /// Given the alpha2 letters, return a country or an error if
     /// the parameter doesn't match any country. This is case-insensitive.
     ///
+    /// # Errors
+    ///
+    /// Returns an error if the alpha2 code does not match any known country.
+    ///
     /// ```
     /// use celes::Country;
     ///
@@ -2207,6 +2258,7 @@ impl Country {
     /// let res = Country::from_alpha2("US");
     /// assert_eq!(Country::the_united_states_of_america(), res.unwrap());
     /// ```
+    #[allow(clippy::too_many_lines)]
     pub fn from_alpha2<A: AsRef<str>>(alpha2: A) -> Result<Self, &'static str> {
         static ALPHA2: Map<&'static str, Country> = phf_map! {
             "af" => Country::afghanistan(),
@@ -2467,6 +2519,11 @@ impl Country {
 
     /// Given the alpha3 letters, return a country or an error if
     /// the parameter doesn't match any country. This is case-insensitive.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the alpha3 code does not match any known country.
+    ///
     /// ```
     /// use celes::Country;
     ///
@@ -2485,6 +2542,7 @@ impl Country {
     /// let res = Country::from_alpha3("USA");
     /// assert_eq!(Country::the_united_states_of_america(), res.unwrap());
     /// ```
+    #[allow(clippy::too_many_lines)]
     pub fn from_alpha3<A: AsRef<str>>(alpha3: A) -> Result<Self, &'static str> {
         static ALPHA3: Map<&'static str, Country> = phf_map! {
             "afg" => Country::afghanistan(),
@@ -2750,6 +2808,10 @@ impl Country {
     /// For example, "america" would return `the_united_states_of_america`
     /// This is case-insensitive.
     ///
+    /// # Errors
+    ///
+    /// Returns an error if the alias does not match any known country.
+    ///
     /// ```
     /// use celes::Country;
     ///
@@ -2851,6 +2913,16 @@ impl Country {
             "tanzania" => Country::united_republic_of_tanzania(),
             "türkiye" => Country::turkey(),
             "turkey" => Country::turkey(),
+            "burma" => Country::myanmar(),
+            "swaziland" => Country::eswatini(),
+            "capeverde" => Country::cabo_verde(),
+            "ivorycoast" => Country::coted_ivoire(),
+            "cotedivoire" => Country::coted_ivoire(),
+            "syria" => Country::syrian_arab_republic(),
+            "laos" => Country::the_lao_peoples_democratic_republic(),
+            "macau" => Country::macao(),
+            "vatican" => Country::the_holy_see(),
+            "vaticancity" => Country::the_holy_see(),
         };
         lookup_ascii_lowercase(&ALIASES, alias.as_ref())
             .copied()
@@ -2862,6 +2934,10 @@ impl Country {
     ///
     /// For example, Albania, Algeria, Brazil would return the country
     /// struct that represents those countries.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the name does not match any known country.
     ///
     /// ```
     /// use celes::Country;
@@ -2884,6 +2960,7 @@ impl Country {
     /// let res = Country::from_name("theunitedkingdomofgreatbritainandnorthernireland");
     /// assert_eq!(Country::the_united_kingdom_of_great_britain_and_northern_ireland(), res.unwrap());
     /// ```
+    #[allow(clippy::too_many_lines)]
     pub fn from_name<A: AsRef<str>>(name: A) -> Result<Self, &'static str> {
         static NAMES: Map<&'static str, Country> = phf_map! {
             "afghanistan" => Country::afghanistan(),
@@ -3148,6 +3225,7 @@ impl Country {
 impl FromStr for Country {
     type Err = &'static str;
 
+    #[allow(clippy::too_many_lines)]
     fn from_str(code: &str) -> Result<Self, &'static str> {
         static CODES: Map<&'static str, Country> = phf_map! {
             "afghanistan" => Country::afghanistan(),
@@ -3329,6 +3407,8 @@ impl FromStr for Country {
             "132" => Country::cabo_verde(),
             "cv" => Country::cabo_verde(),
             "cpv" => Country::cabo_verde(),
+            "capeverde" => Country::cabo_verde(),
+            "cape_verde" => Country::cabo_verde(),
             "cambodia" => Country::cambodia(),
             "116" => Country::cambodia(),
             "kh" => Country::cambodia(),
@@ -3372,6 +3452,8 @@ impl FromStr for Country {
             "384" => Country::coted_ivoire(),
             "ci" => Country::coted_ivoire(),
             "civ" => Country::coted_ivoire(),
+            "ivorycoast" => Country::coted_ivoire(),
+            "ivory_coast" => Country::coted_ivoire(),
             "croatia" => Country::croatia(),
             "191" => Country::croatia(),
             "hr" => Country::croatia(),
@@ -3442,6 +3524,7 @@ impl FromStr for Country {
             "748" => Country::eswatini(),
             "sz" => Country::eswatini(),
             "swz" => Country::eswatini(),
+            "swaziland" => Country::eswatini(),
             "ethiopia" => Country::ethiopia(),
             "231" => Country::ethiopia(),
             "et" => Country::ethiopia(),
@@ -3680,6 +3763,7 @@ impl FromStr for Country {
             "446" => Country::macao(),
             "mo" => Country::macao(),
             "mac" => Country::macao(),
+            "macau" => Country::macao(),
             "madagascar" => Country::madagascar(),
             "450" => Country::madagascar(),
             "mg" => Country::madagascar(),
@@ -3752,6 +3836,7 @@ impl FromStr for Country {
             "104" => Country::myanmar(),
             "mm" => Country::myanmar(),
             "mmr" => Country::myanmar(),
+            "burma" => Country::myanmar(),
             "namibia" => Country::namibia(),
             "516" => Country::namibia(),
             "na" => Country::namibia(),
@@ -4007,6 +4092,7 @@ impl FromStr for Country {
             "760" => Country::syrian_arab_republic(),
             "sy" => Country::syrian_arab_republic(),
             "syr" => Country::syrian_arab_republic(),
+            "syria" => Country::syrian_arab_republic(),
             "taiwan,republicofchina" => Country::taiwan(),
             "taiwan" => Country::taiwan(),
             "158" => Country::taiwan(),
@@ -4113,12 +4199,16 @@ impl FromStr for Country {
             "va" => Country::the_holy_see(),
             "vat" => Country::the_holy_see(),
             "holysee" => Country::the_holy_see(),
+            "vatican" => Country::the_holy_see(),
+            "vaticancity" => Country::the_holy_see(),
+            "vatican_city" => Country::the_holy_see(),
             "thelaopeoplesdemocraticrepublic" => Country::the_lao_peoples_democratic_republic(),
             "the_lao_peoples_democratic_republic" => Country::the_lao_peoples_democratic_republic(),
             "418" => Country::the_lao_peoples_democratic_republic(),
             "la" => Country::the_lao_peoples_democratic_republic(),
             "lao" => Country::the_lao_peoples_democratic_republic(),
             "laopeoplesdemocraticrepublic" => Country::the_lao_peoples_democratic_republic(),
+            "laos" => Country::the_lao_peoples_democratic_republic(),
             "themarshallislands" => Country::the_marshall_islands(),
             "the_marshall_islands" => Country::the_marshall_islands(),
             "584" => Country::the_marshall_islands(),

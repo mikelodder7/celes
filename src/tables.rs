@@ -1,3 +1,7 @@
+// Internal code must reference deprecated variants for backward compatibility.
+// Users of the crate will still see deprecation warnings when they use these variants.
+#![allow(deprecated)]
+
 use core::cmp::Ordering;
 use core::{fmt, slice::Iter};
 use serde::{
@@ -160,7 +164,7 @@ pub trait LookupTable {
     fn iter(&self) -> Iter<'_, &'static str>;
 }
 
-/// Since reference for the EmptyLookupTable
+/// Since reference for the `EmptyLookupTable`
 pub const EMPTY_LOOKUP_TABLE: EmptyLookupTable = EmptyLookupTable([]);
 
 /// A lookup table with zero entries
@@ -256,8 +260,8 @@ lookup!(MalvinasTable, Malvinas, "The Falkland Islands Malvinas", 2, "Malvinas" 
 lookup!(FaroeIslandsTable, FaroeIslands, "The Faroe Islands", 1, "FaroeIslands" => "faroeislands");
 lookup!(FrenchSouthernTerritoriesTable, FrenchSouthernTerritories, "The French Southern Territories", 1, "FrenchSouthernTerritories" => "frenchsouthernterritories");
 lookup!(GambiaTable, Gambia, "The Gambia", 1, "Gambia" => "gambia");
-lookup!(HolySeeTable, HolySee, "The Holy See", 1, "HolySee" => "holysee");
-lookup!(LaoPeoplesDemocraticRepublicTable, LaoPeoplesDemocraticRepublic, "The Lao Peoples Democratic Republic", 1, "LaoPeoplesDemocraticRepublic" => "laopeoplesdemocraticrepublic");
+lookup!(HolySeeTable, HolySee, "The Holy See", 3, "HolySee" => "holysee", "Vatican" => "vatican", "VaticanCity" => "vaticancity");
+lookup!(LaoPeoplesDemocraticRepublicTable, LaoPeoplesDemocraticRepublic, "The Lao Peoples Democratic Republic", 2, "LaoPeoplesDemocraticRepublic" => "laopeoplesdemocraticrepublic", "Laos" => "laos");
 lookup!(MarshallIslandsTable, MarshallIslands, "The Marshall Islands", 1, "MarshallIslands" => "marshallislands");
 lookup!(NetherlandsTable, Netherlands, "The Netherlands", 2, "Netherlands" => "netherlands", "Holland" => "holland");
 lookup!(NigerTable, Niger, "The Niger", 1, "Niger" => "niger");
@@ -283,6 +287,12 @@ lookup!(TanzaniaTable, Tanzania, "United Republic Of Tanzania", 1, "Tanzania" =>
 lookup!(TurkeyTable, Turkey, "Türkiye", 1, "Turkey" => "turkey");
 lookup!(TimorTable, TimorLeste, "Timor-Leste", 1, "EastTimor" => "easttimor");
 lookup!(CzechiaTable, Czechia, "Czechia", 1, "CzechRepublic" => "czechrepublic");
+lookup!(BurmaTable, Burma, "Myanmar", 1, "Burma" => "burma");
+lookup!(SwazilandTable, Swaziland, "Eswatini", 1, "Swaziland" => "swaziland");
+lookup!(CapeVerdeTable, CapeVerde, "Cabo Verde", 1, "CapeVerde" => "capeverde");
+lookup!(IvoryCoastTable, IvoryCoast, "Coted Ivoire", 2, "IvoryCoast" => "ivorycoast", "CoteDIvoire" => "cotedivoire");
+lookup!(SyriaTable, Syria, "Syrian Arab Republic", 1, "Syria" => "syria");
+lookup!(MacauTable, Macau, "Macao", 1, "Macau" => "macau");
 
 /// Wrapper struct for alias tables to avoid using Box
 #[derive(Copy, Clone, Debug, Serialize, Deserialize, Eq, PartialEq, Ord, PartialOrd)]
@@ -291,7 +301,7 @@ pub enum CountryTable {
     Empty(EmptyLookupTable),
     /// Aliases for Samoa
     Samoa(SamoaTable),
-    /// Aliases for SaintHelena
+    /// Aliases for `SaintHelena`
     SaintHelena(SaintHelenaTable),
     /// Aliases for Venezuela
     Venezuela(VenezuelaTable),
@@ -301,31 +311,35 @@ pub enum CountryTable {
     Brunei(BruneiTable),
     /// Aliases for Burkina
     Burkina(BurkinaTable),
-    /// Aliases for StMaarten
+    /// Aliases for `StMaarten`
     StMaarten(StMaartenTable),
     /// Aliases for Micronesia
     Micronesia(MicronesiaTable),
-    /// Aliases for StMartin
+    /// Aliases for `StMartin`
     StMartin(StMartinTable),
-    /// Aliases for HeardIsland
+    /// Aliases for `HeardIsland`
     HeardIsland(HeardIslandTable),
     /// Aliases for Iran
     Iran(IranTable),
     /// Aliases for Macedonia
+    #[deprecated(
+        since = "2.8.0",
+        note = "Macedonia was renamed to North Macedonia in 2019. Use Country::republic_of_north_macedonia() instead."
+    )]
     Macedonia(MacedoniaTable),
-    /// Aliases for StBarthelemy
+    /// Aliases for `StBarthelemy`
     StBarthelemy(StBarthelemyTable),
-    /// Aliases for StKitts
+    /// Aliases for `StKitts`
     StKitts(StKittsTable),
-    /// Aliases for StLucia
+    /// Aliases for `StLucia`
     StLucia(StLuciaTable),
-    /// Aliases for StPierre
+    /// Aliases for `StPierre`
     StPierre(StPierreTable),
-    /// Aliases for StVincent
+    /// Aliases for `StVincent`
     StVincent(StVincentTable),
-    /// Aliases for SaoTome
+    /// Aliases for `SaoTome`
     SaoTome(SaoTomeTable),
-    /// Aliases for SouthGeorgia
+    /// Aliases for `SouthGeorgia`
     SouthGeorgia(SouthGeorgiaTable),
     /// Aliases for Palestine
     Palestine(PalestineTable),
@@ -333,47 +347,47 @@ pub enum CountryTable {
     Taiwan(TaiwanTable),
     /// Aliases for Bahamas
     Bahamas(BahamasTable),
-    /// Aliases for CaymanIslands
+    /// Aliases for `CaymanIslands`
     CaymanIslands(CaymanIslandsTable),
-    /// Aliases for CentralAfricanRepublic
+    /// Aliases for `CentralAfricanRepublic`
     CentralAfricanRepublic(CentralAfricanRepublicTable),
-    /// Aliases for CocosIslands
+    /// Aliases for `CocosIslands`
     CocosIslands(CocosIslandsTable),
     /// Aliases for Comoros
     Comoros(ComorosTable),
     /// Aliases for Congo
     Congo(CongoTable),
-    /// Aliases for CookIslands
+    /// Aliases for `CookIslands`
     CookIslands(CookIslandsTable),
-    /// Aliases for NorthKorea
+    /// Aliases for `NorthKorea`
     NorthKorea(NorthKoreaTable),
-    /// Aliases for DemocraticRepublicOfTheCongo
+    /// Aliases for `DemocraticRepublicOfTheCongo`
     DemocraticRepublicOfTheCongo(DemocraticRepublicOfTheCongoTable),
-    /// Aliases for DominicanRepublic
+    /// Aliases for `DominicanRepublic`
     DominicanRepublic(DominicanRepublicTable),
     /// Aliases for Malvinas
     Malvinas(MalvinasTable),
-    /// Aliases for FaroeIslands
+    /// Aliases for `FaroeIslands`
     FaroeIslands(FaroeIslandsTable),
-    /// Aliases for FrenchSouthernTerritories
+    /// Aliases for `FrenchSouthernTerritories`
     FrenchSouthernTerritories(FrenchSouthernTerritoriesTable),
-    /// Aliases for Gabmia
+    /// Aliases for Gambia
     Gambia(GambiaTable),
-    /// Aliases for HolySee
+    /// Aliases for `HolySee`
     HolySee(HolySeeTable),
-    /// Aliases for LaoPeoplesDemocraticRepublic
+    /// Aliases for `LaoPeoplesDemocraticRepublic`
     LaoPeoplesDemocraticRepublic(LaoPeoplesDemocraticRepublicTable),
-    /// Aliases for MarshallIslands
+    /// Aliases for `MarshallIslands`
     MarshallIslands(MarshallIslandsTable),
     /// Aliases for Netherlands
     Netherlands(NetherlandsTable),
     /// Aliases for Niger
     Niger(NigerTable),
-    /// Aliases for NorthernMarianaIslands
+    /// Aliases for `NorthernMarianaIslands`
     NorthernMarianaIslands(NorthernMarianaIslandsTable),
     /// Aliases for Philippines
     Philippines(PhilippinesTable),
-    /// Aliases for SouthKorea
+    /// Aliases for `SouthKorea`
     SouthKorea(SouthKoreaTable),
     /// Aliases for Moldova
     Moldova(MoldovaTable),
@@ -381,13 +395,13 @@ pub enum CountryTable {
     Russia(RussiaTable),
     /// Aliases for Sudan
     Sudan(SudanTable),
-    /// Aliases for TurksAndCaicosIslands
+    /// Aliases for `TurksAndCaicosIslands`
     TurksAndCaicosIslands(TurksAndCaicosIslandsTable),
-    /// Aliases for UnitedArabEmirates
+    /// Aliases for `UnitedArabEmirates`
     UnitedArabEmirates(UnitedArabEmiratesTable),
     /// Aliases for England
     England(EnglandTable),
-    /// Aliases for UnitedStatesMinorOutlyingIslands
+    /// Aliases for `UnitedStatesMinorOutlyingIslands`
     UnitedStatesMinorOutlyingIslands(UnitedStatesMinorOutlyingIslandsTable),
     /// Aliases for America
     America(AmericaTable),
@@ -396,11 +410,43 @@ pub enum CountryTable {
     /// Aliases for Tanzania
     Tanzania(TanzaniaTable),
     /// Aliases for Turkey
+    #[deprecated(
+        since = "2.8.0",
+        note = "Turkey was renamed to Türkiye in 2022. Use Country::turkey() instead."
+    )]
     Turkey(TurkeyTable),
-    /// Aliases for TimorLeste
+    /// Aliases for `TimorLeste`
     TimorLeste(TimorTable),
     /// Aliases for Czechia
     Czechia(CzechiaTable),
+    /// Aliases for Burma
+    #[deprecated(
+        since = "2.8.0",
+        note = "Burma was renamed to Myanmar in 1989. Use Country::myanmar() instead."
+    )]
+    Burma(BurmaTable),
+    /// Aliases for Swaziland
+    #[deprecated(
+        since = "2.8.0",
+        note = "Swaziland was renamed to Eswatini in 2018. Use Country::eswatini() instead."
+    )]
+    Swaziland(SwazilandTable),
+    /// Aliases for `CapeVerde`
+    #[deprecated(
+        since = "2.8.0",
+        note = "Cape Verde was renamed to Cabo Verde in 2013. Use Country::cabo_verde() instead."
+    )]
+    CapeVerde(CapeVerdeTable),
+    /// Aliases for `IvoryCoast`
+    #[deprecated(
+        since = "2.8.0",
+        note = "Ivory Coast was renamed to Côte d'Ivoire in 1986. Use Country::coted_ivoire() instead."
+    )]
+    IvoryCoast(IvoryCoastTable),
+    /// Aliases for Syria
+    Syria(SyriaTable),
+    /// Aliases for Macau
+    Macau(MacauTable),
 }
 
 impl LookupTable for CountryTable {
@@ -463,6 +509,12 @@ impl LookupTable for CountryTable {
             CountryTable::Turkey(t) => t.contains(alias),
             CountryTable::TimorLeste(t) => t.contains(alias),
             CountryTable::Czechia(t) => t.contains(alias),
+            CountryTable::Burma(t) => t.contains(alias),
+            CountryTable::Swaziland(t) => t.contains(alias),
+            CountryTable::CapeVerde(t) => t.contains(alias),
+            CountryTable::IvoryCoast(t) => t.contains(alias),
+            CountryTable::Syria(t) => t.contains(alias),
+            CountryTable::Macau(t) => t.contains(alias),
         }
     }
 
@@ -525,6 +577,12 @@ impl LookupTable for CountryTable {
             CountryTable::Turkey(t) => t.len(),
             CountryTable::TimorLeste(t) => t.len(),
             CountryTable::Czechia(t) => t.len(),
+            CountryTable::Burma(t) => t.len(),
+            CountryTable::Swaziland(t) => t.len(),
+            CountryTable::CapeVerde(t) => t.len(),
+            CountryTable::IvoryCoast(t) => t.len(),
+            CountryTable::Syria(t) => t.len(),
+            CountryTable::Macau(t) => t.len(),
         }
     }
 
@@ -587,6 +645,12 @@ impl LookupTable for CountryTable {
             CountryTable::Turkey(t) => t.iter(),
             CountryTable::TimorLeste(t) => t.iter(),
             CountryTable::Czechia(t) => t.iter(),
+            CountryTable::Burma(t) => t.iter(),
+            CountryTable::Swaziland(t) => t.iter(),
+            CountryTable::CapeVerde(t) => t.iter(),
+            CountryTable::IvoryCoast(t) => t.iter(),
+            CountryTable::Syria(t) => t.iter(),
+            CountryTable::Macau(t) => t.iter(),
         }
     }
 }
@@ -594,63 +658,69 @@ impl LookupTable for CountryTable {
 impl fmt::Display for CountryTable {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            CountryTable::Empty(e) => write!(f, "{}", e),
-            CountryTable::Samoa(t) => write!(f, "{}", t),
-            CountryTable::SaintHelena(t) => write!(f, "{}", t),
-            CountryTable::Venezuela(t) => write!(f, "{}", t),
-            CountryTable::Bosnia(t) => write!(f, "{}", t),
-            CountryTable::Brunei(t) => write!(f, "{}", t),
-            CountryTable::Burkina(t) => write!(f, "{}", t),
-            CountryTable::StMaarten(t) => write!(f, "{}", t),
-            CountryTable::Micronesia(t) => write!(f, "{}", t),
-            CountryTable::StMartin(t) => write!(f, "{}", t),
-            CountryTable::HeardIsland(t) => write!(f, "{}", t),
-            CountryTable::Iran(t) => write!(f, "{}", t),
-            CountryTable::Macedonia(t) => write!(f, "{}", t),
-            CountryTable::StBarthelemy(t) => write!(f, "{}", t),
-            CountryTable::StKitts(t) => write!(f, "{}", t),
-            CountryTable::StLucia(t) => write!(f, "{}", t),
-            CountryTable::StPierre(t) => write!(f, "{}", t),
-            CountryTable::StVincent(t) => write!(f, "{}", t),
-            CountryTable::SaoTome(t) => write!(f, "{}", t),
-            CountryTable::SouthGeorgia(t) => write!(f, "{}", t),
-            CountryTable::Palestine(t) => write!(f, "{}", t),
-            CountryTable::Taiwan(t) => write!(f, "{}", t),
-            CountryTable::Bahamas(t) => write!(f, "{}", t),
-            CountryTable::CaymanIslands(t) => write!(f, "{}", t),
-            CountryTable::CentralAfricanRepublic(t) => write!(f, "{}", t),
-            CountryTable::CocosIslands(t) => write!(f, "{}", t),
-            CountryTable::Comoros(t) => write!(f, "{}", t),
-            CountryTable::Congo(t) => write!(f, "{}", t),
-            CountryTable::CookIslands(t) => write!(f, "{}", t),
-            CountryTable::NorthKorea(t) => write!(f, "{}", t),
-            CountryTable::DemocraticRepublicOfTheCongo(t) => write!(f, "{}", t),
-            CountryTable::DominicanRepublic(t) => write!(f, "{}", t),
-            CountryTable::Malvinas(t) => write!(f, "{}", t),
-            CountryTable::FaroeIslands(t) => write!(f, "{}", t),
-            CountryTable::FrenchSouthernTerritories(t) => write!(f, "{}", t),
-            CountryTable::Gambia(t) => write!(f, "{}", t),
-            CountryTable::HolySee(t) => write!(f, "{}", t),
-            CountryTable::LaoPeoplesDemocraticRepublic(t) => write!(f, "{}", t),
-            CountryTable::MarshallIslands(t) => write!(f, "{}", t),
-            CountryTable::Netherlands(t) => write!(f, "{}", t),
-            CountryTable::Niger(t) => write!(f, "{}", t),
-            CountryTable::NorthernMarianaIslands(t) => write!(f, "{}", t),
-            CountryTable::Philippines(t) => write!(f, "{}", t),
-            CountryTable::SouthKorea(t) => write!(f, "{}", t),
-            CountryTable::Moldova(t) => write!(f, "{}", t),
-            CountryTable::Russia(t) => write!(f, "{}", t),
-            CountryTable::Sudan(t) => write!(f, "{}", t),
-            CountryTable::TurksAndCaicosIslands(t) => write!(f, "{}", t),
-            CountryTable::UnitedArabEmirates(t) => write!(f, "{}", t),
-            CountryTable::England(t) => write!(f, "{}", t),
-            CountryTable::UnitedStatesMinorOutlyingIslands(t) => write!(f, "{}", t),
-            CountryTable::America(t) => write!(f, "{}", t),
-            CountryTable::Trinidad(t) => write!(f, "{}", t),
-            CountryTable::Tanzania(t) => write!(f, "{}", t),
-            CountryTable::Turkey(t) => write!(f, "{}", t),
-            CountryTable::TimorLeste(t) => write!(f, "{}", t),
-            CountryTable::Czechia(t) => write!(f, "{}", t),
+            CountryTable::Empty(e) => write!(f, "{e}"),
+            CountryTable::Samoa(t) => write!(f, "{t}"),
+            CountryTable::SaintHelena(t) => write!(f, "{t}"),
+            CountryTable::Venezuela(t) => write!(f, "{t}"),
+            CountryTable::Bosnia(t) => write!(f, "{t}"),
+            CountryTable::Brunei(t) => write!(f, "{t}"),
+            CountryTable::Burkina(t) => write!(f, "{t}"),
+            CountryTable::StMaarten(t) => write!(f, "{t}"),
+            CountryTable::Micronesia(t) => write!(f, "{t}"),
+            CountryTable::StMartin(t) => write!(f, "{t}"),
+            CountryTable::HeardIsland(t) => write!(f, "{t}"),
+            CountryTable::Iran(t) => write!(f, "{t}"),
+            CountryTable::Macedonia(t) => write!(f, "{t}"),
+            CountryTable::StBarthelemy(t) => write!(f, "{t}"),
+            CountryTable::StKitts(t) => write!(f, "{t}"),
+            CountryTable::StLucia(t) => write!(f, "{t}"),
+            CountryTable::StPierre(t) => write!(f, "{t}"),
+            CountryTable::StVincent(t) => write!(f, "{t}"),
+            CountryTable::SaoTome(t) => write!(f, "{t}"),
+            CountryTable::SouthGeorgia(t) => write!(f, "{t}"),
+            CountryTable::Palestine(t) => write!(f, "{t}"),
+            CountryTable::Taiwan(t) => write!(f, "{t}"),
+            CountryTable::Bahamas(t) => write!(f, "{t}"),
+            CountryTable::CaymanIslands(t) => write!(f, "{t}"),
+            CountryTable::CentralAfricanRepublic(t) => write!(f, "{t}"),
+            CountryTable::CocosIslands(t) => write!(f, "{t}"),
+            CountryTable::Comoros(t) => write!(f, "{t}"),
+            CountryTable::Congo(t) => write!(f, "{t}"),
+            CountryTable::CookIslands(t) => write!(f, "{t}"),
+            CountryTable::NorthKorea(t) => write!(f, "{t}"),
+            CountryTable::DemocraticRepublicOfTheCongo(t) => write!(f, "{t}"),
+            CountryTable::DominicanRepublic(t) => write!(f, "{t}"),
+            CountryTable::Malvinas(t) => write!(f, "{t}"),
+            CountryTable::FaroeIslands(t) => write!(f, "{t}"),
+            CountryTable::FrenchSouthernTerritories(t) => write!(f, "{t}"),
+            CountryTable::Gambia(t) => write!(f, "{t}"),
+            CountryTable::HolySee(t) => write!(f, "{t}"),
+            CountryTable::LaoPeoplesDemocraticRepublic(t) => write!(f, "{t}"),
+            CountryTable::MarshallIslands(t) => write!(f, "{t}"),
+            CountryTable::Netherlands(t) => write!(f, "{t}"),
+            CountryTable::Niger(t) => write!(f, "{t}"),
+            CountryTable::NorthernMarianaIslands(t) => write!(f, "{t}"),
+            CountryTable::Philippines(t) => write!(f, "{t}"),
+            CountryTable::SouthKorea(t) => write!(f, "{t}"),
+            CountryTable::Moldova(t) => write!(f, "{t}"),
+            CountryTable::Russia(t) => write!(f, "{t}"),
+            CountryTable::Sudan(t) => write!(f, "{t}"),
+            CountryTable::TurksAndCaicosIslands(t) => write!(f, "{t}"),
+            CountryTable::UnitedArabEmirates(t) => write!(f, "{t}"),
+            CountryTable::England(t) => write!(f, "{t}"),
+            CountryTable::UnitedStatesMinorOutlyingIslands(t) => write!(f, "{t}"),
+            CountryTable::America(t) => write!(f, "{t}"),
+            CountryTable::Trinidad(t) => write!(f, "{t}"),
+            CountryTable::Tanzania(t) => write!(f, "{t}"),
+            CountryTable::Turkey(t) => write!(f, "{t}"),
+            CountryTable::TimorLeste(t) => write!(f, "{t}"),
+            CountryTable::Czechia(t) => write!(f, "{t}"),
+            CountryTable::Burma(t) => write!(f, "{t}"),
+            CountryTable::Swaziland(t) => write!(f, "{t}"),
+            CountryTable::CapeVerde(t) => write!(f, "{t}"),
+            CountryTable::IvoryCoast(t) => write!(f, "{t}"),
+            CountryTable::Syria(t) => write!(f, "{t}"),
+            CountryTable::Macau(t) => write!(f, "{t}"),
         }
     }
 }
