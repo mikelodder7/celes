@@ -2182,10 +2182,7 @@ impl Country {
             "894" => Country::zambia(),
             "716" => Country::zimbabwe(),
         };
-        CODES
-            .get(code.as_ref())
-            .copied()
-            .ok_or("invalid code")
+        CODES.get(code.as_ref()).copied().ok_or("invalid code")
     }
 
     /// Given the alpha2 letters, return a country or an error if
