@@ -45,6 +45,7 @@ Additionally, each country can be created from a string or its numeric code.
 `Country` provides multiple from methods to instantiate it from a string:
 
 - `from_code` - create `Country` from three digit code
+- `from_value` - create `Country` from the numeric code as an integer
 - `from_alpha2` - create `Country` from two letter code
 - `from_alpha3` - create `Country` from three letter code
 - `from_alias` - create `Country` from a common alias. This only works for some countries as not all countries have aliases
@@ -55,6 +56,7 @@ such as:
 
 - The country aliases like UnitedKingdom, GreatBritain, Russia, America
 - The full country name
+- The numeric code (e.g. "840")
 - The alpha2 code
 - The alpha3 code
 

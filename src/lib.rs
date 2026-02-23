@@ -40,6 +40,7 @@
 //! `Country` provides multiple from methods to instantiate it from a string:
 //!
 //! - `from_code` - create `Country` from three digit code
+//! - `from_value` - create `Country` from the numeric code as an integer
 //! - `from_alpha2` - create `Country` from two letter code
 //! - `from_alpha3` - create `Country` from three letter code
 //! - `from_alias` - create `Country` from a common alias stripped of any spaces or
@@ -51,6 +52,7 @@
 //!
 //! - The country aliases like UnitedKingdom, GreatBritain, Russia, America
 //! - The full country name
+//! - The numeric code (e.g. "840")
 //! - The alpha2 code
 //! - The alpha3 code
 //!
@@ -81,7 +83,7 @@ mod tables;
 
 use core::{
     cmp::Ordering,
-    fmt::{Debug, Display, Formatter, Result as FmtResult},
+    fmt::{Debug, Display, Formatter, Result as FmtResult, Write},
     hash::{Hash, Hasher},
     str::FromStr,
 };
@@ -91,6 +93,24 @@ use serde::{
     de::{Error as DError, Visitor},
 };
 pub use tables::*;
+
+/// Perform a PHF map lookup with ASCII-lowercased input, avoiding heap allocation.
+/// Falls back to `str::to_lowercase` for non-ASCII input (e.g. "Türkiye").
+fn lookup_ascii_lowercase<'a, V>(map: &'a Map<&'static str, V>, key: &str) -> Option<&'a V> {
+    // Stack buffer large enough for the longest key in any map
+    // ("theunitedkingdomofgreatbritainandnorthernireland" = 48 chars)
+    let mut buf = [0u8; 64];
+    if key.len() <= buf.len() && key.is_ascii() {
+        let buf = &mut buf[..key.len()];
+        buf.copy_from_slice(key.as_bytes());
+        buf.make_ascii_lowercase();
+        // SAFETY: input was ASCII, ASCII lowercase is still valid UTF-8
+        let lowered = unsafe { core::str::from_utf8_unchecked(buf) };
+        map.get(lowered)
+    } else {
+        map.get(key.to_lowercase().as_str())
+    }
+}
 
 /// Creates the country function. Meant to be called inside `Country`
 macro_rules! country {
@@ -159,7 +179,12 @@ impl Debug for Country {
 
 impl Display for Country {
     fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
-        write!(f, "{}", self.long_name.replace(' ', ""))
+        for c in self.long_name.chars() {
+            if c != ' ' {
+                f.write_char(c)?;
+            }
+        }
+        Ok(())
     }
 }
 
@@ -179,19 +204,7 @@ impl Eq for Country {}
 
 impl PartialEq for Country {
     fn eq(&self, other: &Self) -> bool {
-        let one = self.code == other.code;
-        let two = self.value == other.value;
-        let thr = self.alpha2.eq(self.alpha2);
-        let fur = self.alpha3.eq(self.alpha3);
-        let fve = self.long_name.eq(self.long_name);
-        let six = self.aliases.len() == other.aliases.len();
-        let svn = self
-            .aliases
-            .iter()
-            .zip(other.aliases.iter())
-            .all(|(l, r)| *l == *r);
-
-        one & two & thr & fur & fve & six & svn
+        self.value == other.value
     }
 }
 
@@ -232,7 +245,7 @@ impl<'de> Deserialize<'de> for Country {
 
 impl Hash for Country {
     fn hash<H: Hasher>(&self, state: &mut H) {
-        self.long_name.hash(state);
+        self.value.hash(state);
     }
 }
 
@@ -2170,7 +2183,7 @@ impl Country {
             "716" => Country::zimbabwe(),
         };
         CODES
-            .get(code.as_ref().to_lowercase().as_str())
+            .get(code.as_ref())
             .copied()
             .ok_or("invalid code")
     }
@@ -2450,8 +2463,7 @@ impl Country {
             "zm" => Country::zambia(),
             "zw" => Country::zimbabwe(),
         };
-        ALPHA2
-            .get(alpha2.as_ref().to_lowercase().as_str())
+        lookup_ascii_lowercase(&ALPHA2, alpha2.as_ref())
             .copied()
             .ok_or("invalid alpha2")
     }
@@ -2729,13 +2741,12 @@ impl Country {
             "zmb" => Country::zambia(),
             "zwe" => Country::zimbabwe(),
         };
-        ALPHA3
-            .get(alpha3.as_ref().to_lowercase().as_str())
+        lookup_ascii_lowercase(&ALPHA3, alpha3.as_ref())
             .copied()
             .ok_or("invalid alpha3")
     }
 
-    /// Given the a country alias, return a country or an error if
+    /// Given a country alias, return a country or an error if
     /// the parameter doesn't match any country
     ///
     /// The alias is any value in the `aliases` field for a country.
@@ -2844,8 +2855,7 @@ impl Country {
             "türkiye" => Country::turkey(),
             "turkey" => Country::turkey(),
         };
-        ALIASES
-            .get(alias.as_ref().to_lowercase().as_str())
+        lookup_ascii_lowercase(&ALIASES, alias.as_ref())
             .copied()
             .ok_or("invalid alias")
     }
@@ -3132,8 +3142,7 @@ impl Country {
             "zambia" => Country::zambia(),
             "zimbabwe" => Country::zimbabwe(),
         };
-        NAMES
-            .get(name.as_ref().to_lowercase().as_str())
+        lookup_ascii_lowercase(&NAMES, name.as_ref())
             .copied()
             .ok_or("unknown value")
     }
@@ -4310,8 +4319,7 @@ impl FromStr for Country {
             "zw" => Country::zimbabwe(),
             "zwe" => Country::zimbabwe(),
         };
-        CODES
-            .get(code.to_lowercase().as_str())
+        lookup_ascii_lowercase(&CODES, code)
             .copied()
             .ok_or("unknown value")
     }

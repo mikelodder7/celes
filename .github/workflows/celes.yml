@@ -2,25 +2,23 @@ name: celes
 
 on:
   pull_request:
-    paths-ignore: 
+    paths-ignore:
       - README.md
       - LICENSE-APACHE
       - LICENSE-MIT
-      - rustfmt.toml
   push:
     branches: main
     paths-ignore:
       - README.md
       - LICENSE-APACHE
       - LICENSE-MIT
-      - rustfmt.toml
 
 env:
   CARGO_INCREMENTAL: 0
   CARGO_TERM_COLOR: always
   RUST_LOG_STYLE: always
-  RUSTFLAGS: "-Dwarnings"
-  RUSTDOCFLAGS: "-Dwarnings"
+  RUSTFLAGS: -D warnings
+  RUSTDOCFLAGS: -D warnings
 
 defaults:
   run:
@@ -34,8 +32,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: stable
-      - run: cargo build
-
+      - run: cargo build --all-features
 
   test:
     runs-on: ubuntu-latest
@@ -44,15 +41,18 @@ jobs:
       - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: stable
-      - run: cargo test --release
+      - run: cargo test --all-features --release
 
   careful:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@nightly
-      - run: cargo install cargo-careful
-      - run: cargo careful test
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: nightly
+      - uses: cargo-bins/cargo-binstall@main
+      - run: cargo binstall --no-confirm cargo-careful
+      - run: cargo careful test tests --all-features --release
 
   clippy:
     runs-on: ubuntu-latest
@@ -62,9 +62,9 @@ jobs:
         with:
           toolchain: stable
           components: clippy
-      - run: cargo clippy --all --all-features -- -D warnings
+      - run: cargo clippy --all-features -- -D warnings
 
-  rustfmt:
+  fmt:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -74,7 +74,7 @@ jobs:
           components: rustfmt
       - run: cargo fmt -- --check
 
-  doc:
+  docs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -87,21 +87,31 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@nightly
-      - run: cargo install cargo-udeps
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: nightly
+      - uses: cargo-bins/cargo-binstall@main
+      - run: cargo binstall --no-confirm cargo-udeps
       - run: cargo udeps --all-targets --all-features
 
   outdated:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@nightly
-      - run: cargo install cargo-outdated
-      - run: cargo outdated --root-deps-only --exit-code 1
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: nightly
+      - uses: cargo-bins/cargo-binstall@main
+      - run: cargo binstall --no-confirm cargo-outdated
+      - run: cargo outdated --root-deps-only --exit-code=1
+
   pants:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@nightly
-      - run: cargo install cargo-pants
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: nightly
+      - uses: cargo-bins/cargo-binstall@main
+      - run: cargo binstall --no-confirm cargo-pants
       - run: cargo pants --loud --dev

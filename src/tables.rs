@@ -30,9 +30,16 @@ macro_rules! lookup {
 
         impl LookupTable for $name {
             fn contains(&self, alias: &str) -> bool {
-                match alias.to_lowercase().as_str() {
-                    $($loweralias => true,)*
-                    _ => false
+                let mut buf = [0u8; 64];
+                if alias.len() <= buf.len() && alias.is_ascii() {
+                    let buf = &mut buf[..alias.len()];
+                    buf.copy_from_slice(alias.as_bytes());
+                    buf.make_ascii_lowercase();
+                    // SAFETY: input was ASCII, ASCII lowercase is still valid UTF-8
+                    let lowered = unsafe { core::str::from_utf8_unchecked(buf) };
+                    matches!(lowered, $($loweralias)|*)
+                } else {
+                    matches!(alias.to_lowercase().as_str(), $($loweralias)|*)
                 }
             }
 
