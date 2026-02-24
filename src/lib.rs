@@ -412,7 +412,8 @@ impl Country {
         "CV",
         "CPV",
         "Cabo Verde",
-        CapeVerdeTable,
+        CaboVerdeTable,
+        "CaboVerde",
         "CapeVerde"
     );
 
@@ -448,9 +449,9 @@ impl Country {
         "CI",
         "CIV",
         "Coted Ivoire",
-        IvoryCoastTable,
-        "IvoryCoast",
-        "CoteDIvoire"
+        CoteDIvoireTable,
+        "CoteDIvoire",
+        "IvoryCoast"
     );
 
     country!(croatia, "191", 191, "HR", "HRV", "Croatia");
@@ -516,7 +517,8 @@ impl Country {
         "SZ",
         "SWZ",
         "Eswatini",
-        SwazilandTable,
+        EswatiniTable,
+        "Eswatini",
         "Swaziland"
     );
 
@@ -712,7 +714,15 @@ impl Country {
     country!(mozambique, "508", 508, "MZ", "MOZ", "Mozambique");
 
     country!(
-        myanmar, "104", 104, "MM", "MMR", "Myanmar", BurmaTable, "Burma"
+        myanmar,
+        "104",
+        104,
+        "MM",
+        "MMR",
+        "Myanmar",
+        MyanmarTable,
+        "Myanmar",
+        "Burma"
     );
 
     country!(namibia, "516", 516, "NA", "NAM", "Namibia");
@@ -773,7 +783,8 @@ impl Country {
         "MK",
         "MKD",
         "Republic Of North Macedonia",
-        MacedoniaTable,
+        NorthMacedoniaTable,
+        "NorthMacedonia",
         "Macedonia"
     );
 
@@ -1336,7 +1347,8 @@ impl Country {
         "TR",
         "TUR",
         "Türkiye",
-        TurkeyTable,
+        TurkiyeTable,
+        "Turkiye",
         "Turkey"
     );
 
@@ -2830,6 +2842,7 @@ impl Country {
     /// let res = Country::from_alias("england");
     /// assert_eq!(Country::the_united_kingdom_of_great_britain_and_northern_ireland(), res.unwrap());
     /// ```
+    #[allow(clippy::too_many_lines)]
     pub fn from_alias<A: AsRef<str>>(alias: A) -> Result<Self, &'static str> {
         static ALIASES: Map<&'static str, Country> = phf_map! {
             "samoa" => Country::american_samoa(),
@@ -2912,12 +2925,17 @@ impl Country {
             "tobago" => Country::trinidad_and_tobago(),
             "tanzania" => Country::united_republic_of_tanzania(),
             "türkiye" => Country::turkey(),
+            "turkiye" => Country::turkey(),
             "turkey" => Country::turkey(),
+            "myanmar" => Country::myanmar(),
             "burma" => Country::myanmar(),
+            "eswatini" => Country::eswatini(),
             "swaziland" => Country::eswatini(),
+            "caboverde" => Country::cabo_verde(),
             "capeverde" => Country::cabo_verde(),
             "ivorycoast" => Country::coted_ivoire(),
             "cotedivoire" => Country::coted_ivoire(),
+            "northmacedonia" => Country::republic_of_north_macedonia(),
             "syria" => Country::syrian_arab_republic(),
             "laos" => Country::the_lao_peoples_democratic_republic(),
             "macau" => Country::macao(),

@@ -293,6 +293,12 @@ lookup!(CapeVerdeTable, CapeVerde, "Cabo Verde", 1, "CapeVerde" => "capeverde");
 lookup!(IvoryCoastTable, IvoryCoast, "Coted Ivoire", 2, "IvoryCoast" => "ivorycoast", "CoteDIvoire" => "cotedivoire");
 lookup!(SyriaTable, Syria, "Syrian Arab Republic", 1, "Syria" => "syria");
 lookup!(MacauTable, Macau, "Macao", 1, "Macau" => "macau");
+lookup!(MyanmarTable, Myanmar, "Myanmar", 2, "Myanmar" => "myanmar", "Burma" => "burma");
+lookup!(EswatiniTable, Eswatini, "Eswatini", 2, "Eswatini" => "eswatini", "Swaziland" => "swaziland");
+lookup!(CaboVerdeTable, CaboVerde, "Cabo Verde", 2, "CaboVerde" => "caboverde", "CapeVerde" => "capeverde");
+lookup!(CoteDIvoireTable, CoteDIvoire, "Coted Ivoire", 2, "CoteDIvoire" => "cotedivoire", "IvoryCoast" => "ivorycoast");
+lookup!(NorthMacedoniaTable, NorthMacedonia, "Republic Of North Macedonia", 2, "NorthMacedonia" => "northmacedonia", "Macedonia" => "macedonia");
+lookup!(TurkiyeTable, Turkiye, "Türkiye", 2, "Turkiye" => "turkiye", "Turkey" => "turkey");
 
 /// Wrapper struct for alias tables to avoid using Box
 #[derive(Copy, Clone, Debug, Serialize, Deserialize, Eq, PartialEq, Ord, PartialOrd)]
@@ -447,6 +453,18 @@ pub enum CountryTable {
     Syria(SyriaTable),
     /// Aliases for Macau
     Macau(MacauTable),
+    /// Aliases for Myanmar
+    Myanmar(MyanmarTable),
+    /// Aliases for Eswatini
+    Eswatini(EswatiniTable),
+    /// Aliases for `CaboVerde`
+    CaboVerde(CaboVerdeTable),
+    /// Aliases for `CoteDIvoire`
+    CoteDIvoire(CoteDIvoireTable),
+    /// Aliases for `NorthMacedonia`
+    NorthMacedonia(NorthMacedoniaTable),
+    /// Aliases for Turkiye
+    Turkiye(TurkiyeTable),
 }
 
 impl LookupTable for CountryTable {
@@ -515,6 +533,12 @@ impl LookupTable for CountryTable {
             CountryTable::IvoryCoast(t) => t.contains(alias),
             CountryTable::Syria(t) => t.contains(alias),
             CountryTable::Macau(t) => t.contains(alias),
+            CountryTable::Myanmar(t) => t.contains(alias),
+            CountryTable::Eswatini(t) => t.contains(alias),
+            CountryTable::CaboVerde(t) => t.contains(alias),
+            CountryTable::CoteDIvoire(t) => t.contains(alias),
+            CountryTable::NorthMacedonia(t) => t.contains(alias),
+            CountryTable::Turkiye(t) => t.contains(alias),
         }
     }
 
@@ -583,6 +607,12 @@ impl LookupTable for CountryTable {
             CountryTable::IvoryCoast(t) => t.len(),
             CountryTable::Syria(t) => t.len(),
             CountryTable::Macau(t) => t.len(),
+            CountryTable::Myanmar(t) => t.len(),
+            CountryTable::Eswatini(t) => t.len(),
+            CountryTable::CaboVerde(t) => t.len(),
+            CountryTable::CoteDIvoire(t) => t.len(),
+            CountryTable::NorthMacedonia(t) => t.len(),
+            CountryTable::Turkiye(t) => t.len(),
         }
     }
 
@@ -651,6 +681,12 @@ impl LookupTable for CountryTable {
             CountryTable::IvoryCoast(t) => t.iter(),
             CountryTable::Syria(t) => t.iter(),
             CountryTable::Macau(t) => t.iter(),
+            CountryTable::Myanmar(t) => t.iter(),
+            CountryTable::Eswatini(t) => t.iter(),
+            CountryTable::CaboVerde(t) => t.iter(),
+            CountryTable::CoteDIvoire(t) => t.iter(),
+            CountryTable::NorthMacedonia(t) => t.iter(),
+            CountryTable::Turkiye(t) => t.iter(),
         }
     }
 }
@@ -721,6 +757,12 @@ impl fmt::Display for CountryTable {
             CountryTable::IvoryCoast(t) => write!(f, "{t}"),
             CountryTable::Syria(t) => write!(f, "{t}"),
             CountryTable::Macau(t) => write!(f, "{t}"),
+            CountryTable::Myanmar(t) => write!(f, "{t}"),
+            CountryTable::Eswatini(t) => write!(f, "{t}"),
+            CountryTable::CaboVerde(t) => write!(f, "{t}"),
+            CountryTable::CoteDIvoire(t) => write!(f, "{t}"),
+            CountryTable::NorthMacedonia(t) => write!(f, "{t}"),
+            CountryTable::Turkiye(t) => write!(f, "{t}"),
         }
     }
 }
