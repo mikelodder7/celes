@@ -418,7 +418,7 @@ pub enum CountryTable {
     /// Aliases for Turkey
     #[deprecated(
         since = "2.8.0",
-        note = "Turkey was renamed to Türkiye in 2022. Use Country::turkey() instead."
+        note = "Turkey was renamed to Türkiye in 2022. Use Country::turkiye() instead."
     )]
     Turkey(TurkeyTable),
     /// Aliases for `TimorLeste`

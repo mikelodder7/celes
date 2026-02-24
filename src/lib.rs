@@ -1341,7 +1341,7 @@ impl Country {
     country!(tunisia, "788", 788, "TN", "TUN", "Tunisia");
 
     country!(
-        turkey,
+        turkiye,
         "792",
         792,
         "TR",
@@ -1404,6 +1404,17 @@ impl Country {
     country!(zambia, "894", 894, "ZM", "ZMB", "Zambia");
 
     country!(zimbabwe, "716", 716, "ZW", "ZWE", "Zimbabwe");
+
+    /// Creates a struct for Türkiye
+    #[deprecated(
+        since = "2.8.0",
+        note = "Turkey was renamed to Türkiye in 2022. Use Country::turkiye() instead."
+    )]
+    #[inline]
+    #[must_use]
+    pub const fn turkey() -> Self {
+        Self::turkiye()
+    }
 
     /// Returns a vector in alphabetic order of all the countries
     ///
@@ -1668,7 +1679,7 @@ impl Country {
             Self::tonga(),
             Self::trinidad_and_tobago(),
             Self::tunisia(),
-            Self::turkey(),
+            Self::turkiye(),
             Self::turkmenistan(),
             Self::tuvalu(),
             Self::us_virgin_islands(),
@@ -1945,7 +1956,7 @@ impl Country {
             776usize => Country::tonga(),
             780usize => Country::trinidad_and_tobago(),
             788usize => Country::tunisia(),
-            792usize => Country::turkey(),
+            792usize => Country::turkiye(),
             795usize => Country::turkmenistan(),
             798usize => Country::tuvalu(),
             850usize => Country::us_virgin_islands(),
@@ -2224,7 +2235,7 @@ impl Country {
             "776" => Country::tonga(),
             "780" => Country::trinidad_and_tobago(),
             "788" => Country::tunisia(),
-            "792" => Country::turkey(),
+            "792" => Country::turkiye(),
             "795" => Country::turkmenistan(),
             "798" => Country::tuvalu(),
             "850" => Country::us_virgin_islands(),
@@ -2507,7 +2518,7 @@ impl Country {
             "to" => Country::tonga(),
             "tt" => Country::trinidad_and_tobago(),
             "tn" => Country::tunisia(),
-            "tr" => Country::turkey(),
+            "tr" => Country::turkiye(),
             "tm" => Country::turkmenistan(),
             "tv" => Country::tuvalu(),
             "vi" => Country::us_virgin_islands(),
@@ -2791,7 +2802,7 @@ impl Country {
             "ton" => Country::tonga(),
             "tto" => Country::trinidad_and_tobago(),
             "tun" => Country::tunisia(),
-            "tur" => Country::turkey(),
+            "tur" => Country::turkiye(),
             "tkm" => Country::turkmenistan(),
             "tuv" => Country::tuvalu(),
             "vir" => Country::us_virgin_islands(),
@@ -2924,9 +2935,9 @@ impl Country {
             "trinidad" => Country::trinidad_and_tobago(),
             "tobago" => Country::trinidad_and_tobago(),
             "tanzania" => Country::united_republic_of_tanzania(),
-            "türkiye" => Country::turkey(),
-            "turkiye" => Country::turkey(),
-            "turkey" => Country::turkey(),
+            "türkiye" => Country::turkiye(),
+            "turkiye" => Country::turkiye(),
+            "turkey" => Country::turkiye(),
             "myanmar" => Country::myanmar(),
             "burma" => Country::myanmar(),
             "eswatini" => Country::eswatini(),
@@ -3216,8 +3227,8 @@ impl Country {
             "tonga" => Country::tonga(),
             "trinidadandtobago" => Country::trinidad_and_tobago(),
             "tunisia" => Country::tunisia(),
-            "turkey" => Country::turkey(),
-            "türkiye" => Country::turkey(),
+            "turkey" => Country::turkiye(),
+            "türkiye" => Country::turkiye(),
             "turkmenistan" => Country::turkmenistan(),
             "tuvalu" => Country::tuvalu(),
             "usvirginislands" => Country::us_virgin_islands(),
@@ -4353,11 +4364,11 @@ impl FromStr for Country {
             "788" => Country::tunisia(),
             "tn" => Country::tunisia(),
             "tun" => Country::tunisia(),
-            "turkey" => Country::turkey(),
-            "türkiye" => Country::turkey(),
-            "792" => Country::turkey(),
-            "tr" => Country::turkey(),
-            "tur" => Country::turkey(),
+            "turkey" => Country::turkiye(),
+            "türkiye" => Country::turkiye(),
+            "792" => Country::turkiye(),
+            "tr" => Country::turkiye(),
+            "tur" => Country::turkiye(),
             "turkmenistan" => Country::turkmenistan(),
             "795" => Country::turkmenistan(),
             "tm" => Country::turkmenistan(),
