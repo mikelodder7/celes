@@ -4,6 +4,7 @@
 [![Docs][docs-image]][docs-link]
 ![Apache2/MIT licensed][license-image]
 [![Downloads][downloads-image]][crate-link]
+[![Coverage][coverage-image]][coverage-link]
 ![Maintenance Status: Passively-Maintained][maintenance-image]
 ![build](https://github.com/mikelodder7/celes/actions/workflows/celes.yml/badge.svg)
 ![MSRV][msrv-image]
@@ -19,7 +20,7 @@ The main struct is `Country` which provides the following properties
 - `alpha2` - The alpha2 letter set for the country
 - `alpha3` - The alpha3 letter set for the country
 - `long_name` - The official state name for the country
-- `aliases` - Other names by which the country is known. For example,
+- `aliases` - A static slice of other names by which the country is known. For example,
 
 The Russian Federation is also called Russia or The United Kingdom of Great Britain
 and Northern Ireland is also called England, Great Britain,
@@ -62,6 +63,82 @@ such as:
 
 If you are uncertain which function to use, just use `Country::from_str` as it accepts
 any of the valid string values. `Country::from_str` is case-insensitive
+
+All lookup methods return `Result<Country, CountryParseError>`. To check whether a
+specific country has an alias without performing a global lookup, use
+`country.has_alias("alias")`.
+
+## Version 3 Alias Representation
+
+Version 3 replaces the alias-table type hierarchy from version 2 with static
+slices. A country now stores its aliases directly:
+
+```rust
+pub aliases: &'static [&'static str]
+```
+
+Version 2 used a large `CountryTable` enum plus a separate wrapper type for each
+country with aliases, such as `AmericaTable` and `EnglandTable`. Those types also
+required repeated implementations for iteration, comparison, formatting,
+hashing, and serialization. They have been removed in version 3.
+
+| Version 2 | Version 3 |
+| --- | --- |
+| `CountryTable` enum | `&'static [&'static str]` |
+| Country-specific table structs | Static alias slices |
+| `LookupTable::contains` | `Country::has_alias` |
+| String errors | `CountryParseError` |
+
+This change does not remove the perfect-hash lookup maps. The maps used by
+`from_value`, `from_code`, `from_alpha2`, `from_alpha3`, `from_alias`,
+`from_name`, and `FromStr` remain compile-time static maps. Global country
+lookups therefore retain their constant-time behavior.
+
+The new representation:
+
+- Requires no heap allocation.
+- Keeps `Country` as a `Copy` type.
+- Reduces `Country` from 192 bytes to 88 bytes on 64-bit targets.
+- Removes the dispatch and storage overhead of the old enum.
+- Lets aliases be accessed using normal slice operations.
+
+### Migrating from Version 2
+
+Iterating over aliases remains straightforward:
+
+```rust
+let country = celes::Country::the_united_states_of_america();
+
+for alias in country.aliases {
+    println!("{alias}");
+}
+```
+
+Replace table-specific or `LookupTable` alias checks with `has_alias`:
+
+```rust
+let country = celes::Country::the_united_states_of_america();
+
+assert!(country.has_alias("america"));
+assert!(country.has_alias("AMERICA"));
+```
+
+`has_alias` performs ASCII case-insensitive matching within one country. Use
+`Country::from_alias` when the country itself is not already known:
+
+```rust
+use celes::{Country, CountryParseError};
+
+fn main() -> Result<(), CountryParseError> {
+    let country = Country::from_alias("America")?;
+    assert_eq!(country, Country::the_united_states_of_america());
+    Ok(())
+}
+```
+
+Code importing `CountryTable`, `LookupTable`, `EmptyLookupTable`, or an
+individual country table must remove those imports and use the static
+`aliases` slice or `Country::has_alias`.
 
 ## From String Example
 
@@ -110,3 +187,5 @@ licensed as above, without any additional terms or conditions.
 [msrv-image]: https://img.shields.io/badge/rustc-1.85+-blue.svg
 [maintenance-image]: https://img.shields.io/badge/maintenance-passively--maintained-yellowgreen.svg
 [downloads-image]: https://img.shields.io/crates/d/celes.svg
+[coverage-image]: https://codecov.io/gh/mikelodder7/celes/graph/badge.svg
+[coverage-link]: https://codecov.io/gh/mikelodder7/celes
