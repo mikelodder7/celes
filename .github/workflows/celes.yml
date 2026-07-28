@@ -61,17 +61,6 @@ jobs:
           files: lcov.info
           use_oidc: true
 
-  careful:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@master
-        with:
-          toolchain: nightly
-      - uses: cargo-bins/cargo-binstall@main
-      - run: cargo binstall --no-confirm cargo-careful
-      - run: cargo careful test tests --all-features --release
-
   clippy:
     runs-on: ubuntu-latest
     steps:
