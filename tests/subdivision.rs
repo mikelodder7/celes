@@ -1,0 +1,153 @@
+//! Subdivision tests.
+#![cfg(feature = "subdivisions")]
+
+use celes::{Country, SUBDIVISION_DATA_VERSION, Subdivision, SubdivisionParseError};
+use serde::{Deserialize, Serialize};
+use std::{
+    collections::hash_map::DefaultHasher,
+    error::Error,
+    fmt::{self, Write},
+    hash::{Hash, Hasher},
+    mem::size_of,
+    str::FromStr,
+};
+
+#[derive(Debug, Deserialize, Eq, PartialEq, Serialize)]
+struct SubdivisionDocument {
+    subdivision: Subdivision,
+}
+
+#[test]
+fn complete_data_supports_global_and_country_lookups() {
+    let subdivisions = Subdivision::subdivisions();
+
+    assert_eq!(SUBDIVISION_DATA_VERSION, "48.2");
+    assert_eq!(subdivisions.len(), 5_027);
+    assert_eq!(subdivisions.first().map(|value| value.code), Some("AD-02"));
+    assert_eq!(subdivisions.last().map(|value| value.code), Some("ZW-MW"));
+
+    let mut country_total = 0;
+    for country in Country::countries() {
+        let country_subdivisions = country.subdivisions();
+        country_total += country_subdivisions.len();
+
+        assert!(country_subdivisions.iter().all(|subdivision| {
+            subdivision
+                .code
+                .strip_prefix(country.alpha2)
+                .is_some_and(|suffix| suffix.starts_with('-'))
+        }));
+    }
+    assert_eq!(country_total, subdivisions.len());
+
+    let united_states = Country::the_united_states_of_america().subdivisions();
+    assert!(united_states.iter().any(|value| value.code == "US-CA"));
+    assert!(Country::antarctica().subdivisions().is_empty());
+}
+
+#[test]
+fn codes_parse_case_insensitively() {
+    let california = Subdivision {
+        code: "US-CA",
+        name: "California",
+    };
+
+    assert_eq!(Subdivision::from_code("US-CA"), Ok(california));
+    assert_eq!(Subdivision::from_code("us-ca"), Ok(california));
+    assert_eq!(Subdivision::from_code("uS-cA"), Ok(california));
+    assert_eq!(Subdivision::from_str("US-CA"), Ok(california));
+    assert_eq!(
+        Subdivision::from_code("US-ZZ"),
+        Err(SubdivisionParseError::InvalidCode)
+    );
+    assert_eq!(
+        Subdivision::from_code("TOO-LONG"),
+        Err(SubdivisionParseError::InvalidCode)
+    );
+    assert_eq!(
+        Subdivision::from_code("é"),
+        Err(SubdivisionParseError::InvalidCode)
+    );
+
+    for subdivision in Subdivision::subdivisions() {
+        assert_eq!(
+            Subdivision::from_code(subdivision.code),
+            Ok(*subdivision),
+            "{}",
+            subdivision.code
+        );
+    }
+}
+
+#[test]
+fn traits_use_the_canonical_code() {
+    struct FailingWriter;
+
+    impl Write for FailingWriter {
+        fn write_str(&mut self, _: &str) -> fmt::Result {
+            Err(fmt::Error)
+        }
+    }
+
+    let andorra = Subdivision::from_code("AD-02");
+    let california = Subdivision::from_code("US-CA");
+
+    assert!(andorra.is_ok());
+    assert!(california.is_ok());
+
+    if let (Ok(andorra), Ok(california)) = (andorra, california) {
+        assert!(andorra < california);
+        assert_eq!(
+            andorra,
+            Subdivision {
+                code: "AD-02",
+                name: "A different display name",
+            }
+        );
+        assert_eq!(andorra.to_string(), "AD-02");
+        assert_eq!(
+            format!("{andorra:?}"),
+            "Subdivision { code: \"AD-02\", name: \"Canillo\" }"
+        );
+        assert_eq!(size_of::<Subdivision>(), 4 * size_of::<usize>());
+
+        let mut hasher = DefaultHasher::new();
+        andorra.hash(&mut hasher);
+        assert_ne!(hasher.finish(), 0);
+
+        assert!(write!(FailingWriter, "{andorra}").is_err());
+    }
+}
+
+#[test]
+fn serialization_formats_round_trip() -> Result<(), Box<dyn Error>> {
+    let expected = SubdivisionDocument {
+        subdivision: Subdivision::from_code("US-CA")?,
+    };
+
+    let json = serde_json::to_string(&expected)?;
+    assert_eq!(json, r#"{"subdivision":"US-CA"}"#);
+    let json_value = serde_json::from_str(&json)?;
+    assert_eq!(expected, json_value);
+
+    let postcard = postcard::to_allocvec(&expected)?;
+    let postcard_value = postcard::from_bytes(&postcard)?;
+    assert_eq!(expected, postcard_value);
+
+    let cbor = serde_cbor_2::to_vec(&expected)?;
+    let cbor_value = serde_cbor_2::from_slice(&cbor)?;
+    assert_eq!(expected, cbor_value);
+
+    let toml = toml::to_string(&expected)?;
+    let toml_value = toml::from_str(&toml)?;
+    assert_eq!(expected, toml_value);
+
+    let yaml = yaml_serde::to_string(&expected)?;
+    let yaml_value = yaml_serde::from_str(&yaml)?;
+    assert_eq!(expected, yaml_value);
+
+    assert!(serde_json::from_str::<Subdivision>("42").is_err());
+    assert!(serde_json::from_str::<Subdivision>("\"US-ZZ\"").is_err());
+
+    Ok(())
+}

@@ -9,9 +9,21 @@
 ![build](https://github.com/mikelodder7/celes/actions/workflows/celes.yml/badge.svg)
 ![MSRV][msrv-image]
 
-Convenience crate for handling ISO 3166-1. Also compatible with `no-std` environments.
+Convenience crate for handling ISO 3166-1 and, optionally, ISO 3166-2 country
+subdivisions. Also compatible with `no-std` environments.
 
 If there are any countries missing then please let me know or submit a PR
+
+The minimum supported Rust version (MSRV) is 1.97.
+
+## Features
+
+| Feature | Default | Description |
+| --- | --- | --- |
+| `subdivisions` | No | Adds current ISO 3166-2 codes and English subdivision names from Unicode CLDR. |
+
+Subdivision data is opt-in because the complete table is substantially larger
+than the ISO 3166-1 country table. Default builds do not compile or include it.
 
 The main struct is `Country` which provides the following properties
 
@@ -67,6 +79,61 @@ any of the valid string values. `Country::from_str` is case-insensitive
 All lookup methods return `Result<Country, CountryParseError>`. To check whether a
 specific country has an alias without performing a global lookup, use
 `country.has_alias("alias")`.
+
+## ISO 3166-2 Subdivisions
+
+Enable subdivision support in `Cargo.toml`:
+
+```toml
+[dependencies]
+celes = { version = "3", features = ["subdivisions"] }
+```
+
+The feature provides `Subdivision`, `SubdivisionParseError`,
+`Subdivision::subdivisions()`, and `Country::subdivisions()`:
+
+```rust
+use celes::{Country, Subdivision};
+use core::str::FromStr;
+
+fn main() {
+    let california = Subdivision::from_str("US-CA").unwrap();
+    assert_eq!(california.name, "California");
+
+    // Codes are parsed using ASCII case-insensitive matching.
+    assert_eq!(Subdivision::from_code("us-ca").unwrap(), california);
+
+    let united_states = Country::the_united_states_of_america();
+    assert!(united_states.subdivisions().contains(&california));
+}
+```
+
+`Subdivision` serializes as its canonical uppercase code and deserializes from
+that code. Subdivision names are not used for parsing because many names are
+not globally unique.
+
+The bundled table contains 5,027 current subdivision codes from Unicode CLDR
+48.2. Deprecated CLDR codes are excluded, entries are sorted by code, and
+lookups use allocation-free binary search. The data remains compatible with
+`no_std`.
+
+### Updating the Subdivision Data
+
+Download `common/validity/subdivision.xml` and `common/subdivisions/en.xml`
+from the desired stable CLDR release, then regenerate the committed Rust table:
+
+```sh
+rustc tools/generate_subdivisions.rs -o /tmp/celes-generate-subdivisions
+/tmp/celes-generate-subdivisions \
+  /path/to/common/validity/subdivision.xml \
+  /path/to/common/subdivisions/en.xml \
+  src/subdivision_data.rs
+cargo fmt --all
+```
+
+Update the generator's `CLDR_VERSION` and this README when changing CLDR
+releases. The generated data is distributed under the Unicode License v3; see
+`LICENSE-UNICODE`.
 
 ## Version 3 Alias Representation
 
@@ -171,6 +238,9 @@ Licensed under
 
 at your option.
 
+The optional subdivision dataset is derived from Unicode CLDR and distributed
+under the [Unicode License v3](LICENSE-UNICODE).
+
 ### Contribution
 
 Unless you explicitly state otherwise, any contribution intentionally submitted
@@ -184,7 +254,7 @@ licensed as above, without any additional terms or conditions.
 [docs-image]: https://docs.rs/celes/badge.svg
 [docs-link]: https://docs.rs/celes/
 [license-image]: https://img.shields.io/badge/license-Apache2.0/MIT-blue.svg
-[msrv-image]: https://img.shields.io/badge/rustc-1.85+-blue.svg
+[msrv-image]: https://img.shields.io/badge/rustc-1.97+-blue.svg
 [maintenance-image]: https://img.shields.io/badge/maintenance-passively--maintained-yellowgreen.svg
 [downloads-image]: https://img.shields.io/crates/d/celes.svg
 [coverage-image]: https://codecov.io/gh/mikelodder7/celes/graph/badge.svg

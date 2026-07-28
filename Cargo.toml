@@ -1,9 +1,9 @@
 [package]
 authors = ["Michael Lodder <redmike7@gmail.com>"]
 description = """
-Rust crate for handling ISO 3166-1.
+Rust crate for handling ISO 3166-1 and optionally ISO 3166-2.
 Each country has a three digit code, two letter code, three letter code,
-full state name, and short english aliases.
+full state name, short English aliases, and optional subdivision data.
 """
 documentation = "https://docs.rs/celes/"
 categories = ["encoding", "parsing"]
@@ -11,9 +11,11 @@ edition = "2024"
 homepage = "https://crates.io/crates/celes"
 include = [
     "src/*.rs",
+    "tools/*.rs",
     "Cargo.toml",
     "LICENSE-APACHE",
     "LICENSE-MIT",
+    "LICENSE-UNICODE",
     "README.md",
     "tests/*.rs",
 ]
@@ -22,7 +24,12 @@ license = "Apache-2.0 OR MIT"
 name = "celes"
 readme = "README.md"
 repository = "https://github.com/mikelodder7/celes"
+rust-version = "1.97"
 version = "3.0.0-pre0"
+
+[features]
+default = []
+subdivisions = []
 
 [dependencies]
 serde = { version = "1", default-features = false, features = ["derive"] }
@@ -35,6 +42,9 @@ serde_cbor_2 = "0.13"
 serde_json = "1.0"
 toml = "1"
 yaml_serde = "0.10"
+
+[package.metadata.docs.rs]
+all-features = true
 
 [lints.rust]
 missing_docs = "warn"

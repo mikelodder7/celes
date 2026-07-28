@@ -7,6 +7,9 @@
 //! [Country Codes](https://www.iban.com/country-codes)
 //! and [ISO-3166-1](https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes)
 //!
+//! Enable the `subdivisions` feature for current ISO 3166-2 subdivision codes
+//! and English names from Unicode CLDR.
+//!
 //! If there are any countries missing then please let me know or submit a PR
 //!
 //! The main struct is `Country` which provides the following properties
@@ -79,6 +82,12 @@
 //! assert_eq!("GB", Country::from_str("Scotland").unwrap().alpha2);
 //! assert_eq!("GB", Country::from_str("TheUnitedKingdomOfGreatBritainAndNorthernIreland").unwrap().alpha2);
 //! ```
+
+#[cfg(feature = "subdivisions")]
+mod subdivision;
+
+#[cfg(feature = "subdivisions")]
+pub use subdivision::{SUBDIVISION_DATA_VERSION, Subdivision, SubdivisionParseError};
 
 use core::{
     cmp::Ordering,
