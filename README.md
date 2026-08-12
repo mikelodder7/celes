@@ -10,9 +10,9 @@
 ![MSRV][msrv-image]
 
 Convenience crate for handling ISO 3166-1 and, optionally, ISO 3166-2 country
-subdivisions. Also compatible with `no-std` environments.
+subdivisions. It is also compatible with `no_std` environments.
 
-If there are any countries missing then please let me know or submit a PR
+If any countries are missing, please open an issue or submit a pull request.
 
 The minimum supported Rust version (MSRV) is 1.97.
 
@@ -25,20 +25,21 @@ The minimum supported Rust version (MSRV) is 1.97.
 Subdivision data is opt-in because the complete table is substantially larger
 than the ISO 3166-1 country table. Default builds do not compile or include it.
 
-The main struct is `Country` which provides the following properties
+The main struct is `Country`, which provides the following fields:
 
-- `code` - The three digit code for the country
-- `value` - The code as an integer
-- `alpha2` - The alpha2 letter set for the country
-- `alpha3` - The alpha3 letter set for the country
-- `long_name` - The official state name for the country
-- `aliases` - A static slice of other names by which the country is known. For example,
+- `code` - The three-digit numeric code for the country.
+- `value` - The numeric code as an integer.
+- `alpha2` - The alpha-2 country code.
+- `alpha3` - The alpha-3 country code.
+- `long_name` - The official state name of the country.
+- `aliases` - A static slice of other names by which the country is known.
 
-The Russian Federation is also called Russia or The United Kingdom of Great Britain
-and Northern Ireland is also called England, Great Britain,
-Northern Ireland, Scotland, and United Kingdom.
+For example, the Russian Federation is also called Russia. The United Kingdom
+of Great Britain and Northern Ireland has aliases including England, Great
+Britain, Northern Ireland, Scotland, and United Kingdom.
 
-Each country can be instantiated by using a function with the country name in snake case
+Each country can be created by calling a function whose name is the country's
+name in `snake_case`.
 
 ## Usage
 
@@ -46,39 +47,45 @@ Each country can be instantiated by using a function with the country name in sn
 use celes::Country;
 
 fn main() {
-     let gb = Country::the_united_kingdom_of_great_britain_and_northern_ireland();
-     println!("{}", gb);
+    let gb = Country::the_united_kingdom_of_great_britain_and_northern_ireland();
+    println!("{}", gb);
 
-     let usa = Country::the_united_states_of_america();
-     println!("{}", usa);
+    let usa = Country::the_united_states_of_america();
+    println!("{}", usa);
 }
 ```
 
-Additionally, each country can be created from a string or its numeric code.
-`Country` provides multiple from methods to instantiate it from a string:
+Each country can also be created from a string or its numeric code. `Country`
+provides several lookup methods:
 
-- `from_code` - create `Country` from three digit code
-- `from_value` - create `Country` from the numeric code as an integer
-- `from_alpha2` - create `Country` from two letter code
-- `from_alpha3` - create `Country` from three letter code
-- `from_alias` - create `Country` from a common alias. This only works for some countries as not all countries have aliases
-- `from_name` - create `Country` from the full state name no space or underscores
+- `from_code` - Creates a `Country` from a three-digit numeric code.
+- `from_value` - Creates a `Country` from a numeric code represented as an
+  integer.
+- `from_alpha2` - Creates a `Country` from an alpha-2 code.
+- `from_alpha3` - Creates a `Country` from an alpha-3 code.
+- `from_alias` - Creates a `Country` from a common alias. Not all countries
+  have aliases.
+- `from_name` - Creates a `Country` from its full state name without spaces or
+  underscores.
 
-`Country` implements the [core::str::FromStr](https://doc.rust-lang.org/core/str/trait.FromStr.html) trait that accepts any valid argument to the previously mentioned functions
-such as:
+`Country` implements the
+[`core::str::FromStr`](https://doc.rust-lang.org/core/str/trait.FromStr.html)
+trait. It accepts any string identifier supported by the lookup methods above,
+including:
 
-- The country aliases like UnitedKingdom, GreatBritain, Russia, America
-- The full country name
-- The numeric code (e.g. "840")
-- The alpha2 code
-- The alpha3 code
+- Country aliases such as `UnitedKingdom`, `GreatBritain`, `Russia`, and
+  `America`.
+- The full country name.
+- The numeric code, such as `"840"`.
+- The alpha-2 code.
+- The alpha-3 code.
 
-If you are uncertain which function to use, just use `Country::from_str` as it accepts
-any of the valid string values. `Country::from_str` is case-insensitive
+If you are uncertain which function to use, use `Country::from_str`; it accepts
+all valid string identifiers and is case-insensitive.
 
-All lookup methods return `Result<Country, CountryParseError>`. To check whether a
-specific country has an alias without performing a global lookup, use
-`country.has_alias("alias")`.
+All `from_*` lookup methods return `Result<Country, CountryParseError>`. To
+check whether a specific country has an alias without performing a global
+lookup, use `country.has_alias("alias")`.
 
 ## ISO 3166-2 Subdivisions
 
@@ -90,7 +97,27 @@ celes = { version = "3", features = ["subdivisions"] }
 ```
 
 The feature provides `Subdivision`, `SubdivisionParseError`,
-`Subdivision::subdivisions()`, and `Country::subdivisions()`:
+`Subdivision::subdivisions()`, `Subdivision::country()`, and
+`Country::subdivisions()`.
+
+### Parse a Subdivision
+
+```rust
+use celes::Subdivision;
+use core::str::FromStr;
+
+fn main() {
+    let california = Subdivision::from_str("US-CA").unwrap();
+    assert_eq!(california.code, "US-CA");
+    assert_eq!(california.name, "California");
+
+    // Codes are parsed using ASCII case-insensitive matching.
+    assert_eq!(Subdivision::from_code("us-ca").unwrap(), california);
+    assert!(Subdivision::from_code("US-ZZ").is_err());
+}
+```
+
+### Find a Subdivision's Country
 
 ```rust
 use celes::{Country, Subdivision};
@@ -98,19 +125,59 @@ use core::str::FromStr;
 
 fn main() {
     let california = Subdivision::from_str("US-CA").unwrap();
-    assert_eq!(california.name, "California");
+    assert_eq!(
+        california.country(),
+        Country::the_united_states_of_america()
+    );
+}
+```
 
-    // Codes are parsed using ASCII case-insensitive matching.
-    assert_eq!(Subdivision::from_code("us-ca").unwrap(), california);
+### List or Search a Country's Subdivisions
 
+```rust
+use celes::Country;
+
+fn main() {
     let united_states = Country::the_united_states_of_america();
-    assert!(united_states.subdivisions().contains(&california));
+    let subdivisions = united_states.subdivisions();
+
+    let new_york = subdivisions
+        .iter()
+        .find(|subdivision| subdivision.name == "New York")
+        .unwrap();
+
+    assert_eq!(new_york.code, "US-NY");
+    assert!(subdivisions.iter().all(|subdivision| {
+        subdivision.country() == united_states
+    }));
+}
+```
+
+### Iterate Over Every Subdivision
+
+```rust
+use celes::Subdivision;
+
+fn main() {
+    let subdivisions = Subdivision::subdivisions();
+
+    let mut japanese_subdivisions = subdivisions
+        .iter()
+        .filter(|subdivision| subdivision.code.starts_with("JP-"));
+
+    assert!(japanese_subdivisions
+        .all(|subdivision| subdivision.country() == celes::Country::japan()));
 }
 ```
 
 `Subdivision` serializes as its canonical uppercase code and deserializes from
 that code. Subdivision names are not used for parsing because many names are
-not globally unique.
+not globally unique. When the country is known, search the slice returned by
+`Country::subdivisions()` as shown above.
+
+Every resolved subdivision contains a validated country association.
+`Subdivision::country()` returns that `Country` directly using a precomputed
+index; it performs no string parsing and cannot fail.
 
 The bundled table contains 5,027 current subdivision codes from Unicode CLDR
 48.2. Deprecated CLDR codes are excluded, entries are sorted by code, and
@@ -214,34 +281,31 @@ use celes::Country;
 use core::str::FromStr;
 
 fn main() {
-     // All three of these are equivalent
-     let usa_1 = Country::from_str("USA").unwrap();
-     let usa_2 = Country::from_str("US").unwrap();
-     let usa_3 = Country::from_str("America").unwrap();
+    // All three of these are equivalent.
+    let usa_1 = Country::from_str("USA").unwrap();
+    let usa_2 = Country::from_str("US").unwrap();
+    let usa_3 = Country::from_str("America").unwrap();
 
-     // All three of these are equivalent
-     let gb_1 = Country::from_str("England").unwrap();
-     let gb_2 = Country::from_str("gb").unwrap();
-     let gb_3 = Country::from_str("Scotland").unwrap();
+    // All three of these are equivalent.
+    let gb_1 = Country::from_str("England").unwrap();
+    let gb_2 = Country::from_str("gb").unwrap();
+    let gb_3 = Country::from_str("Scotland").unwrap();
 }
 ```
-
 
 [Documentation][docs-link]
 
 ## License
 
-Licensed under
+This project is available under either of the following licenses:
 
-- [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0)
-- [MIT license](http://opensource.org/licenses/MIT)
-
-at your option.
+- [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0)
+- [MIT license](https://opensource.org/licenses/MIT)
 
 The optional subdivision dataset is derived from Unicode CLDR and distributed
 under the [Unicode License v3](LICENSE-UNICODE).
 
-### Contribution
+### Contributing
 
 Unless you explicitly state otherwise, any contribution intentionally submitted
 for inclusion in the work by you, as defined in the Apache-2.0 license, shall be

@@ -1,4 +1,4 @@
-//! Country tests
+//! Country tests.
 use celes::{Country, CountryParseError};
 use serde::{Deserialize, Serialize};
 use std::{

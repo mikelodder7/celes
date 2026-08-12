@@ -32,10 +32,11 @@ fn complete_data_supports_global_and_country_lookups() {
         country_total += country_subdivisions.len();
 
         assert!(country_subdivisions.iter().all(|subdivision| {
-            subdivision
-                .code
-                .strip_prefix(country.alpha2)
-                .is_some_and(|suffix| suffix.starts_with('-'))
+            subdivision.country() == *country
+                && subdivision
+                    .code
+                    .strip_prefix(country.alpha2)
+                    .is_some_and(|suffix| suffix.starts_with('-'))
         }));
     }
     assert_eq!(country_total, subdivisions.len());
@@ -46,11 +47,20 @@ fn complete_data_supports_global_and_country_lookups() {
 }
 
 #[test]
-fn codes_parse_case_insensitively() {
-    let california = Subdivision {
-        code: "US-CA",
-        name: "California",
-    };
+fn subdivisions_resolve_their_country() -> Result<(), Box<dyn Error>> {
+    let california = Subdivision::from_str("US-CA")?;
+
+    assert_eq!(
+        california.country(),
+        Country::the_united_states_of_america()
+    );
+
+    Ok(())
+}
+
+#[test]
+fn codes_parse_case_insensitively() -> Result<(), Box<dyn Error>> {
+    let california = Subdivision::from_code("US-CA")?;
 
     assert_eq!(Subdivision::from_code("US-CA"), Ok(california));
     assert_eq!(Subdivision::from_code("us-ca"), Ok(california));
@@ -77,6 +87,8 @@ fn codes_parse_case_insensitively() {
             subdivision.code
         );
     }
+
+    Ok(())
 }
 
 #[test]
@@ -91,25 +103,23 @@ fn traits_use_the_canonical_code() {
 
     let andorra = Subdivision::from_code("AD-02");
     let california = Subdivision::from_code("US-CA");
+    let lowercase_andorra = Subdivision::from_code("ad-02");
 
     assert!(andorra.is_ok());
     assert!(california.is_ok());
+    assert!(lowercase_andorra.is_ok());
 
-    if let (Ok(andorra), Ok(california)) = (andorra, california) {
+    if let (Ok(andorra), Ok(california), Ok(lowercase_andorra)) =
+        (andorra, california, lowercase_andorra)
+    {
         assert!(andorra < california);
-        assert_eq!(
-            andorra,
-            Subdivision {
-                code: "AD-02",
-                name: "A different display name",
-            }
-        );
+        assert_eq!(andorra, lowercase_andorra);
         assert_eq!(andorra.to_string(), "AD-02");
         assert_eq!(
             format!("{andorra:?}"),
-            "Subdivision { code: \"AD-02\", name: \"Canillo\" }"
+            "Subdivision { code: \"AD-02\", name: \"Canillo\", .. }"
         );
-        assert_eq!(size_of::<Subdivision>(), 4 * size_of::<usize>());
+        assert_eq!(size_of::<Subdivision>(), 5 * size_of::<usize>());
 
         let mut hasher = DefaultHasher::new();
         andorra.hash(&mut hasher);

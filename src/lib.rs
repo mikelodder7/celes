@@ -3,65 +3,63 @@
     SPDX-License-Identifier: Apache-2.0 OR MIT
 */
 #![no_std]
-//! Rust implementation of Countries as specified by
+//! Rust implementation of countries as specified by
 //! [Country Codes](https://www.iban.com/country-codes)
-//! and [ISO-3166-1](https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes)
+//! and [ISO 3166-1](https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes)
 //!
 //! Enable the `subdivisions` feature for current ISO 3166-2 subdivision codes
 //! and English names from Unicode CLDR.
 //!
-//! If there are any countries missing then please let me know or submit a PR
+//! If any countries are missing, please open an issue or submit a pull request.
 //!
-//! The main struct is `Country` which provides the following properties
+//! The main struct is [`Country`], which provides the following fields:
 //!
-//! `code` - The three digit code for the country
-//! `value` - The code as an integer
-//! `alpha2` - The alpha2 letter set for the country
-//! `alpha3` - The alpha3 letter set for the country
-//! `long_name` - The official state name for the country
-//! `aliases` - Other names by which the country is known. For example,
-//! The Russian Federation is also called Russia or The United Kingdom of Great Britain
-//! and Northern Ireland is also called England, Great Britain,
-//! Northern Ireland, Scotland, and United Kingdom.
+//! - `code` - The three-digit numeric code for the country.
+//! - `value` - The numeric code as an integer.
+//! - `alpha2` - The alpha-2 country code.
+//! - `alpha3` - The alpha-3 country code.
+//! - `long_name` - The official state name of the country.
+//! - `aliases` - Other names by which the country is known.
 //!
-//! Each country can be instantiated by using a function with the country name in snake case
+//! Each country can be created by calling a function whose name is the country's
+//! name in `snake_case`.
 //!
 //! ## Usage
 //!
 //! ```
 //! use celes::Country;
 //!
+//! let gb = Country::the_united_kingdom_of_great_britain_and_northern_ireland();
+//! println!("{}", gb);
 //!
-//!  let gb = Country::the_united_kingdom_of_great_britain_and_northern_ireland();
-//!  println!("{}", gb);
-//!
-//!  let usa = Country::the_united_states_of_america();
-//!  println!("{}", usa);
-//!
+//! let usa = Country::the_united_states_of_america();
+//! println!("{}", usa);
 //! ```
 //!
-//! Additionally, each country can be created from a string or its numeric code.
-//! `Country` provides multiple from methods to instantiate it from a string:
+//! Each country can also be created from a string or its numeric code. [`Country`]
+//! provides several lookup methods:
 //!
-//! - `from_code` - create `Country` from three digit code
-//! - `from_value` - create `Country` from the numeric code as an integer
-//! - `from_alpha2` - create `Country` from two letter code
-//! - `from_alpha3` - create `Country` from three letter code
-//! - `from_alias` - create `Country` from a common alias stripped of any spaces or
-//!   underscores. This only works for some countries as not all countries have aliases
-//! - `from_name` - create `Country` from the full state name no space or underscores
+//! - [`Country::from_code`] - Creates a country from a three-digit numeric code.
+//! - [`Country::from_value`] - Creates a country from a numeric code represented
+//!   as an integer.
+//! - [`Country::from_alpha2`] - Creates a country from an alpha-2 code.
+//! - [`Country::from_alpha3`] - Creates a country from an alpha-3 code.
+//! - [`Country::from_alias`] - Creates a country from a common alias.
+//! - [`Country::from_name`] - Creates a country from its full state name without spaces or
+//!   underscores.
 //!
-//! `Country` implements the [core::str::FromStr](https://doc.rust-lang.org/core/str/trait.FromStr.html) trait that accepts any valid argument to the previously mentioned functions
-//! such as:
+//! [`Country`] implements [`core::str::FromStr`]. It accepts any string identifier
+//! supported by the lookup methods above, including:
 //!
-//! - The country aliases like `UnitedKingdom`, `GreatBritain`, Russia, America
-//! - The full country name
-//! - The numeric code (e.g. "840")
-//! - The alpha2 code
-//! - The alpha3 code
+//! - Country aliases such as `UnitedKingdom`, `GreatBritain`, `Russia`, and
+//!   `America`.
+//! - The full country name.
+//! - The numeric code, such as `"840"`.
+//! - The alpha-2 code.
+//! - The alpha-3 code.
 //!
-//! If you are uncertain which function to use, just use `Country::from_str` as it accepts
-//! any of the valid string values. `Country::from_str` is case-insensitive
+//! If you are uncertain which function to use, use [`Country::from_str`]; it accepts
+//! all valid string identifiers and is case-insensitive.
 //!
 //! ## From String Example
 //!
@@ -69,18 +67,44 @@
 //! use celes::Country;
 //! use core::str::FromStr;
 //!
-//! // All of these are equivalent
+//! // All of these are equivalent.
 //! assert_eq!("US", Country::from_str("USA").unwrap().alpha2);
 //! assert_eq!("US", Country::from_str("US").unwrap().alpha2);
 //! assert_eq!("US", Country::from_str("America").unwrap().alpha2);
 //! assert_eq!("US", Country::from_str("UnitedStates").unwrap().alpha2);
 //! assert_eq!("US", Country::from_str("TheUnitedStatesOfAmerica").unwrap().alpha2);
 //!
-//! // All of these are equivalent
+//! // All of these are equivalent.
 //! assert_eq!("GB", Country::from_str("England").unwrap().alpha2);
 //! assert_eq!("GB", Country::from_str("gb").unwrap().alpha2);
 //! assert_eq!("GB", Country::from_str("Scotland").unwrap().alpha2);
 //! assert_eq!("GB", Country::from_str("TheUnitedKingdomOfGreatBritainAndNorthernIreland").unwrap().alpha2);
+//! ```
+//!
+//! ## Subdivision Example
+//!
+//! Enable the `subdivisions` feature to parse ISO 3166-2 codes, find their
+//! countries, and list the subdivisions belonging to a country.
+//!
+//! ```
+//! # #[cfg(feature = "subdivisions")]
+//! # {
+//! use celes::{Country, Subdivision};
+//! use core::str::FromStr;
+//!
+//! let california = Subdivision::from_str("US-CA").unwrap();
+//! assert_eq!(california.name, "California");
+//! assert_eq!(
+//!     california.country(),
+//!     Country::the_united_states_of_america()
+//! );
+//!
+//! let canada = Country::canada();
+//! assert!(canada
+//!     .subdivisions()
+//!     .iter()
+//!     .any(|subdivision| subdivision.code == "CA-ON"));
+//! # }
 //! ```
 
 #[cfg(feature = "subdivisions")]
@@ -103,10 +127,10 @@ use serde::{
 
 type CountryConstructor = fn() -> Country;
 
-/// Perform a PHF map lookup with ASCII-lowercased input, avoiding heap allocation.
+/// Performs a PHF map lookup with ASCII-lowercased input without allocating.
 fn lookup_ascii_lowercase<'a, V>(map: &'a Map<&'static str, V>, key: &str) -> Option<&'a V> {
-    // Stack buffer large enough for the longest key in any map
-    // ("theunitedkingdomofgreatbritainandnorthernireland" = 48 chars)
+    // This stack buffer is large enough for the longest key in any map
+    // ("theunitedkingdomofgreatbritainandnorthernireland" is 48 characters).
     let mut buf = [0u8; 64];
     if key.len() <= buf.len() {
         let buf = &mut buf[..key.len()];
@@ -119,13 +143,13 @@ fn lookup_ascii_lowercase<'a, V>(map: &'a Map<&'static str, V>, key: &str) -> Op
     }
 }
 
-/// Creates the country function. Meant to be called inside `Country`
+/// Generates a country constructor for use within `Country`.
 macro_rules! country {
     ($func:ident, $code:expr, $value:expr, $alpha2:expr, $alpha3:expr, $long_name:expr) => {
-        country!{ @gen [concat!("Creates a struct for ", $long_name), $func, $code, $value, $alpha2, $alpha3, $long_name] }
+        country!{ @gen [concat!("Returns the country entry for ", $long_name, "."), $func, $code, $value, $alpha2, $alpha3, $long_name] }
     };
     ($func:ident, $code:expr, $value:expr, $alpha2:expr, $alpha3:expr, $long_name:expr, $( $alias:expr  ),+) => {
-        country!{ @gen [concat!("Creates a struct for ", $long_name), $func, $code, $value, $alpha2, $alpha3, $long_name, $( $alias ),+ ] }
+        country!{ @gen [concat!("Returns the country entry for ", $long_name, "."), $func, $code, $value, $alpha2, $alpha3, $long_name, $( $alias ),+ ] }
     };
     (@gen [$doc:expr, $func:ident, $code:expr, $value:expr, $alpha2:expr, $alpha3:expr, $long_name:expr]) => {
         #[doc = $doc]
@@ -183,20 +207,20 @@ pub enum CountryParseError {
     UnknownIdentifier,
 }
 
-/// Represents a country according to ISO 3166
+/// Represents a country according to ISO 3166.
 #[derive(Copy, Clone)]
 pub struct Country {
-    /// The three digit code assigned to the country
+    /// The three-digit numeric code assigned to the country.
     pub code: &'static str,
-    /// The integer value for `code`
+    /// The integer value of [`Self::code`].
     pub value: usize,
-    /// The two letter country code (alpha-2) assigned to the country
+    /// The two-letter country code (alpha-2) assigned to the country.
     pub alpha2: &'static str,
-    /// The three letter country code (alpha-3) assigned to the country
+    /// The three-letter country code (alpha-3) assigned to the country.
     pub alpha3: &'static str,
-    /// The official state name of the country
+    /// The official state name of the country.
     pub long_name: &'static str,
-    /// Common aliases associated with the country
+    /// Common aliases associated with the country.
     pub aliases: &'static [&'static str],
 }
 
@@ -263,7 +287,7 @@ impl<'de> Deserialize<'de> for Country {
             type Value = Country;
 
             fn expecting(&self, f: &mut Formatter<'_>) -> FmtResult {
-                write!(f, "a two letter string")
+                write!(f, "an ISO 3166-1 alpha-2 country code")
             }
 
             fn visit_str<E>(self, s: &str) -> Result<Self::Value, E>
@@ -1326,7 +1350,7 @@ impl Country {
 
     country!(zimbabwe, "716", 716, "ZW", "ZWE", "Zimbabwe");
 
-    /// Creates a struct for Türkiye
+    /// Returns Türkiye under its former English short name.
     #[deprecated(
         since = "2.8.0",
         note = "Turkey was renamed to Türkiye in 2022. Use Country::turkiye() instead."
@@ -1337,17 +1361,16 @@ impl Country {
         Self::turkiye()
     }
 
-    /// Returns an array in alphabetic order of all the countries.
+    /// Returns an array of all countries in alphabetical order.
     ///
-    /// Use [`Country::countries`] when a borrowed view is sufficient to avoid copying
-    /// the entire array.
+    /// Use [`Country::countries`] when a borrowed view is sufficient to avoid
+    /// copying the entire array.
     ///
     /// ```
     /// use celes::Country;
     /// use std::collections::BTreeMap;
     ///
     /// let countries = Country::get_countries();
-    ///
     ///
     /// for c in &countries {
     ///     println!("{}", c);
@@ -1358,19 +1381,22 @@ impl Country {
     /// }
     ///
     /// for c in countries.iter().filter(|cty| cty.value < 300) {
-    ///     println!("{}", c.long_name)
+    ///     println!("{}", c.long_name);
     /// }
     ///
-    /// //Convert to a map
-    /// let lookup = countries.iter().map(|cty| (cty.alpha2.to_string(), *cty)).collect::<BTreeMap<String, Country>>();
-    ///
+    /// // Convert the array into a map.
+    /// let lookup = countries
+    ///     .iter()
+    ///     .map(|cty| (cty.alpha2.to_string(), *cty))
+    ///     .collect::<BTreeMap<String, Country>>();
+    /// assert_eq!(lookup.get("US"), Some(&Country::the_united_states_of_america()));
     /// ```
     #[must_use]
     pub const fn get_countries() -> [Self; 250] {
         COUNTRIES
     }
 
-    /// Returns a borrowed array in alphabetic order of all the countries.
+    /// Returns a borrowed array of all countries in alphabetical order.
     #[must_use]
     pub const fn countries() -> &'static [Self; 250] {
         &COUNTRIES
@@ -1384,8 +1410,7 @@ impl Country {
             .any(|candidate| alias.eq_ignore_ascii_case(candidate))
     }
 
-    /// Given the numeric code, return a country or an error if
-    /// the parameter doesn't match any country
+    /// Returns the country with the given numeric code.
     ///
     /// # Errors
     ///
@@ -1413,9 +1438,9 @@ impl Country {
             .ok_or(CountryParseError::InvalidValue)
     }
 
-    /// Given the three digit code, return a country or an error if
-    /// the parameter doesn't match any country. The value MUST be
-    /// the three digit code which includes leading zeros.
+    /// Returns the country with the given three-digit numeric code.
+    ///
+    /// The code must include any leading zeros.
     ///
     /// # Errors
     ///
@@ -1443,12 +1468,13 @@ impl Country {
             .ok_or(CountryParseError::InvalidCode)
     }
 
-    /// Given the alpha2 letters, return a country or an error if
-    /// the parameter doesn't match any country. This is case-insensitive.
+    /// Returns the country with the given alpha-2 code.
+    ///
+    /// Matching is ASCII case-insensitive.
     ///
     /// # Errors
     ///
-    /// Returns an error if the alpha2 code does not match any known country.
+    /// Returns an error if the alpha-2 code does not match any known country.
     ///
     /// ```
     /// use celes::Country;
@@ -1476,12 +1502,13 @@ impl Country {
             .ok_or(CountryParseError::InvalidAlpha2)
     }
 
-    /// Given the alpha3 letters, return a country or an error if
-    /// the parameter doesn't match any country. This is case-insensitive.
+    /// Returns the country with the given alpha-3 code.
+    ///
+    /// Matching is ASCII case-insensitive.
     ///
     /// # Errors
     ///
-    /// Returns an error if the alpha3 code does not match any known country.
+    /// Returns an error if the alpha-3 code does not match any known country.
     ///
     /// ```
     /// use celes::Country;
@@ -1508,12 +1535,12 @@ impl Country {
             .ok_or(CountryParseError::InvalidAlpha3)
     }
 
-    /// Given a country alias, return a country or an error if
-    /// the parameter doesn't match any country
+    /// Returns the country with the given alias.
     ///
     /// The alias is any value in the `aliases` field for a country.
-    /// For example, "america" would return `the_united_states_of_america`
-    /// This is case-insensitive.
+    /// For example, `"america"` returns
+    /// [`Country::the_united_states_of_america`]. Matching is ASCII
+    /// case-insensitive.
     ///
     /// # Errors
     ///
@@ -1544,11 +1571,10 @@ impl Country {
             .ok_or(CountryParseError::InvalidAlias)
     }
 
-    /// Given the country name, return a country or an error if
-    /// the parameter doesn't match any country.  This is case-insensitive.
+    /// Returns the country with the given official name.
     ///
-    /// For example, Albania, Algeria, Brazil would return the country
-    /// struct that represents those countries.
+    /// Matching is ASCII case-insensitive. For example, `"Albania"`,
+    /// `"Algeria"`, and `"Brazil"` return their corresponding countries.
     ///
     /// # Errors
     ///

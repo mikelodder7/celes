@@ -222,7 +222,7 @@ fn render(subdivisions: &[Subdivision]) -> Result<String, Box<dyn Error>> {
     for subdivision in subdivisions {
         writeln!(
             output,
-            "    Subdivision {{ code: {:?}, name: {:?} }},",
+            "    subdivision!({:?}, {:?}),",
             subdivision.code, subdivision.name
         )?;
     }
