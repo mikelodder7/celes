@@ -309,3 +309,23 @@ impl<'de> Deserialize<'de> for Subdivision {
         deserializer.deserialize_str(SubdivisionVisitor)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::{Country, alpha2_index, country_indexes_by_alpha2, letter_index};
+
+    #[test]
+    fn compile_time_country_indexes_are_complete() {
+        for (expected, letter) in (b'A'..=b'Z').enumerate() {
+            assert_eq!(letter_index(letter), expected);
+        }
+        assert_eq!(letter_index(b'?'), 26);
+        assert_eq!(alpha2_index(""), 0);
+        assert_eq!(alpha2_index("AD-02"), 3);
+
+        let country_indexes = country_indexes_by_alpha2();
+        for (expected, country) in Country::countries().iter().enumerate() {
+            assert_eq!(country_indexes[alpha2_index(country.alpha2)], expected);
+        }
+    }
+}
