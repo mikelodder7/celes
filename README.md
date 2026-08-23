@@ -25,6 +25,16 @@ The minimum supported Rust version (MSRV) is 1.97.
 Subdivision data is opt-in because the complete table is substantially larger
 than the ISO 3166-1 country table. Default builds do not compile or include it.
 
+## Data provenance
+
+The country table is verified against its source: `tests/iso_oracle.rs`
+compares every (alpha2, alpha3, numeric) triple with a committed snapshot of
+the Debian [iso-codes](https://salsa.debian.org/iso-codes-team/iso-codes)
+project's ISO 3166-1 data, so an ISO amendment or a table edit fails the test
+suite instead of drifting silently. The snapshot is repository-only and not
+part of the published crate; `XK` (Kosovo, a user-assigned code) is the one
+documented entry beyond the standard.
+
 The main struct is `Country`, which provides the following fields:
 
 - `code` - The three-digit numeric code for the country.
