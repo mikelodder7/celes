@@ -5,6 +5,7 @@ use core::{
     str::FromStr,
 };
 
+#[cfg(feature = "serde")]
 use serde::{
     Deserialize, Deserializer, Serialize, Serializer,
     de::{Error as DeserializeError, Visitor},
@@ -273,6 +274,7 @@ impl FromStr for Subdivision {
     }
 }
 
+#[cfg(feature = "serde")]
 impl Serialize for Subdivision {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
@@ -282,6 +284,7 @@ impl Serialize for Subdivision {
     }
 }
 
+#[cfg(feature = "serde")]
 impl<'de> Deserialize<'de> for Subdivision {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where

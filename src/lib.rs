@@ -120,6 +120,7 @@ use core::{
     str::FromStr,
 };
 use phf::{Map, phf_map};
+#[cfg(feature = "serde")]
 use serde::{
     Deserialize, Deserializer, Serialize, Serializer,
     de::{Error as DError, Visitor},
@@ -268,6 +269,7 @@ impl PartialEq for Country {
     }
 }
 
+#[cfg(feature = "serde")]
 impl Serialize for Country {
     fn serialize<S>(&self, s: S) -> Result<S::Ok, S::Error>
     where
@@ -277,6 +279,7 @@ impl Serialize for Country {
     }
 }
 
+#[cfg(feature = "serde")]
 impl<'de> Deserialize<'de> for Country {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where

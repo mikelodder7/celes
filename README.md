@@ -20,7 +20,13 @@ The minimum supported Rust version (MSRV) is 1.97.
 
 | Feature | Default | Description |
 | --- | --- | --- |
+| `serde` | Yes | `Serialize`/`Deserialize` for `Country` (and `Subdivision`) as their codes. |
 | `subdivisions` | No | Adds current ISO 3166-2 codes and English subdivision names from Unicode CLDR. |
+
+Disabling `serde` (via `default-features = false`) removes the serde
+dependency from the tree entirely; the crate's own impls need no derive
+macro, so minimal and embedded builds pay nothing for serialization they
+do not use.
 
 Subdivision data is opt-in because the complete table is substantially larger
 than the ISO 3166-1 country table. Default builds do not compile or include it.
