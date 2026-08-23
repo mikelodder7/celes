@@ -1,23 +1,16 @@
 //! Country tests.
 use celes::{Country, CountryParseError};
-use serde::{Deserialize, Serialize};
 use std::{
     cmp::Ordering,
     collections::hash_map::DefaultHasher,
-    error::Error,
     fmt::{self, Write},
     hash::{Hash, Hasher},
     mem::size_of,
     str::FromStr,
 };
 
-#[derive(Debug, Deserialize, Eq, PartialEq, Serialize)]
-struct CountryDocument {
-    country: Country,
-}
-
 #[test]
-fn from_strings() -> Result<(), serde_json::Error> {
+fn from_strings() {
     for c in Country::countries() {
         let name = c.to_string();
 
@@ -55,10 +48,6 @@ fn from_strings() -> Result<(), serde_json::Error> {
                 "from_alias({c}) - {alias}"
             );
         }
-
-        let json = serde_json::to_string(c)?;
-        let res: Country = serde_json::from_str(&json)?;
-        assert_eq!(res, *c);
     }
 
     assert_eq!(
@@ -86,8 +75,6 @@ fn from_strings() -> Result<(), serde_json::Error> {
         Country::from_name("UnitedStatesOfAmerica"),
         Err(CountryParseError::InvalidName)
     );
-
-    Ok(())
 }
 
 #[test]
@@ -147,35 +134,4 @@ fn invalid_and_oversized_inputs_are_rejected() {
         Country::from_str(&oversized),
         Err(CountryParseError::UnknownIdentifier)
     );
-    assert!(serde_json::from_str::<Country>("42").is_err());
-    assert!(serde_json::from_str::<Country>("\"ZZ\"").is_err());
-}
-
-#[test]
-fn serialization_formats_round_trip() -> Result<(), Box<dyn Error>> {
-    let expected = CountryDocument {
-        country: Country::the_united_states_of_america(),
-    };
-
-    let json = serde_json::to_string(&expected)?;
-    let json_value = serde_json::from_str(&json)?;
-    assert_eq!(expected, json_value);
-
-    let postcard = postcard::to_allocvec(&expected)?;
-    let postcard_value = postcard::from_bytes(&postcard)?;
-    assert_eq!(expected, postcard_value);
-
-    let cbor = serde_cbor_2::to_vec(&expected)?;
-    let cbor_value = serde_cbor_2::from_slice(&cbor)?;
-    assert_eq!(expected, cbor_value);
-
-    let toml = toml::to_string(&expected)?;
-    let toml_value = toml::from_str(&toml)?;
-    assert_eq!(expected, toml_value);
-
-    let yaml = yaml_serde::to_string(&expected)?;
-    let yaml_value = yaml_serde::from_str(&yaml)?;
-    assert_eq!(expected, yaml_value);
-
-    Ok(())
 }

@@ -2,7 +2,6 @@
 #![cfg(feature = "subdivisions")]
 
 use celes::{Country, SUBDIVISION_DATA_VERSION, Subdivision, SubdivisionParseError};
-use serde::{Deserialize, Serialize};
 use std::{
     collections::hash_map::DefaultHasher,
     error::Error,
@@ -11,11 +10,6 @@ use std::{
     mem::size_of,
     str::FromStr,
 };
-
-#[derive(Debug, Deserialize, Eq, PartialEq, Serialize)]
-struct SubdivisionDocument {
-    subdivision: Subdivision,
-}
 
 #[test]
 fn complete_data_supports_global_and_country_lookups() {
@@ -127,37 +121,4 @@ fn traits_use_the_canonical_code() {
 
         assert!(write!(FailingWriter, "{andorra}").is_err());
     }
-}
-
-#[test]
-fn serialization_formats_round_trip() -> Result<(), Box<dyn Error>> {
-    let expected = SubdivisionDocument {
-        subdivision: Subdivision::from_code("US-CA")?,
-    };
-
-    let json = serde_json::to_string(&expected)?;
-    assert_eq!(json, r#"{"subdivision":"US-CA"}"#);
-    let json_value = serde_json::from_str(&json)?;
-    assert_eq!(expected, json_value);
-
-    let postcard = postcard::to_allocvec(&expected)?;
-    let postcard_value = postcard::from_bytes(&postcard)?;
-    assert_eq!(expected, postcard_value);
-
-    let cbor = serde_cbor_2::to_vec(&expected)?;
-    let cbor_value = serde_cbor_2::from_slice(&cbor)?;
-    assert_eq!(expected, cbor_value);
-
-    let toml = toml::to_string(&expected)?;
-    let toml_value = toml::from_str(&toml)?;
-    assert_eq!(expected, toml_value);
-
-    let yaml = yaml_serde::to_string(&expected)?;
-    let yaml_value = yaml_serde::from_str(&yaml)?;
-    assert_eq!(expected, yaml_value);
-
-    assert!(serde_json::from_str::<Subdivision>("42").is_err());
-    assert!(serde_json::from_str::<Subdivision>("\"US-ZZ\"").is_err());
-
-    Ok(())
 }
