@@ -33,9 +33,9 @@ serde = ["dep:serde"]
 subdivisions = []
 
 [dependencies]
+derive_more = { version = "2.1.1", default-features = false, features = ["debug", "display", "error"] }
 serde = { version = "1", default-features = false, optional = true }
 phf = { version = "0.14", default-features = false, features = ["macros"] }
-thiserror = { version = "2", default-features = false }
 
 [dev-dependencies]
 postcard = { version = "1", default-features = false, features = ["alloc"] }

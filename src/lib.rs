@@ -115,7 +115,7 @@ pub use subdivision::{SUBDIVISION_DATA_VERSION, Subdivision, SubdivisionParseErr
 
 use core::{
     cmp::Ordering,
-    fmt::{Debug, Display, Formatter, Result as FmtResult, Write},
+    fmt::{Display, Formatter, Result as FmtResult, Write},
     hash::{Hash, Hasher},
     str::FromStr,
 };
@@ -183,33 +183,33 @@ macro_rules! country {
 }
 
 /// An error returned when a value cannot be resolved to a country.
-#[derive(Copy, Clone, Debug, Eq, PartialEq, thiserror::Error)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq, derive_more::Display, derive_more::Error)]
 pub enum CountryParseError {
     /// The numeric ISO 3166-1 value is unknown.
-    #[error("invalid country value")]
+    #[display("invalid country value")]
     InvalidValue,
     /// The three-digit ISO 3166-1 code is unknown.
-    #[error("invalid country code")]
+    #[display("invalid country code")]
     InvalidCode,
     /// The alpha-2 ISO 3166-1 code is unknown.
-    #[error("invalid alpha-2 country code")]
+    #[display("invalid alpha-2 country code")]
     InvalidAlpha2,
     /// The alpha-3 ISO 3166-1 code is unknown.
-    #[error("invalid alpha-3 country code")]
+    #[display("invalid alpha-3 country code")]
     InvalidAlpha3,
     /// The country alias is unknown.
-    #[error("invalid country alias")]
+    #[display("invalid country alias")]
     InvalidAlias,
     /// The official country name is unknown.
-    #[error("invalid country name")]
+    #[display("invalid country name")]
     InvalidName,
     /// The general country identifier is unknown.
-    #[error("unknown country identifier")]
+    #[display("unknown country identifier")]
     UnknownIdentifier,
 }
 
 /// Represents a country according to ISO 3166.
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 pub struct Country {
     /// The three-digit numeric code assigned to the country.
     pub code: &'static str,
@@ -223,19 +223,6 @@ pub struct Country {
     pub long_name: &'static str,
     /// Common aliases associated with the country.
     pub aliases: &'static [&'static str],
-}
-
-impl Debug for Country {
-    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
-        f.debug_struct("Country")
-            .field("code", &self.code)
-            .field("value", &self.value)
-            .field("alpha2", &self.alpha2)
-            .field("alpha3", &self.alpha3)
-            .field("long_name", &self.long_name)
-            .field("aliases", &self.aliases)
-            .finish()
-    }
 }
 
 impl Display for Country {

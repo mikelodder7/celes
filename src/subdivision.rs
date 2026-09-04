@@ -1,6 +1,6 @@
 use core::{
     cmp::Ordering,
-    fmt::{Debug, Display, Formatter, Result as FmtResult},
+    fmt::{Display, Formatter, Result as FmtResult},
     hash::{Hash, Hasher},
     str::FromStr,
 };
@@ -14,10 +14,10 @@ use serde::{
 use crate::Country;
 
 /// An error returned when a value cannot be resolved to an ISO 3166-2 subdivision.
-#[derive(Copy, Clone, Debug, Eq, PartialEq, thiserror::Error)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq, derive_more::Display, derive_more::Error)]
 pub enum SubdivisionParseError {
     /// The ISO 3166-2 code is unknown.
-    #[error("invalid subdivision code")]
+    #[display("invalid subdivision code")]
     InvalidCode,
 }
 
@@ -26,12 +26,13 @@ pub enum SubdivisionParseError {
 /// Resolve a subdivision with [`Subdivision::from_code`], [`FromStr`], or one
 /// of the subdivision-list methods. Each resolved value contains a validated
 /// country association.
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, derive_more::Debug)]
 pub struct Subdivision {
     /// The full ISO 3166-2 code, such as `US-CA`.
     pub code: &'static str,
     /// The English subdivision name supplied by Unicode CLDR.
     pub name: &'static str,
+    #[debug(skip)]
     country_index: usize,
 }
 
@@ -191,16 +192,6 @@ impl Subdivision {
 impl Ord for Subdivision {
     fn cmp(&self, other: &Self) -> Ordering {
         self.code.cmp(other.code)
-    }
-}
-
-impl Debug for Subdivision {
-    fn fmt(&self, formatter: &mut Formatter<'_>) -> FmtResult {
-        formatter
-            .debug_struct("Subdivision")
-            .field("code", &self.code)
-            .field("name", &self.name)
-            .finish_non_exhaustive()
     }
 }
 
