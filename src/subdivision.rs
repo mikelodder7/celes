@@ -25,7 +25,7 @@ pub enum SubdivisionParseError {
 ///
 /// Resolve a subdivision with [`Subdivision::from_code`], [`FromStr`], or one
 /// of the subdivision-list methods. Each resolved value contains a validated
-/// country association.
+/// country association. Equality, ordering, and hashing use [`Self::code`].
 #[derive(Copy, Clone, derive_more::Debug)]
 pub struct Subdivision {
     /// The full ISO 3166-2 code, such as `US-CA`.

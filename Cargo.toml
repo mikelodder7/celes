@@ -13,6 +13,7 @@ include = [
     "src/*.rs",
     "tools/*.rs",
     "Cargo.toml",
+    "CHANGELOG.md",
     "LICENSE-APACHE",
     "LICENSE-MIT",
     "LICENSE-UNICODE",
@@ -25,7 +26,7 @@ name = "celes"
 readme = "README.md"
 repository = "https://github.com/mikelodder7/celes"
 rust-version = "1.97"
-version = "3.0.0-rc0"
+version = "3.0.0"
 
 [features]
 default = ["serde"]

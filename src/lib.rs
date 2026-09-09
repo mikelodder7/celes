@@ -12,6 +12,16 @@
 //!
 //! If any countries are missing, please open an issue or submit a pull request.
 //!
+//! ## Cargo features
+//!
+//! - `serde` (enabled by default) implements serialization and deserialization
+//!   using canonical country and subdivision codes.
+//! - `subdivisions` adds current ISO 3166-2 codes and English names from Unicode
+//!   CLDR.
+//!
+//! Disable default features to use the core country API without serde. All core
+//! lookups are allocation-free and compatible with `no_std`.
+//!
 //! The main struct is [`Country`], which provides the following fields:
 //!
 //! - `code` - The three-digit numeric code for the country.
@@ -209,6 +219,10 @@ pub enum CountryParseError {
 }
 
 /// Represents a country according to ISO 3166.
+///
+/// Equality, ordering, and hashing use the numeric ISO 3166-1 [`Self::value`].
+/// The slice returned by [`Self::countries`] is instead ordered alphabetically
+/// by country name.
 #[derive(Copy, Clone, Debug)]
 pub struct Country {
     /// The three-digit numeric code assigned to the country.

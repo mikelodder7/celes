@@ -16,6 +16,13 @@ If any countries are missing, please open an issue or submit a pull request.
 
 The minimum supported Rust version (MSRV) is 1.97.
 
+## Installation
+
+```toml
+[dependencies]
+celes = "3"
+```
+
 ## Features
 
 | Feature | Default | Description |
@@ -208,7 +215,22 @@ Update the generator's `CLDR_VERSION` and this README when changing CLDR
 releases. The generated data is distributed under the Unicode License v3; see
 `LICENSE-UNICODE`.
 
-## Version 3 Alias Representation
+## Migrating from Version 2 to Version 3
+
+Version 3 adds optional ISO 3166-2 subdivisions, typed parse errors, an
+optional serde dependency, and allocation-free country lookups. It also makes
+the following breaking changes:
+
+| Version 2 | Version 3 | Migration |
+| --- | --- | --- |
+| `Country::aliases: CountryTable` | `Country::aliases: &'static [&'static str]` | Iterate over the slice or call `Country::has_alias`. |
+| Lookup errors were `&'static str` | Lookup errors are `CountryParseError` | Match the relevant error variant instead of an error string. |
+| `Country` ordering used `long_name` | `Country` ordering uses the numeric ISO value | Sort explicitly by `long_name` when alphabetical order is required. |
+| `Country::turkey()` was canonical | `Country::turkiye()` is canonical | Use `turkiye`; `turkey` remains as a deprecated compatibility constructor. |
+
+See the [changelog](CHANGELOG.md) for the complete release summary.
+
+### Alias Representation
 
 Version 3 replaces the alias-table type hierarchy from version 2 with static
 slices. A country now stores its aliases directly:
@@ -242,7 +264,7 @@ The new representation:
 - Removes the dispatch and storage overhead of the old enum.
 - Lets aliases be accessed using normal slice operations.
 
-### Migrating from Version 2
+### Alias Migration
 
 Iterating over aliases remains straightforward:
 
